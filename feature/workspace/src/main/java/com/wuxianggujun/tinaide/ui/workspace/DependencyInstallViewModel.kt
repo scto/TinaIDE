@@ -510,6 +510,10 @@ class DependencyInstallViewModel(
         // 标记应该由用户点击"完成"按钮时通过 onInstallComplete() 设置
     }
 
+    fun refreshRootfsHealth() {
+        refreshRootfsHealthSnapshot()
+    }
+
     private fun refreshRootfsHealthSnapshot() {
         if (!installLinuxEnvironment) return
 

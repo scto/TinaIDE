@@ -375,7 +375,8 @@ fun InstallCompletedContent(
     rootfsHealth: DependencyRootfsHealthUiState = DependencyRootfsHealthUiState(),
     isRepairMode: Boolean = false,
     onEnterWorkspace: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onRefreshRootfsHealth: (() -> Unit)? = null,
 ) {
     val hasLinuxRuntime = installedComponents.any { it.iconRes == Drawables.ic_linux_default }
     val runtimeEnvValue = if (hasLinuxRuntime) {
@@ -417,6 +418,12 @@ fun InstallCompletedContent(
     val rootfsHealthSubtitle = listOf(rootfsHealthStatusText, rootfsHealth.detailText)
         .filter { value -> value.isNotBlank() }
         .joinToString(" · ")
+    val isRootfsHealthChecking = rootfsHealth.status == DependencyRootfsHealthStatus.CHECKING
+    val refreshRootfsHealthButtonText = if (isRootfsHealthChecking) {
+        stringResource(Strings.btn_checking_linux_health)
+    } else {
+        stringResource(Strings.btn_refresh_linux_health)
+    }
 
     // 环境配置项列表
     val baseConfigItems = listOf(
@@ -633,6 +640,20 @@ fun InstallCompletedContent(
                 .padding(bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            if (hasLinuxRuntime && onRefreshRootfsHealth != null) {
+                TinaOutlinedButton(
+                    text = refreshRootfsHealthButtonText,
+                    onClick = onRefreshRootfsHealth,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    enabled = !isRootfsHealthChecking,
+                    icon = rememberWorkspacePainter(Drawables.ic_sync),
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
             // 进入工作台按钮
             TinaPrimaryButtonLarge(
                 text = stringResource(Strings.btn_enter_workspace),

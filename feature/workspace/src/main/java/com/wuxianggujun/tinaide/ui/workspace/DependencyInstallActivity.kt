@@ -267,7 +267,8 @@ fun DependencyInstallScreen(
                         rootfsHealth = uiState.rootfsHealth,
                         isRepairMode = uiState.isRepairMode,
                         onEnterWorkspace = { viewModel.onInstallComplete() },
-                        onBack = onBack
+                        onBack = onBack,
+                        onRefreshRootfsHealth = viewModel::refreshRootfsHealth,
                     )
                 }
                 InstallPhase.FAILED -> {
