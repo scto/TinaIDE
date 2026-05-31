@@ -9,6 +9,7 @@ import java.net.Inet6Address
 import java.net.InetAddress
 import java.net.UnknownHostException
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 
 internal object SuspiciousIp {
     fun isSuspicious(address: InetAddress): Boolean {
@@ -59,9 +60,17 @@ internal class DohDnsResolver {
         ),
     )
 
-    private val client: OkHttpClient = OkHttpClientProvider.custom(OkHttpClientProvider.probe) {
-        dns(Dns.SYSTEM)
-    }
+    // 独立的 OkHttpClient：不能复用 OkHttpClientProvider.probe，
+    // 因为 probe 绑定的是 SmartDns，而 SmartDns 的初始化又依赖本类——
+    // 通过 probe 引用会触发 SmartDns lazy 的递归初始化（StackOverflowError）。
+    private val client: OkHttpClient = OkHttpClient.Builder()
+        .dns(Dns.SYSTEM)
+        .followRedirects(true)
+        .followSslRedirects(true)
+        .connectTimeout(5, TimeUnit.SECONDS)
+        .readTimeout(10, TimeUnit.SECONDS)
+        .writeTimeout(10, TimeUnit.SECONDS)
+        .build()
 
     data class Result(
         val addresses: List<InetAddress>,
@@ -210,12 +219,37 @@ private fun String.toInetAddressOrNull(): InetAddress? {
 }
 
 /**
- * 全局 SmartDns 实例
- * 用于 OkHttpClient 的 DNS 配置
+ * 全局 SmartDns 单例。
+ *
+ * 设计要点（用于杜绝循环初始化导致的 StackOverflowError）：
+ *
+ *  1. 本类是 `object`，引用它本身**不触发**任何懒加载——任何 OkHttpClient.Builder
+ *     上 `.dns(SmartDns)` 的调用代价为零。
+ *  2. 内部 [delegate]（真正持有 DoH 客户端等重资源）在第一次 [lookup] 时才构造。
+ *     这意味着 OkHttpClient 的构造阶段绝不会触发本类内部的网络栈初始化。
+ *  3. `delegate` 的构造路径**严禁**引用 [OkHttpClientProvider.probe] 或任何会
+ *     回链到 SmartDns 的 client，否则会在第一次 lookup 时再次出现循环。
+ *     当前 [DohDnsResolver] 自己持有独立 OkHttpClient（见该类内部注释）。
+ *  4. 双检锁的 synchronized 是可重入的；只要规则 (3) 被遵守，就不会重入。
+ *     如果规则被破坏，会在 build() 内部立刻栈溢出而不是延迟到任意请求路径，
+ *     便于排查。
  */
-internal val SmartDns: Dns by lazy {
-    val dohResolver = DohDnsResolver()
-    val smartResolver = SmartDnsResolver(dohResolver)
-    OkHttpSmartDns(smartResolver)
+internal object SmartDns : Dns {
+
+    @Volatile private var delegate: Dns? = null
+    private val initLock = Any()
+
+    override fun lookup(hostname: String): List<InetAddress> {
+        val d = delegate ?: synchronized(initLock) {
+            delegate ?: build().also { delegate = it }
+        }
+        return d.lookup(hostname)
+    }
+
+    private fun build(): Dns {
+        val dohResolver = DohDnsResolver()
+        val smartResolver = SmartDnsResolver(dohResolver)
+        return OkHttpSmartDns(smartResolver)
+    }
 }
 
