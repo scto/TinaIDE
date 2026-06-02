@@ -1,6 +1,7 @@
 package com.wuxianggujun.tinaide.ui.compose.state.editor
 
 import android.app.Application
+import android.content.Context
 import com.google.common.truth.Truth.assertThat
 import com.wuxianggujun.tinaide.core.config.ConfigChangeListener
 import com.wuxianggujun.tinaide.core.config.ConfigKey
@@ -44,16 +45,13 @@ class EditorContainerStateTest {
     @Before
     fun setUp() {
         context = RuntimeEnvironment.getApplication()
+        context.getSharedPreferences("tinaide_editor_split_state", Context.MODE_PRIVATE)
+            .edit()
+            .clear()
+            .commit()
         editorManager = mockk(relaxed = true)
         Prefs.initialize(context, InMemoryConfigManager())
-        state = EditorContainerState(
-            context = context,
-            editorManager = editorManager,
-            snippetManager = mockk<PluginSnippetManager>(relaxed = true),
-            pluginThemeRegistry = mockk<PluginEditorThemeRegistry>(relaxed = true),
-            projectSymbolIndexServiceProvider = { null },
-            projectRootPathProvider = { context.cacheDir.absolutePath }
-        )
+        state = newEditorContainerState()
     }
 
     @Test
@@ -1153,6 +1151,139 @@ class EditorContainerStateTest {
     }
 
     @Test
+    fun copyActiveTabToSecondaryPane_shouldShowSameTabInBothPanes() {
+        setTabs(
+            managerTabs = listOf(
+                EditorTab(id = "tab-1", file = File(context.cacheDir, "First.kt")),
+                EditorTab(id = "tab-2", file = File(context.cacheDir, "Second.kt"))
+            ),
+            activeTabId = "tab-1"
+        )
+
+        assertThat(state.copyActiveTabToSecondaryPane()).isTrue()
+
+        assertThat(state.isSplitEditorEnabled).isTrue()
+        assertThat(state.focusedPane).isEqualTo(EditorContainerState.EditorPaneId.SECONDARY)
+        assertThat(state.getTabsForPane(EditorContainerState.EditorPaneId.PRIMARY).map { it.id })
+            .containsExactly("tab-1", "tab-2")
+        assertThat(state.getTabsForPane(EditorContainerState.EditorPaneId.SECONDARY).map { it.id })
+            .containsExactly("tab-1")
+        assertThat(state.getActiveIndexForPane(EditorContainerState.EditorPaneId.PRIMARY)).isEqualTo(0)
+        assertThat(state.getActiveIndexForPane(EditorContainerState.EditorPaneId.SECONDARY)).isEqualTo(0)
+        assertThat(state.canCopyActiveTabToSecondaryPane()).isFalse()
+    }
+
+    @Test
+    fun splitEditorSnapshot_shouldRestorePaneStateAfterTabIdsChange() {
+        val firstFile = File(context.cacheDir, "First.kt")
+        val secondFile = File(context.cacheDir, "Second.kt")
+        setTabs(
+            managerTabs = listOf(
+                EditorTab(id = "old-tab-1", file = firstFile),
+                EditorTab(id = "old-tab-2", file = secondFile)
+            ),
+            activeTabId = "old-tab-2"
+        )
+        state.updateSplitEditorLayout(EditorContainerState.SplitEditorLayout.VERTICAL)
+        state.updateSplitEditorPrimaryRatio(0.7f)
+        state.moveActiveTabToSecondaryPane()
+
+        val snapshot = state.createSplitEditorStateSnapshot()
+        val restored = newEditorContainerState()
+        restored.syncFromManager(
+            managerTabs = listOf(
+                EditorTab(id = "new-tab-1", file = firstFile),
+                EditorTab(id = "new-tab-2", file = secondFile)
+            ),
+            activeTabId = "new-tab-1"
+        )
+
+        restored.restoreSplitEditorStateSnapshot(snapshot)
+
+        assertThat(restored.isSplitEditorEnabled).isTrue()
+        assertThat(restored.focusedPane).isEqualTo(EditorContainerState.EditorPaneId.SECONDARY)
+        assertThat(restored.splitEditorLayout).isEqualTo(EditorContainerState.SplitEditorLayout.VERTICAL)
+        assertThat(restored.splitEditorPrimaryRatio).isWithin(0.0001f).of(0.7f)
+        assertThat(restored.getTabsForPane(EditorContainerState.EditorPaneId.PRIMARY).map { it.id })
+            .containsExactly("new-tab-1")
+        assertThat(restored.getTabsForPane(EditorContainerState.EditorPaneId.SECONDARY).map { it.id })
+            .containsExactly("new-tab-2")
+    }
+
+    @Test
+    fun restoreFromManager_shouldRestorePersistedSplitEditorSession() {
+        val firstFile = File(context.cacheDir, "First.kt")
+        val secondFile = File(context.cacheDir, "Second.kt")
+        setTabs(
+            managerTabs = listOf(
+                EditorTab(id = "old-tab-1", file = firstFile),
+                EditorTab(id = "old-tab-2", file = secondFile)
+            ),
+            activeTabId = "old-tab-1"
+        )
+        state.copyActiveTabToSecondaryPane()
+        state.updateSplitEditorLayout(EditorContainerState.SplitEditorLayout.VERTICAL)
+        state.updateSplitEditorPrimaryRatio(0.65f)
+
+        val restoredEditorManager = mockk<IEditorManager>(relaxed = true)
+        every { restoredEditorManager.getOpenTabs() } returns listOf(
+            EditorTab(id = "new-tab-1", file = firstFile),
+            EditorTab(id = "new-tab-2", file = secondFile)
+        )
+        every { restoredEditorManager.getActiveTabId() } returns "new-tab-2"
+        val restored = newEditorContainerState(restoredEditorManager)
+
+        restored.restoreFromManager()
+
+        assertThat(restored.isSplitEditorEnabled).isTrue()
+        assertThat(restored.focusedPane).isEqualTo(EditorContainerState.EditorPaneId.SECONDARY)
+        assertThat(restored.splitEditorLayout).isEqualTo(EditorContainerState.SplitEditorLayout.VERTICAL)
+        assertThat(restored.splitEditorPrimaryRatio).isWithin(0.0001f).of(0.65f)
+        assertThat(restored.getTabsForPane(EditorContainerState.EditorPaneId.PRIMARY).map { it.id })
+            .containsExactly("new-tab-1", "new-tab-2")
+        assertThat(restored.getTabsForPane(EditorContainerState.EditorPaneId.SECONDARY).map { it.id })
+            .containsExactly("new-tab-1")
+    }
+
+    @Test
+    fun copyActiveTabToSecondaryPane_shouldNotDuplicateExistingSecondaryView() {
+        setTabs(
+            managerTabs = listOf(
+                EditorTab(id = "tab-1", file = File(context.cacheDir, "First.kt")),
+                EditorTab(id = "tab-2", file = File(context.cacheDir, "Second.kt"))
+            ),
+            activeTabId = "tab-1"
+        )
+        state.copyActiveTabToSecondaryPane()
+
+        assertThat(state.copyActiveTabToSecondaryPane()).isFalse()
+
+        assertThat(state.getTabsForPane(EditorContainerState.EditorPaneId.SECONDARY).map { it.id })
+            .containsExactly("tab-1")
+    }
+
+    @Test
+    fun closeSecondaryPane_shouldClearCopiedTabView() {
+        setTabs(
+            managerTabs = listOf(
+                EditorTab(id = "tab-1", file = File(context.cacheDir, "First.kt")),
+                EditorTab(id = "tab-2", file = File(context.cacheDir, "Second.kt"))
+            ),
+            activeTabId = "tab-1"
+        )
+        state.copyActiveTabToSecondaryPane()
+
+        state.closeSecondaryPane()
+
+        assertThat(state.isSplitEditorEnabled).isFalse()
+        assertThat(state.focusedPane).isEqualTo(EditorContainerState.EditorPaneId.PRIMARY)
+        assertThat(state.getTabsForPane(EditorContainerState.EditorPaneId.PRIMARY).map { it.id })
+            .containsExactly("tab-1", "tab-2")
+        assertThat(state.getTabsForPane(EditorContainerState.EditorPaneId.SECONDARY)).isEmpty()
+        assertThat(state.canCopyActiveTabToSecondaryPane()).isTrue()
+    }
+
+    @Test
     fun splitEditorPrimaryRatio_shouldDefaultToEvenPanes() {
         assertThat(state.splitEditorPrimaryRatio).isEqualTo(0.5f)
     }
@@ -1404,6 +1535,16 @@ class EditorContainerStateTest {
             activeTabId = activeTabId
         )
     }
+
+    private fun newEditorContainerState(manager: IEditorManager = editorManager): EditorContainerState =
+        EditorContainerState(
+            context = context,
+            editorManager = manager,
+            snippetManager = mockk<PluginSnippetManager>(relaxed = true),
+            pluginThemeRegistry = mockk<PluginEditorThemeRegistry>(relaxed = true),
+            projectSymbolIndexServiceProvider = { null },
+            projectRootPathProvider = { context.cacheDir.absolutePath }
+        )
 
     @Suppress("UNCHECKED_CAST")
     private fun setLspStatus(tabId: String, status: EditorStatus) {

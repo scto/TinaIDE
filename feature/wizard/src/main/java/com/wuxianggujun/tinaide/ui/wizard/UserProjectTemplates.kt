@@ -5,6 +5,7 @@ import com.wuxianggujun.tinaide.core.i18n.Strings
 import com.wuxianggujun.tinaide.core.i18n.strOr
 import com.wuxianggujun.tinaide.project.ProjectBuildSystem
 import com.wuxianggujun.tinaide.project.ProjectLanguage
+import com.wuxianggujun.tinaide.project.ProjectTemplateMetadataReader
 import com.wuxianggujun.tinaide.project.ProjectTemplateOption
 import com.wuxianggujun.tinaide.project.ProjectTemplateSpec
 import com.wuxianggujun.tinaide.storage.ProjectPaths
@@ -46,17 +47,18 @@ internal object UserProjectTemplates {
 
     private fun File.toTemplateOption(context: Context): ProjectTemplateOption {
         val inspection = inspectTemplateZip(this)
+        val metadata = ProjectTemplateMetadataReader.readFromZip(this)
         val optionId = TEMPLATE_ID_PREFIX + stableId()
         return ProjectTemplateOption(
             id = optionId,
-            displayName = nameWithoutExtension.toDisplayName(),
-            description = Strings.template_desc_user_zip.strOr(context, name),
+            displayName = metadata?.name ?: nameWithoutExtension.toDisplayName(),
+            description = metadata?.description ?: Strings.template_desc_user_zip.strOr(context, name),
             spec = ProjectTemplateSpec.Zip(
                 id = optionId,
                 zipFile = this,
-                buildSystem = inspection.buildSystem,
-                primaryLanguage = inspection.primaryLanguage,
-                isNdkTemplate = false
+                buildSystem = metadata?.buildSystem ?: inspection.buildSystem,
+                primaryLanguage = metadata?.primaryLanguage ?: inspection.primaryLanguage,
+                isNdkTemplate = metadata?.isNdkTemplate ?: false
             )
         )
     }

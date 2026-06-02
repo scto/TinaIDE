@@ -87,6 +87,7 @@ class NewProjectWizardActivity : ComponentActivity() {
                     isPluginProjectMode = preferPluginTemplate,
                     onTemplateSelected = viewModel::setTemplate,
                     onProjectNameChanged = viewModel::setProjectName,
+                    onAuthorNameChanged = viewModel::setAuthorName,
                     onSourceLocationSelected = viewModel::setSourceLocation,
                     onCppStandardSelected = viewModel::setCppStandard,
                     onNdkApiLevelSelected = viewModel::setNdkApiLevel,

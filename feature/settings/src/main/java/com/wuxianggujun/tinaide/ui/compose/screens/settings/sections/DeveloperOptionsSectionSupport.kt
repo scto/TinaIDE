@@ -16,6 +16,10 @@ internal data class DeveloperDiagnosticsControlsState(
     val editorFlingLogControlEnabled: Boolean
 )
 
+internal data class DeveloperTestingToolsState(
+    val builtinCmakeLspControlEnabled: Boolean
+)
+
 internal enum class DeveloperOptionsAction {
     DisableDeveloperOptions
 }
@@ -94,6 +98,10 @@ internal object DeveloperOptionsSectionSupport {
             editorFlingLogControlEnabled = touchSubControlsEnabled
         )
     }
+
+    fun resolveTestingToolsState(): DeveloperTestingToolsState = DeveloperTestingToolsState(
+        builtinCmakeLspControlEnabled = true
+    )
 
     fun createServerUrlDialogState(currentServerUrl: String): DeveloperServerUrlDialogState = DeveloperServerUrlDialogState(
         urlText = currentServerUrl,

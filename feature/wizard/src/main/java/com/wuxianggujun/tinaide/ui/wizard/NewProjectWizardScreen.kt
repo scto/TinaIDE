@@ -64,6 +64,7 @@ fun NewProjectWizardScreen(
     isPluginProjectMode: Boolean = false,
     onTemplateSelected: (ProjectTemplateOption) -> Unit,
     onProjectNameChanged: (String) -> Unit,
+    onAuthorNameChanged: (String) -> Unit,
     onSourceLocationSelected: (NewProjectSourceLocation) -> Unit,
     onCppStandardSelected: (CppStandard) -> Unit,
     onNdkApiLevelSelected: (AndroidApiLevel) -> Unit,
@@ -176,6 +177,7 @@ fun NewProjectWizardScreen(
                     1 -> ConfigurationStep(
                         selectedTemplate = selectedTemplate,
                         projectName = state.projectName,
+                        authorName = state.authorName,
                         cppStandard = state.cppStandard,
                         showsCppStandard = state.showsCppStandard,
                         isNdkTemplate = state.isNdkTemplate,
@@ -183,6 +185,7 @@ fun NewProjectWizardScreen(
                         sourceLocation = state.sourceLocation,
                         nameError = state.nameError,
                         onProjectNameChanged = onProjectNameChanged,
+                        onAuthorNameChanged = onAuthorNameChanged,
                         onSourceLocationSelected = onSourceLocationSelected,
                         onCppStandardSelected = onCppStandardSelected,
                         onNdkApiLevelSelected = onNdkApiLevelSelected
@@ -545,6 +548,7 @@ private fun TemplateCard(
 private fun ConfigurationStep(
     selectedTemplate: ProjectTemplateOption?,
     projectName: String,
+    authorName: String,
     cppStandard: CppStandard,
     showsCppStandard: Boolean,
     isNdkTemplate: Boolean,
@@ -552,6 +556,7 @@ private fun ConfigurationStep(
     sourceLocation: NewProjectSourceLocation,
     nameError: String?,
     onProjectNameChanged: (String) -> Unit,
+    onAuthorNameChanged: (String) -> Unit,
     onSourceLocationSelected: (NewProjectSourceLocation) -> Unit,
     onCppStandardSelected: (CppStandard) -> Unit,
     onNdkApiLevelSelected: (AndroidApiLevel) -> Unit
@@ -561,6 +566,7 @@ private fun ConfigurationStep(
     var apiLevelExpanded by remember { mutableStateOf(false) }
     val guideTitleRes = NewProjectWizardSupport.resolveConfigurationGuideTitleRes(selectedTemplate)
     val guideBodyRes = NewProjectWizardSupport.resolveConfigurationGuideBodyRes(selectedTemplate)
+    val showsAuthorName = selectedTemplate?.spec is ProjectTemplateSpec.Zip
 
     Column(
         modifier = Modifier
@@ -580,6 +586,20 @@ private fun ConfigurationStep(
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
+
+        if (showsAuthorName) {
+            OutlinedTextField(
+                value = authorName,
+                onValueChange = onAuthorNameChanged,
+                label = { Text(stringResource(Strings.wizard_author_name)) },
+                placeholder = { Text(stringResource(Strings.wizard_author_name_placeholder)) },
+                supportingText = {
+                    Text(stringResource(Strings.wizard_author_name_desc))
+                },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
         guideTitleRes?.let { titleRes ->
             PluginProjectGuideCard(

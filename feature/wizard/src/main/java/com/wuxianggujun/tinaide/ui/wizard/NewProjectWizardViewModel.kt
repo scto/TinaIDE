@@ -29,6 +29,7 @@ data class NewProjectWizardState(
     val currentStep: Int = 0,
     val selectedTemplateId: String = BuiltInProjectTemplates.defaultTemplateId,
     val projectName: String = "",
+    val authorName: String = "",
     val sourceLocation: NewProjectSourceLocation = NewProjectSourceLocation.PUBLIC,
     val cppStandard: CppStandard = CppStandard.DEFAULT,
     val ndkApiLevel: AndroidApiLevel = AndroidApiLevel.DEFAULT,
@@ -124,6 +125,10 @@ class NewProjectWizardViewModel(
         }
     }
 
+    fun setAuthorName(name: String) {
+        _state.update { it.copy(authorName = name) }
+    }
+
     fun setCppStandard(standard: CppStandard) {
         _state.update { it.copy(cppStandard = standard) }
     }
@@ -187,7 +192,8 @@ class NewProjectWizardViewModel(
                     projectName = currentState.projectName,
                     templateSpec = selectedTemplate.spec,
                     cppStandard = currentState.cppStandard,
-                    ndkApiLevel = if (currentState.isNdkTemplate) currentState.ndkApiLevel else null
+                    ndkApiLevel = if (currentState.isNdkTemplate) currentState.ndkApiLevel else null,
+                    authorName = currentState.authorName.trim()
                 )
             }
 

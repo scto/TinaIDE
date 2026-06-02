@@ -115,7 +115,7 @@ class NewProjectWizardViewModelTest {
         val projectRoot = tempDir("wizard-user-template-root")
         val templateZip = projectRoot.resolve("custom_template.zip")
         ZipOutputStream(templateZip.outputStream().buffered()).use { zip ->
-            zip.writeEntry("README.md", "# {{PROJECT_NAME}}\n")
+            zip.writeEntry("README.md", "# {{PROJECT_NAME}}\nAuthor: {{AUTHOR}}\n")
             zip.writeEntry("src/{{PROJECT_NAME}}.cpp", "int main() { return 0; }\n")
         }
         val userTemplate = template(
@@ -130,6 +130,7 @@ class NewProjectWizardViewModelTest {
 
         viewModel.setTemplate(userTemplate)
         viewModel.setProjectName("DemoApp")
+        viewModel.setAuthorName("Ada")
         viewModel.createProject(
             context = context,
             projectPath = projectRoot.absolutePath,
@@ -143,7 +144,7 @@ class NewProjectWizardViewModelTest {
         assertThat(createdProjects).containsExactly(projectRoot.resolve("DemoApp").canonicalFile)
         val projectDir = createdProjects.single()
         assertThat(projectDir.resolve("README.md").readText(Charsets.UTF_8))
-            .isEqualTo("# DemoApp\n")
+            .isEqualTo("# DemoApp\nAuthor: Ada\n")
         assertThat(projectDir.resolve("src/DemoApp.cpp").readText(Charsets.UTF_8))
             .contains("int main()")
         val metadata = ProjectMetadataStore.read(projectDir)

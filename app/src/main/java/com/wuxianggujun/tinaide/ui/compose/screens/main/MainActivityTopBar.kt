@@ -84,6 +84,7 @@ internal class TopBarCallbacks(
     val onToggleSplitEditor: () -> Unit = {},
     val onSetSplitEditorLayout: (SplitEditorLayout) -> Unit = {},
     val onMoveTabToSecondaryPane: () -> Unit = {},
+    val onCopyTabToSecondaryPane: () -> Unit = {},
     val onOpenExplorer: () -> Unit,
     val onOpenGlobalSearch: () -> Unit,
     val onOpenBookmarks: () -> Unit,
@@ -119,6 +120,7 @@ internal fun MainActivityTopBar(
     isSplitEditorEnabled: Boolean,
     splitEditorLayout: SplitEditorLayout,
     canMoveTabToSecondaryPane: Boolean,
+    canCopyTabToSecondaryPane: Boolean,
     currentBuildSystem: BuildSystem,
     availableTargets: List<TargetInfo>,
     runConfigManager: RunConfigurationManager,
@@ -458,6 +460,25 @@ internal fun MainActivityTopBar(
                     onClick = {
                         showMenu = false
                         callbacks.onMoveTabToSecondaryPane()
+                    }
+                )
+
+                TinaDropdownMenuItem(
+                    text = {
+                        Text(
+                            stringResource(
+                                if (splitEditorLayout == SplitEditorLayout.VERTICAL) {
+                                    Strings.menu_copy_tab_to_lower_pane
+                                } else {
+                                    Strings.menu_copy_tab_to_secondary_pane
+                                }
+                            )
+                        )
+                    },
+                    enabled = canCopyTabToSecondaryPane,
+                    onClick = {
+                        showMenu = false
+                        callbacks.onCopyTabToSecondaryPane()
                     }
                 )
 

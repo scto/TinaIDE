@@ -60,6 +60,44 @@ class PluginZipTemplateInstallTest {
     }
 
     @Test
+    fun `zip template install replaces author placeholder and skips template metadata`() {
+        val tempDir = Files.createTempDirectory("template-author-install").toFile()
+        val zipFile = Files.createTempFile("template-author", ".zip").toFile()
+
+        try {
+            ZipOutputStream(zipFile.outputStream().buffered()).use { zip ->
+                zip.writeEntry(
+                    ProjectTemplateMetadataReader.METADATA_FILE_NAME,
+                    """{"name":"Author Demo","author":"Template Author"}"""
+                )
+                zip.writeEntry("README.md", "# {{PROJECT_NAME}}\nAuthor: {{AUTHOR}}\n")
+                zip.writeEntry("src/{{AUTHOR}}/{{PROJECT_NAME}}.cpp", "int main() { return 0; }\n")
+            }
+
+            val installed = ProjectTemplateInstaller.install(
+                destDir = tempDir,
+                projectName = "hello-author",
+                templateSpec = ProjectTemplateSpec.Zip(
+                    id = "user:author-demo",
+                    zipFile = zipFile,
+                    buildSystem = ProjectBuildSystem.CMAKE,
+                    primaryLanguage = ProjectLanguage.CPP
+                ),
+                authorName = "Ada"
+            )
+
+            assertThat(installed).isTrue()
+            assertThat(tempDir.resolve("README.md").readText(Charsets.UTF_8))
+                .contains("Author: Ada")
+            assertThat(tempDir.resolve("src/Ada/hello-author.cpp").exists()).isTrue()
+            assertThat(tempDir.resolve(ProjectTemplateMetadataReader.METADATA_FILE_NAME).exists()).isFalse()
+        } finally {
+            tempDir.deleteRecursively()
+            zipFile.delete()
+        }
+    }
+
+    @Test
     fun `zip template install rejects entries escaping project directory`() {
         val tempRoot = Files.createTempDirectory("plugin-template-escape").toFile()
         val projectDir = tempRoot.resolve("project")

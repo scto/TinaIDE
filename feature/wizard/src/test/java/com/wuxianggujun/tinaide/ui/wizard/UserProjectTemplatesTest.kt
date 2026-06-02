@@ -3,6 +3,7 @@ package com.wuxianggujun.tinaide.ui.wizard
 import com.google.common.truth.Truth.assertThat
 import com.wuxianggujun.tinaide.project.ProjectBuildSystem
 import com.wuxianggujun.tinaide.project.ProjectLanguage
+import com.wuxianggujun.tinaide.project.ProjectTemplateMetadataReader
 import com.wuxianggujun.tinaide.project.ProjectTemplateSpec
 import java.nio.file.Files
 import java.util.zip.ZipEntry
@@ -42,6 +43,46 @@ class UserProjectTemplatesTest {
             assertThat(spec.buildSystem).isEqualTo(ProjectBuildSystem.CMAKE)
             assertThat(spec.primaryLanguage).isEqualTo(ProjectLanguage.CPP)
             assertThat(spec.isNdkTemplate).isFalse()
+        } finally {
+            templatesDir.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun listOptionsFromDirectory_shouldUseTemplateMetadataWhenPresent() {
+        val templatesDir = Files.createTempDirectory("user-project-templates-metadata").toFile()
+        val templateZip = templatesDir.resolve("metadata_demo.zip")
+
+        try {
+            ZipOutputStream(templateZip.outputStream().buffered()).use { zip ->
+                zip.writeEntry(
+                    ProjectTemplateMetadataReader.METADATA_FILE_NAME,
+                    """
+                    {
+                      "name": "Native Game",
+                      "description": "Custom SDL starter",
+                      "author": "Tina",
+                      "buildSystem": "makefile",
+                      "primaryLanguage": "c",
+                      "ndkTemplate": true
+                    }
+                    """.trimIndent()
+                )
+                zip.writeEntry("src/main.cpp", "int main() { return 0; }")
+            }
+
+            val options = UserProjectTemplates.listOptionsFromDirectory(
+                context = RuntimeEnvironment.getApplication().applicationContext,
+                templatesDir = templatesDir,
+            )
+
+            val option = options.single()
+            val spec = option.spec as ProjectTemplateSpec.Zip
+            assertThat(option.displayName).isEqualTo("Native Game")
+            assertThat(option.description).isEqualTo("Custom SDL starter")
+            assertThat(spec.buildSystem).isEqualTo(ProjectBuildSystem.MAKE)
+            assertThat(spec.primaryLanguage).isEqualTo(ProjectLanguage.C)
+            assertThat(spec.isNdkTemplate).isTrue()
         } finally {
             templatesDir.deleteRecursively()
         }

@@ -1,5 +1,11 @@
 package com.wuxianggujun.tinaide.ui.compose.screens.settings.sections
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,19 +15,27 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wuxianggujun.tinaide.core.i18n.Strings
+import com.wuxianggujun.tinaide.project.ProjectBuildSystem
+import com.wuxianggujun.tinaide.storage.ProjectPaths
+import com.wuxianggujun.tinaide.ui.compose.components.TinaActionChoiceDialog
 import com.wuxianggujun.tinaide.ui.compose.components.TinaAlertDialog
+import com.wuxianggujun.tinaide.ui.compose.components.TinaConfirmDialog
 import com.wuxianggujun.tinaide.ui.compose.components.TinaDialogCard
 import com.wuxianggujun.tinaide.ui.compose.components.TinaDialogContentColumn
 import com.wuxianggujun.tinaide.ui.compose.components.TinaDialogTitleText
+import com.wuxianggujun.tinaide.ui.compose.components.TinaInputDialog
 import com.wuxianggujun.tinaide.ui.compose.components.TinaPrimaryButton
 import com.wuxianggujun.tinaide.ui.compose.components.TinaSingleChoiceDialog
 import com.wuxianggujun.tinaide.ui.compose.components.TinaTextButton
@@ -31,15 +45,121 @@ import com.wuxianggujun.tinaide.ui.compose.screens.settings.components.SettingsC
 import com.wuxianggujun.tinaide.ui.compose.screens.settings.components.SettingsClickableItem
 import com.wuxianggujun.tinaide.ui.compose.screens.settings.components.SettingsDisplayItem
 import com.wuxianggujun.tinaide.ui.compose.screens.settings.components.SettingsSwitchItem
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+private val userProjectTemplateMimeTypes = arrayOf(
+    "application/zip",
+    "application/x-zip-compressed",
+    "application/octet-stream",
+    "*/*"
+)
 
 @Composable
 internal fun ProjectSettingsSection(viewModel: SettingsViewModel) {
+    val context = LocalContext.current
+    val appContext = context.applicationContext
+    val scope = rememberCoroutineScope()
     val state by viewModel.uiState.collectAsState()
     var showNewProjectLocationDialog by remember { mutableStateOf(false) }
     var showAutoSaveDialog by remember { mutableStateOf(false) }
     var showApkExportDialog by remember { mutableStateOf(false) }
     var editingPathType by remember { mutableStateOf<NativeDependencyPathType?>(null) }
     var editingBuildFlagType by remember { mutableStateOf<NativeBuildFlagType?>(null) }
+    var userTemplates by remember { mutableStateOf<List<UserProjectTemplateItem>>(emptyList()) }
+    var isLoadingUserTemplates by remember { mutableStateOf(false) }
+    var selectedUserTemplate by remember { mutableStateOf<UserProjectTemplateItem?>(null) }
+    var renamingUserTemplate by remember { mutableStateOf<UserProjectTemplateItem?>(null) }
+    var userTemplateRenameInput by remember { mutableStateOf("") }
+    var pendingDeleteUserTemplate by remember { mutableStateOf<UserProjectTemplateItem?>(null) }
+    var pendingExportUserTemplate by remember { mutableStateOf<UserProjectTemplateItem?>(null) }
+
+    val userTemplateRoot = remember(appContext) {
+        ProjectPaths.getUserProjectTemplatesRoot(appContext)
+    }
+
+    fun refreshUserTemplates() {
+        scope.launch {
+            isLoadingUserTemplates = true
+            try {
+                userTemplates = withContext(Dispatchers.IO) {
+                    UserProjectTemplateManager.listTemplates(userTemplateRoot)
+                }
+            } finally {
+                isLoadingUserTemplates = false
+            }
+        }
+    }
+
+    val userTemplateImportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri ?: return@rememberLauncherForActivityResult
+        scope.launch {
+            val result = UserProjectTemplateManager.importTemplateFromUri(appContext, uri)
+            result
+                .onSuccess { item ->
+                    Toast.makeText(
+                        context,
+                        context.getString(Strings.settings_user_templates_import_success, item.name),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    refreshUserTemplates()
+                }
+                .onFailure { error ->
+                    Toast.makeText(
+                        context,
+                        context.getString(resolveUserProjectTemplateFailureMessageRes(error)),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+        }
+    }
+
+    val userTemplateExportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/zip")
+    ) { uri ->
+        val template = pendingExportUserTemplate
+        pendingExportUserTemplate = null
+        if (uri == null || template == null) {
+            return@rememberLauncherForActivityResult
+        }
+        scope.launch {
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    val output = appContext.contentResolver.openOutputStream(uri)
+                        ?: throw UserProjectTemplateException(UserProjectTemplateFailure.CANNOT_READ)
+                    output.use {
+                        UserProjectTemplateManager.exportTemplate(
+                            templatesDir = userTemplateRoot,
+                            templateName = template.name,
+                            output = it,
+                        )
+                    }
+                }
+            }
+            result
+                .onSuccess {
+                    Toast.makeText(
+                        context,
+                        context.getString(Strings.settings_user_templates_export_success, template.name),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                .onFailure { error ->
+                    Toast.makeText(
+                        context,
+                        context.getString(resolveUserProjectTemplateFailureMessageRes(error)),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+        }
+    }
+
+    LaunchedEffect(userTemplateRoot.absolutePath) {
+        refreshUserTemplates()
+    }
 
     Spacer(modifier = Modifier.height(8.dp))
 
@@ -85,8 +205,76 @@ internal fun ProjectSettingsSection(viewModel: SettingsViewModel) {
                     )
                 ),
                 onClick = { showNewProjectLocationDialog = true },
+                showDivider = true
+            )
+            SettingsClickableItem(
+                title = stringResource(Strings.settings_user_templates_import),
+                subtitle = stringResource(Strings.settings_user_templates_import_desc),
+                onClick = {
+                    userTemplateImportLauncher.launch(userProjectTemplateMimeTypes)
+                },
                 showDivider = false
             )
+        }
+
+        SettingsCategoryTitle(stringResource(Strings.settings_cat_user_project_templates))
+        SettingsCard {
+            SettingsDisplayItem(
+                title = stringResource(Strings.settings_user_templates_folder),
+                value = userTemplateRoot.absolutePath,
+                valueMaxLines = 1,
+                showDivider = true
+            )
+            SettingsClickableItem(
+                title = stringResource(Strings.settings_user_templates_copy_folder_path),
+                subtitle = stringResource(Strings.settings_user_templates_copy_folder_path_desc),
+                onClick = {
+                    copyUserProjectTemplateText(
+                        context = context,
+                        label = context.getString(Strings.settings_user_templates_folder_clipboard_label),
+                        text = userTemplateRoot.absolutePath,
+                    )
+                    Toast.makeText(context, context.getString(Strings.toast_path_copied), Toast.LENGTH_SHORT).show()
+                },
+                showDivider = true
+            )
+            SettingsClickableItem(
+                title = stringResource(Strings.settings_user_templates_refresh),
+                subtitle = stringResource(Strings.settings_user_templates_refresh_desc),
+                value = if (isLoadingUserTemplates) {
+                    stringResource(Strings.loading)
+                } else {
+                    stringResource(Strings.settings_user_templates_count, userTemplates.size)
+                },
+                onClick = { refreshUserTemplates() },
+                showDivider = false
+            )
+        }
+
+        SettingsCard {
+            if (userTemplates.isEmpty() && !isLoadingUserTemplates) {
+                SettingsClickableItem(
+                    title = stringResource(Strings.settings_user_templates_empty_title),
+                    subtitle = stringResource(Strings.settings_user_templates_empty_desc),
+                    onClick = {
+                        userTemplateImportLauncher.launch(userProjectTemplateMimeTypes)
+                    },
+                    showDivider = false
+                )
+            } else {
+                userTemplates.forEachIndexed { index, template ->
+                    SettingsClickableItem(
+                        title = template.metadata?.name ?: template.name,
+                        subtitle = template.metadata?.description ?: stringResource(
+                            Strings.settings_user_template_item_subtitle,
+                            UserProjectTemplateManager.formatTemplateSize(template.sizeBytes)
+                        ),
+                        value = stringResource(Strings.settings_user_templates_manage),
+                        onClick = { selectedUserTemplate = template },
+                        showDivider = index != userTemplates.lastIndex
+                    )
+                }
+            }
         }
     }
 
@@ -276,6 +464,152 @@ internal fun ProjectSettingsSection(viewModel: SettingsViewModel) {
         )
     }
 
+    selectedUserTemplate?.let { template ->
+        val metadata = template.metadata
+        val buildSystemLabel = metadata?.buildSystem?.let {
+            stringResource(resolveUserProjectTemplateBuildSystemLabelRes(it))
+        }
+        val detailMessage = listOfNotNull(
+            metadata?.description?.let {
+                stringResource(Strings.settings_user_templates_detail_description, it)
+            },
+            metadata?.author?.let {
+                stringResource(Strings.settings_user_templates_detail_author, it)
+            },
+            buildSystemLabel?.let {
+                stringResource(Strings.settings_user_templates_detail_build_system, it)
+            },
+            stringResource(Strings.settings_user_templates_detail_file, template.file.absolutePath)
+        ).joinToString(separator = "\n")
+        TinaActionChoiceDialog(
+            title = metadata?.name ?: template.name,
+            message = detailMessage,
+            actions = listOf(
+                stringResource(Strings.settings_user_templates_copy_file_path) to {
+                    copyUserProjectTemplateText(
+                        context = context,
+                        label = context.getString(Strings.settings_user_templates_file_clipboard_label),
+                        text = template.file.absolutePath,
+                    )
+                    selectedUserTemplate = null
+                    Toast.makeText(context, context.getString(Strings.toast_path_copied), Toast.LENGTH_SHORT).show()
+                },
+                stringResource(Strings.settings_user_templates_rename) to {
+                    userTemplateRenameInput = template.name
+                    selectedUserTemplate = null
+                    renamingUserTemplate = template
+                },
+                stringResource(Strings.settings_user_templates_export) to {
+                    selectedUserTemplate = null
+                    pendingExportUserTemplate = template
+                    userTemplateExportLauncher.launch(template.name)
+                },
+                stringResource(Strings.btn_delete) to {
+                    selectedUserTemplate = null
+                    pendingDeleteUserTemplate = template
+                }
+            ),
+            onDismiss = { selectedUserTemplate = null }
+        )
+    }
+
+    renamingUserTemplate?.let { template ->
+        val renameErrorRes = remember(userTemplateRenameInput, template.name) {
+            resolveUserProjectTemplateRenameErrorRes(
+                templatesDir = userTemplateRoot,
+                currentName = template.name,
+                input = userTemplateRenameInput,
+            )
+        }
+        TinaInputDialog(
+            title = stringResource(Strings.settings_user_templates_rename_title),
+            value = userTemplateRenameInput,
+            onValueChange = { userTemplateRenameInput = it },
+            confirmText = stringResource(Strings.btn_confirm),
+            dismissText = stringResource(Strings.btn_cancel),
+            onConfirm = {
+                val desiredName = userTemplateRenameInput
+                scope.launch {
+                    val result = withContext(Dispatchers.IO) {
+                        runCatching {
+                            UserProjectTemplateManager.renameTemplate(
+                                templatesDir = userTemplateRoot,
+                                currentName = template.name,
+                                desiredName = desiredName,
+                            )
+                        }
+                    }
+                    result
+                        .onSuccess { item ->
+                            Toast.makeText(
+                                context,
+                                context.getString(Strings.settings_user_templates_rename_success, item.name),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            renamingUserTemplate = null
+                            userTemplateRenameInput = ""
+                            refreshUserTemplates()
+                        }
+                        .onFailure { error ->
+                            Toast.makeText(
+                                context,
+                                context.getString(resolveUserProjectTemplateFailureMessageRes(error)),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                }
+            },
+            onDismiss = {
+                renamingUserTemplate = null
+                userTemplateRenameInput = ""
+            },
+            label = stringResource(Strings.settings_user_templates_rename_label),
+            placeholder = stringResource(Strings.settings_user_templates_rename_placeholder),
+            isError = renameErrorRes != null,
+            errorText = renameErrorRes?.let { stringResource(it) },
+            singleLine = true
+        )
+    }
+
+    pendingDeleteUserTemplate?.let { template ->
+        TinaConfirmDialog(
+            title = stringResource(Strings.settings_user_templates_delete_title),
+            message = stringResource(Strings.settings_user_templates_delete_message, template.name),
+            confirmText = stringResource(Strings.btn_delete),
+            onConfirm = {
+                scope.launch {
+                    val result = withContext(Dispatchers.IO) {
+                        runCatching {
+                            UserProjectTemplateManager.deleteTemplate(
+                                templatesDir = userTemplateRoot,
+                                templateName = template.name,
+                            )
+                        }
+                    }
+                    result
+                        .onSuccess {
+                            Toast.makeText(
+                                context,
+                                context.getString(Strings.settings_user_templates_delete_success, template.name),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            refreshUserTemplates()
+                        }
+                        .onFailure { error ->
+                            Toast.makeText(
+                                context,
+                                context.getString(resolveUserProjectTemplateFailureMessageRes(error)),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    pendingDeleteUserTemplate = null
+                }
+            },
+            onDismiss = { pendingDeleteUserTemplate = null },
+            isDanger = true
+        )
+    }
+
     val activePathType = editingPathType
     if (activePathType != null) {
         val currentPaths = when (activePathType) {
@@ -403,6 +737,59 @@ private fun resolveProjectSettingsText(spec: ProjectSettingsTextSpec): String = 
     stringResource(spec.labelRes)
 } else {
     stringResource(spec.labelRes, *spec.formatArgs.toTypedArray())
+}
+
+private fun copyUserProjectTemplateText(
+    context: Context,
+    label: String,
+    text: String,
+) {
+    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    clipboard.setPrimaryClip(ClipData.newPlainText(label, text))
+}
+
+private fun resolveUserProjectTemplateFailureMessageRes(error: Throwable): Int {
+    val failure = (error as? UserProjectTemplateException)?.failure
+        ?: (error.cause as? UserProjectTemplateException)?.failure
+    return when (failure) {
+        UserProjectTemplateFailure.NOT_ZIP -> Strings.settings_user_templates_error_not_zip
+        UserProjectTemplateFailure.INVALID_NAME -> Strings.settings_user_templates_error_invalid_name
+        UserProjectTemplateFailure.CANNOT_READ -> Strings.settings_user_templates_error_cannot_read
+        UserProjectTemplateFailure.INVALID_ZIP -> Strings.settings_user_templates_error_invalid_zip
+        UserProjectTemplateFailure.DELETE_FAILED -> Strings.settings_user_templates_error_delete_failed
+        UserProjectTemplateFailure.RENAME_FAILED -> Strings.settings_user_templates_error_rename_failed
+        UserProjectTemplateFailure.EXPORT_FAILED -> Strings.settings_user_templates_error_export_failed
+        UserProjectTemplateFailure.UNSAFE_PATH -> Strings.settings_user_templates_error_unsafe_path
+        UserProjectTemplateFailure.IMPORT_FAILED,
+        null -> Strings.settings_user_templates_error_import_failed
+    }
+}
+
+private fun resolveUserProjectTemplateRenameErrorRes(
+    templatesDir: java.io.File,
+    currentName: String,
+    input: String,
+): Int? {
+    if (input.isBlank()) {
+        return Strings.settings_user_templates_error_invalid_name
+    }
+    val safeName = UserProjectTemplateManager.sanitizeTemplateFileName(input)
+    val target = java.io.File(templatesDir, safeName)
+    return if (safeName != currentName && target.exists()) {
+        Strings.settings_user_templates_error_rename_exists
+    } else {
+        null
+    }
+}
+
+private fun resolveUserProjectTemplateBuildSystemLabelRes(buildSystem: ProjectBuildSystem): Int {
+    return when (buildSystem) {
+        ProjectBuildSystem.SINGLE_FILE -> Strings.settings_user_templates_build_system_single_file
+        ProjectBuildSystem.CMAKE -> Strings.tag_cmake
+        ProjectBuildSystem.MAKE -> Strings.tag_makefile
+        ProjectBuildSystem.PLUGIN -> Strings.tag_plugin
+        ProjectBuildSystem.UNKNOWN -> Strings.settings_user_templates_build_system_unknown
+    }
 }
 
 @Composable

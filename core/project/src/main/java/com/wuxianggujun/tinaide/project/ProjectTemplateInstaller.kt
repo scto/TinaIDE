@@ -23,6 +23,7 @@ object ProjectTemplateInstaller {
     private const val CPP_STANDARD_PLACEHOLDER = "{{CPP_STANDARD}}"
     private const val CPP_STANDARD_FLAG_PLACEHOLDER = "{{CPP_STANDARD_FLAG}}"
     private const val NDK_API_LEVEL_PLACEHOLDER = "{{NDK_API_LEVEL}}"
+    private const val AUTHOR_PLACEHOLDER = "{{AUTHOR}}"
 
     private fun createStagingDirectory(destDir: File): File {
         val parentDir = destDir.canonicalFile.parentFile
@@ -88,7 +89,8 @@ object ProjectTemplateInstaller {
         projectName: String,
         type: TemplateType,
         cppStandard: CppStandard = CppStandard.DEFAULT,
-        ndkApiLevel: AndroidApiLevel? = null
+        ndkApiLevel: AndroidApiLevel? = null,
+        authorName: String = ""
     ): Boolean {
         return install(
             destDir = destDir,
@@ -96,6 +98,7 @@ object ProjectTemplateInstaller {
             templateSpec = ProjectTemplateSpec.Asset(type),
             cppStandard = cppStandard,
             ndkApiLevel = ndkApiLevel,
+            authorName = authorName,
             assetStreamProvider = { assetPath -> context.assets.open(assetPath) }
         )
     }
@@ -106,6 +109,7 @@ object ProjectTemplateInstaller {
         templateSpec: ProjectTemplateSpec,
         cppStandard: CppStandard = CppStandard.DEFAULT,
         ndkApiLevel: AndroidApiLevel? = null,
+        authorName: String = "",
         assetStreamProvider: ((String) -> InputStream)? = null
     ): Boolean {
         var stagingDir: File? = null
@@ -132,6 +136,7 @@ object ProjectTemplateInstaller {
                         type = templateSpec.type,
                         cppStandard = cppStandard,
                         ndkApiLevel = effectiveNdkApiLevel,
+                        authorName = authorName,
                         assetStreamProvider = provider
                     )
                 }
@@ -141,7 +146,8 @@ object ProjectTemplateInstaller {
                         projectName = projectName,
                         zipFile = templateSpec.zipFile,
                         cppStandard = cppStandard,
-                        ndkApiLevel = effectiveNdkApiLevel
+                        ndkApiLevel = effectiveNdkApiLevel,
+                        authorName = authorName
                     )
                 }
             }
@@ -176,6 +182,7 @@ object ProjectTemplateInstaller {
         type: TemplateType,
         cppStandard: CppStandard,
         ndkApiLevel: AndroidApiLevel?,
+        authorName: String,
         assetStreamProvider: (String) -> InputStream
     ) {
         val assetPath = "$TEMPLATES_DIR/${type.zipName}"
@@ -185,7 +192,8 @@ object ProjectTemplateInstaller {
                 destDir = destDir,
                 projectName = projectName,
                 cppStandard = cppStandard,
-                ndkApiLevel = ndkApiLevel
+                ndkApiLevel = ndkApiLevel,
+                authorName = authorName
             )
         }
     }
@@ -195,7 +203,8 @@ object ProjectTemplateInstaller {
         projectName: String,
         zipFile: File,
         cppStandard: CppStandard,
-        ndkApiLevel: AndroidApiLevel?
+        ndkApiLevel: AndroidApiLevel?,
+        authorName: String
     ) {
         zipFile.inputStream().use { inputStream ->
             extractTemplateStream(
@@ -203,7 +212,8 @@ object ProjectTemplateInstaller {
                 destDir = destDir,
                 projectName = projectName,
                 cppStandard = cppStandard,
-                ndkApiLevel = ndkApiLevel
+                ndkApiLevel = ndkApiLevel,
+                authorName = authorName
             )
         }
     }
@@ -213,14 +223,20 @@ object ProjectTemplateInstaller {
         destDir: File,
         projectName: String,
         cppStandard: CppStandard,
-        ndkApiLevel: AndroidApiLevel?
+        ndkApiLevel: AndroidApiLevel?,
+        authorName: String
     ) {
         val safeRoot = destDir.canonicalFile
         ZipInputStream(inputStream).use { zipStream ->
             var entry = zipStream.nextEntry
             while (entry != null) {
                 val entryName = entry.name.replace('\\', '/')
-                val destFileName = replaceText(entryName, projectName, cppStandard, ndkApiLevel)
+                if (ProjectTemplateMetadataReader.isMetadataEntry(entryName)) {
+                    zipStream.closeEntry()
+                    entry = zipStream.nextEntry
+                    continue
+                }
+                val destFileName = replaceText(entryName, projectName, cppStandard, ndkApiLevel, authorName)
                 val destFile = resolveTemplateDestination(safeRoot, destFileName)
 
                 if (entry.isDirectory) {
@@ -230,7 +246,7 @@ object ProjectTemplateInstaller {
                     val entryBytes = zipStream.readBytes()
                     if (shouldReplaceTextContent(entryName, entryBytes)) {
                         val content = entryBytes.toString(Charsets.UTF_8)
-                        val replacedContent = replaceText(content, projectName, cppStandard, ndkApiLevel)
+                        val replacedContent = replaceText(content, projectName, cppStandard, ndkApiLevel, authorName)
                         destFile.writeText(replacedContent, Charsets.UTF_8)
                     } else {
                         destFile.writeBytes(entryBytes)
@@ -279,13 +295,15 @@ object ProjectTemplateInstaller {
         text: String,
         projectName: String,
         cppStandard: CppStandard,
-        ndkApiLevel: AndroidApiLevel?
+        ndkApiLevel: AndroidApiLevel?,
+        authorName: String
     ): String {
         var result = text
             .replace(PROJECT_NAME_PLACEHOLDER, projectName)
             .replace(PROJECT_NAME_UPPER_PLACEHOLDER, projectName.uppercase())
             .replace(CPP_STANDARD_PLACEHOLDER, cppStandard.cmakeValue)
             .replace(CPP_STANDARD_FLAG_PLACEHOLDER, cppStandard.flag)
+            .replace(AUTHOR_PLACEHOLDER, authorName)
         if (ndkApiLevel != null) {
             result = result.replace(NDK_API_LEVEL_PLACEHOLDER, ndkApiLevel.level.toString())
         }

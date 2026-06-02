@@ -20,7 +20,8 @@ object ProjectCreationService {
         projectName: String,
         templateType: ProjectTemplateInstaller.TemplateType = ProjectTemplateInstaller.TemplateType.CPP_SINGLE_FILE,
         cppStandard: CppStandard = CppStandard.DEFAULT,
-        ndkApiLevel: AndroidApiLevel? = null
+        ndkApiLevel: AndroidApiLevel? = null,
+        authorName: String = ""
     ): ProjectCreationResult {
         return createProject(
             context = context,
@@ -28,7 +29,8 @@ object ProjectCreationService {
             projectName = projectName,
             templateSpec = ProjectTemplateSpec.Asset(templateType),
             cppStandard = cppStandard,
-            ndkApiLevel = ndkApiLevel
+            ndkApiLevel = ndkApiLevel,
+            authorName = authorName
         )
     }
 
@@ -38,7 +40,8 @@ object ProjectCreationService {
         projectName: String,
         templateSpec: ProjectTemplateSpec,
         cppStandard: CppStandard = CppStandard.DEFAULT,
-        ndkApiLevel: AndroidApiLevel? = null
+        ndkApiLevel: AndroidApiLevel? = null,
+        authorName: String = ""
     ): ProjectCreationResult {
         val normalizedName = projectName.trim()
         if (normalizedName.isBlank()) {
@@ -114,14 +117,16 @@ object ProjectCreationService {
                     projectName = normalizedName,
                     type = templateSpec.type,
                     cppStandard = cppStandard,
-                    ndkApiLevel = ndkApiLevel
+                    ndkApiLevel = ndkApiLevel,
+                    authorName = authorName
                 )
                 is ProjectTemplateSpec.Zip -> ProjectTemplateInstaller.install(
                     destDir = projectDir,
                     projectName = normalizedName,
                     templateSpec = templateSpec,
                     cppStandard = cppStandard,
-                    ndkApiLevel = ndkApiLevel
+                    ndkApiLevel = ndkApiLevel,
+                    authorName = authorName
                 )
             }
         }.onFailure { throwable ->

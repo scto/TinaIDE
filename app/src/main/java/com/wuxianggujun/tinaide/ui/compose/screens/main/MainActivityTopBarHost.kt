@@ -46,6 +46,7 @@ internal fun MainActivityTopBarHost(
     val canNavigateBack = editorContainerState.canNavigateBack()
     val canNavigateForward = editorContainerState.canNavigateForward()
     val canMoveTabToSecondaryPane = editorContainerState.canMoveActiveTabToSecondaryPane()
+    val canCopyTabToSecondaryPane = editorContainerState.canCopyActiveTabToSecondaryPane()
 
     val topBarCallbacks = rememberMainActivityTopBarCallbacks(
         drawerState = drawerState,
@@ -74,6 +75,7 @@ internal fun MainActivityTopBarHost(
         isSplitEditorEnabled = editorContainerState.isSplitEditorEnabled,
         splitEditorLayout = editorContainerState.splitEditorLayout,
         canMoveTabToSecondaryPane = canMoveTabToSecondaryPane,
+        canCopyTabToSecondaryPane = canCopyTabToSecondaryPane,
         currentBuildSystem = buildUiState.currentBuildSystem,
         availableTargets = buildUiState.availableTargets,
         runConfigManager = buildUiState.runConfigManager,
@@ -132,6 +134,7 @@ private fun rememberMainActivityTopBarCallbacks(
         onToggleSplitEditor = { editorContainerState.toggleSplitEditor() },
         onSetSplitEditorLayout = { layout -> editorContainerState.updateSplitEditorLayout(layout) },
         onMoveTabToSecondaryPane = { editorContainerState.moveActiveTabToSecondaryPane() },
+        onCopyTabToSecondaryPane = { editorContainerState.copyActiveTabToSecondaryPane() },
         onGotoLine = {
             when (editorContainerState.getActiveEditableEditorCommandAvailability()) {
                 EditorContainerState.ActiveEditorCommandResult.SUCCESS -> {

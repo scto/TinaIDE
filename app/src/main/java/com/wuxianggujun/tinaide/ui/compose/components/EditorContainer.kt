@@ -437,6 +437,7 @@ private fun EditorPane(
     val activeGlobalIndex = state.getActiveIndexForPane(pane)
     val activeTabId = allTabs.getOrNull(activeGlobalIndex)?.id
     val selectedLocalIndex = paneTabs.indexOfFirst { it.id == activeTabId }
+    fun paneTabStateKey(tabId: String): String = "${pane.name}:$tabId"
     val pagerState = rememberPagerState(
         initialPage = selectedLocalIndex.coerceAtLeast(0),
         pageCount = { paneTabs.size }
@@ -463,7 +464,7 @@ private fun EditorPane(
         val safeSelectedLocalIndex = selectedLocalIndex.coerceIn(0, paneTabs.lastIndex)
         val activeTabLoading = paneTabs.getOrNull(safeSelectedLocalIndex)
             ?.id
-            ?.let { tabLoadingMap[it] } == true
+            ?.let { tabLoadingMap[paneTabStateKey(it)] } == true
 
         EditorTabBar(
             tabs = paneTabs,
@@ -548,7 +549,7 @@ private fun EditorPane(
             ) { page ->
                 val tab = paneTabs.getOrNull(page)
                 if (tab != null) {
-                    key(tab.id) {
+                    key(pane, tab.id) {
                         EditorPage(
                             state = state,
                             tab = tab,
@@ -563,7 +564,9 @@ private fun EditorPane(
                             },
                             onCursorPositionChanged = onCursorPositionChanged,
                             onFileEncodingChanged = onFileEncodingChanged,
-                            onLoadingStateChanged = { loading -> tabLoadingMap[tab.id] = loading },
+                            onLoadingStateChanged = { loading ->
+                                tabLoadingMap[paneTabStateKey(tab.id)] = loading
+                            },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
