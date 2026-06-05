@@ -74,6 +74,7 @@ class ConfigApiModuleRuntimeTest {
                   local ok_format = tina.config.set("output.format", "json")
                   local bad_format, bad_format_err = tina.config.set("output.format", "xml")
                   local fallback = tina.config.get("missing.key", "fallback")
+                  local declared_fallback = tina.config.get("display.label", "fallback")
                   local jobs = tina.config.get("build.jobs")
                   return tostring(before)
                     .. "|" .. tostring(ok_enabled)
@@ -84,6 +85,7 @@ class ConfigApiModuleRuntimeTest {
                     .. "|" .. tostring(math.floor(jobs))
                     .. "|" .. tostring(fallback == nil)
                     .. "|" .. tostring(bad_format_err ~= nil)
+                    .. "|" .. declared_fallback
                 end
                 """.trimIndent()
             )
@@ -92,7 +94,7 @@ class ConfigApiModuleRuntimeTest {
             val result = runtime.callFunction("exercise_config_api")
 
             assertThat(result).isEqualTo(
-                PluginExecutionResult.Success("false|true|true|false|true|json|2|true|true")
+                PluginExecutionResult.Success("false|true|true|false|true|json|2|true|true|fallback")
             )
             assertThat(store.getValue(manifest, "feature.enabled")).isEqualTo(JsonPrimitive(true))
             assertThat(store.getValue(manifest, "output.format")).isEqualTo(JsonPrimitive("json"))
@@ -128,6 +130,9 @@ class ConfigApiModuleRuntimeTest {
                 "build.jobs" to PluginConfigurationProperty(
                     type = "number",
                     default = JsonPrimitive(2),
+                ),
+                "display.label" to PluginConfigurationProperty(
+                    type = "string",
                 ),
             ),
         ),
