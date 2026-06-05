@@ -164,6 +164,40 @@ class PluginDoctorTest {
     }
 
     @Test
+    fun `inspectDirectory should surface manifest requirements as info`() {
+        writeManifest(
+            PluginManifest(
+                id = "demo.config.requires",
+                name = "Demo Config Requires",
+                version = "1.0.0",
+                type = PluginTypes.CONFIG,
+                requires = PluginRequirements(
+                    toolchain = PluginToolchainRequirements(
+                        recommended = listOf("clangd", " cmake ", ""),
+                        optional = listOf("lldb"),
+                    ),
+                    packages = mapOf(
+                        "proot" to listOf("python3", " nodejs ", ""),
+                        " " to listOf("ignored"),
+                    ),
+                ),
+            )
+        )
+
+        val report = PluginDoctor.inspectDirectory(context, pluginDir)
+
+        assertThat(report.entries).hasSize(1)
+        val entry = report.entries.single()
+        assertThat(entry.issue.severity).isEqualTo(PluginDiagnosticSeverity.INFO)
+        assertThat(entry.issue.category).isEqualTo(PluginDiagnosticCategory.MANIFEST)
+        assertThat(entry.issue.message).contains("clangd")
+        assertThat(entry.issue.message).contains("cmake")
+        assertThat(entry.issue.message).contains("lldb")
+        assertThat(entry.issue.message).contains("proot: nodejs, python3")
+        assertThat(entry.issue.fixHint).isNotEmpty()
+    }
+
+    @Test
     fun `inspectDirectory should warn when script menu command is not declared and command permission missing`() {
         writeMainLua()
         writeManifest(

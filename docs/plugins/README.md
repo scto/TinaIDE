@@ -622,16 +622,17 @@ my-plugin.tinaplug
 - `description`
 - `contributions.themes`：主题文件相对路径列表，例如 `["themes/dracula.json"]`
 
-## 依赖声明（建议字段，暂未实现）
+## 依赖声明（建议字段，已支持提示）
 
-为支持“插件需要某些工具链组件/系统包”的场景，建议在 `manifest.json` 增加 `requires` 字段（当前宿主还未实现校验/提示，仅作为后续迭代的文档规范）。
+为支持“插件需要某些工具链组件/系统包”的场景，可以在 `manifest.json` 增加 `requires` 字段。
+宿主当前会解析该字段，在插件详情页展示依赖清单，并通过 Plugin Doctor 给出 INFO 级诊断提示。
+该能力只做声明与提示，不会自动安装工具链或系统包。
 
-建议结构（草案）：
+支持结构：
 
 ```json
 {
   "requires": {
-    "ide": { "minVersion": "1.0.0" },
     "toolchain": {
       "recommended": ["clangd", "cmake", "ninja", "git"],
       "optional": ["lldb"]
@@ -645,8 +646,8 @@ my-plugin.tinaplug
 
 落地策略建议：
 
-- 插件系统只做“声明 + 展示”
-- 用户确认后，跳转/委托给你现有的工具链安装/包管理 UI 执行安装
+- 插件系统只做“声明 + 展示 + doctor 提示”
+- 需要安装时，由用户按插件说明前往现有工具链安装或包管理 UI 处理
 
 ## 版本与更新策略
 

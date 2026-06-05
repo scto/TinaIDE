@@ -26,6 +26,7 @@ data class PluginManifest(
     val lifecycle: PluginLifecycle? = null,
     val main: String? = null, // Entry script file (e.g., "main.lua")
     val contributions: PluginContributions? = null,
+    val requires: PluginRequirements? = null,
     val activationEvents: List<String>? = null,
     val permissions: List<String>? = null,
     val optionalPermissions: List<String>? = null,
@@ -43,6 +44,18 @@ data class PluginAuthor(
     val name: String,
     val email: String? = null,
     val url: String? = null
+)
+
+@Serializable
+data class PluginRequirements(
+    val toolchain: PluginToolchainRequirements? = null,
+    val packages: Map<String, List<String>>? = null
+)
+
+@Serializable
+data class PluginToolchainRequirements(
+    val recommended: List<String> = emptyList(),
+    val optional: List<String> = emptyList()
 )
 
 @Serializable

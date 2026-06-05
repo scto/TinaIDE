@@ -1446,6 +1446,12 @@ private fun PluginInfoRow(text: String) {
     )
 }
 
+private fun List<PluginsPackageRequirementGroup>.toPluginRequirementsPackageDisplay(): String = joinToString(
+    separator = "; "
+) { group ->
+    "${group.manager}: ${group.packages.joinToString(", ")}"
+}
+
 @Composable
 private fun LspDependencyStatusCard(
     lspPluginInfo: LspPluginInfo,
@@ -1766,6 +1772,7 @@ private fun InstalledPluginDetailScreen(
     val isLspReady = lspInstallState?.serverReady == true
 
     val contributionSummary = PluginsSettingsSectionSupport.resolveContributionSummary(manifest)
+    val requirementsSummary = PluginsSettingsSectionSupport.resolveRequirementsSummary(manifest)
     val scope = rememberCoroutineScope()
     var doctorDiagnosticsReport by remember(manifest.id) { mutableStateOf<PluginDiagnosticsReport?>(null) }
     var isDoctorRunning by remember(manifest.id) { mutableStateOf(false) }
@@ -1967,6 +1974,40 @@ private fun InstalledPluginDetailScreen(
                         contributionSummary.editorContextMenuCount,
                     )
                 )
+            }
+        }
+
+        if (requirementsSummary.hasRequirements) {
+            DetailInfoCard(
+                title = stringResource(Strings.plugins_details_requirements_title)
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(TinaSpacing.sm)) {
+                    if (requirementsSummary.recommendedToolchains.isNotEmpty()) {
+                        PluginInfoRow(
+                            stringResource(
+                                Strings.plugins_details_requirements_toolchain_recommended,
+                                requirementsSummary.recommendedToolchains.joinToString(", ")
+                            )
+                        )
+                    }
+                    if (requirementsSummary.optionalToolchains.isNotEmpty()) {
+                        PluginInfoRow(
+                            stringResource(
+                                Strings.plugins_details_requirements_toolchain_optional,
+                                requirementsSummary.optionalToolchains.joinToString(", ")
+                            )
+                        )
+                    }
+                    if (requirementsSummary.packageGroups.isNotEmpty()) {
+                        PluginInfoRow(
+                            stringResource(
+                                Strings.plugins_details_requirements_packages,
+                                requirementsSummary.packageGroups.toPluginRequirementsPackageDisplay()
+                            )
+                        )
+                    }
+                    PluginInfoRow(stringResource(Strings.plugins_details_requirements_note))
+                }
             }
         }
 

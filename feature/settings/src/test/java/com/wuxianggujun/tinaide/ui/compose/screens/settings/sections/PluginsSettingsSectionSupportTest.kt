@@ -15,6 +15,8 @@ import com.wuxianggujun.tinaide.plugin.PluginLogLevel
 import com.wuxianggujun.tinaide.plugin.PluginManifest
 import com.wuxianggujun.tinaide.plugin.PluginMenuItem
 import com.wuxianggujun.tinaide.plugin.PluginMenus
+import com.wuxianggujun.tinaide.plugin.PluginRequirements
+import com.wuxianggujun.tinaide.plugin.PluginToolchainRequirements
 import com.wuxianggujun.tinaide.plugin.ThemeConfig
 import com.wuxianggujun.tinaide.plugin.lsp.LspPluginInfo
 import com.wuxianggujun.tinaide.plugin.lsp.LspPluginInstallState
@@ -313,6 +315,46 @@ class PluginsSettingsSectionSupportTest {
                 themeCount = 2,
                 fileTreeMenuCount = 2,
                 editorContextMenuCount = 1,
+            )
+        )
+    }
+
+    @Test
+    fun requirementsSummary_shouldNormalizeAndGroupManifestRequires() {
+        val manifest = PluginManifest(
+            id = "demo.plugin",
+            name = "Demo Plugin",
+            version = "1.0.0",
+            requires = PluginRequirements(
+                toolchain = PluginToolchainRequirements(
+                    recommended = listOf("clangd", " cmake ", "clangd", ""),
+                    optional = listOf("lldb", " "),
+                ),
+                packages = mapOf(
+                    "proot" to listOf("python3", " nodejs ", "python3"),
+                    "native" to listOf("lld"),
+                    " " to listOf("ignored"),
+                    "empty" to emptyList(),
+                ),
+            ),
+        )
+
+        assertThat(
+            PluginsSettingsSectionSupport.resolveRequirementsSummary(manifest)
+        ).isEqualTo(
+            PluginsRequirementsSummary(
+                recommendedToolchains = listOf("clangd", "cmake"),
+                optionalToolchains = listOf("lldb"),
+                packageGroups = listOf(
+                    PluginsPackageRequirementGroup(
+                        manager = "native",
+                        packages = listOf("lld"),
+                    ),
+                    PluginsPackageRequirementGroup(
+                        manager = "proot",
+                        packages = listOf("nodejs", "python3"),
+                    ),
+                ),
             )
         )
     }

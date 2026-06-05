@@ -26,6 +26,22 @@ internal data class PluginsContributionSummary(
     val editorContextMenuCount: Int,
 )
 
+internal data class PluginsRequirementsSummary(
+    val recommendedToolchains: List<String>,
+    val optionalToolchains: List<String>,
+    val packageGroups: List<PluginsPackageRequirementGroup>,
+) {
+    val hasRequirements: Boolean
+        get() = recommendedToolchains.isNotEmpty() ||
+            optionalToolchains.isNotEmpty() ||
+            packageGroups.isNotEmpty()
+}
+
+internal data class PluginsPackageRequirementGroup(
+    val manager: String,
+    val packages: List<String>,
+)
+
 internal data class PluginDiagnosticsSummary(
     val totalCount: Int,
     val errorCount: Int,
@@ -240,6 +256,14 @@ internal object PluginsSettingsSectionSupport {
 
     private fun formatLspDiagnosticText(template: String, value: String): String = String.format(Locale.getDefault(), template, value)
 
+    private fun normalizeRequirementItems(items: List<String>?): List<String> = items.orEmpty()
+        .asSequence()
+        .map { item -> item.trim() }
+        .filter { item -> item.isNotBlank() }
+        .distinct()
+        .sorted()
+        .toList()
+
     @StringRes
     fun resolveScriptPluginStateLabelRes(state: ScriptPluginState): Int = when (state) {
         ScriptPluginState.UNLOADED -> Strings.plugins_runtime_state_unloaded
@@ -291,6 +315,28 @@ internal object PluginsSettingsSectionSupport {
         fileTreeMenuCount = manifest.contributions?.menus?.fileTreeContext?.size ?: 0,
         editorContextMenuCount = manifest.contributions?.menus?.editorContext?.size ?: 0,
     )
+
+    fun resolveRequirementsSummary(manifest: PluginManifest): PluginsRequirementsSummary {
+        val requirements = manifest.requires
+        return PluginsRequirementsSummary(
+            recommendedToolchains = normalizeRequirementItems(requirements?.toolchain?.recommended),
+            optionalToolchains = normalizeRequirementItems(requirements?.toolchain?.optional),
+            packageGroups = requirements?.packages.orEmpty()
+                .mapNotNull { (manager, packages) ->
+                    val normalizedManager = manager.trim()
+                    val normalizedPackages = normalizeRequirementItems(packages)
+                    if (normalizedManager.isBlank() || normalizedPackages.isEmpty()) {
+                        null
+                    } else {
+                        PluginsPackageRequirementGroup(
+                            manager = normalizedManager,
+                            packages = normalizedPackages,
+                        )
+                    }
+                }
+                .sortedBy { group -> group.manager },
+        )
+    }
 
     fun resolvePluginDiagnosticsSummary(report: PluginDiagnosticsReport?): PluginDiagnosticsSummary {
         val issues = report?.issues.orEmpty()

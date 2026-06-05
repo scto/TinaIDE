@@ -25,6 +25,7 @@ internal object PluginHealthInspector {
             inspectCompatibility(context, plugin.manifest, currentAppVersion, this)
             inspectPermissions(context, plugin.manifest, this)
             inspectNetworkHosts(context, plugin.manifest, this)
+            inspectRequirements(context, plugin.manifest, this)
             inspectCommands(context, plugin.manifest, commandContext, this)
             val customMenuCommandIds = inspectMenus(
                 context = context,
@@ -180,6 +181,25 @@ internal object PluginHealthInspector {
                 fixHint = Strings.plugin_diagnostic_network_hosts_format_fix.strOr(context),
             )
         }
+    }
+
+    private fun inspectRequirements(
+        context: Context,
+        manifest: PluginManifest,
+        issues: MutableList<PluginDiagnosticIssue>,
+    ) {
+        val requirementLines = buildRequirementLines(context, manifest.requires)
+        if (requirementLines.isEmpty()) return
+
+        issues += PluginDiagnosticIssue(
+            severity = PluginDiagnosticSeverity.INFO,
+            category = PluginDiagnosticCategory.MANIFEST,
+            message = Strings.plugin_diagnostic_requirements_declared.strOr(
+                context,
+                requirementLines.joinToString("; ")
+            ),
+            fixHint = Strings.plugin_diagnostic_requirements_fix.strOr(context),
+        )
     }
 
     private fun inspectCommands(
@@ -553,6 +573,56 @@ internal object PluginHealthInspector {
             .findDuplicates()
     }
 
+    private fun buildRequirementLines(
+        context: Context,
+        requirements: PluginRequirements?,
+    ): List<String> {
+        if (requirements == null) return emptyList()
+
+        return buildList {
+            val recommendedToolchains = normalizeRequirementItems(requirements.toolchain?.recommended)
+            if (recommendedToolchains.isNotEmpty()) {
+                add(
+                    Strings.plugin_diagnostic_requirements_toolchain_recommended.strOr(
+                        context,
+                        recommendedToolchains.joinToString(", ")
+                    )
+                )
+            }
+
+            val optionalToolchains = normalizeRequirementItems(requirements.toolchain?.optional)
+            if (optionalToolchains.isNotEmpty()) {
+                add(
+                    Strings.plugin_diagnostic_requirements_toolchain_optional.strOr(
+                        context,
+                        optionalToolchains.joinToString(", ")
+                    )
+                )
+            }
+
+            val packageRequirements = requirements.packages.orEmpty()
+                .mapNotNull { (manager, packages) ->
+                    val normalizedManager = manager.trim()
+                    val normalizedPackages = normalizeRequirementItems(packages)
+                    if (normalizedManager.isBlank() || normalizedPackages.isEmpty()) {
+                        null
+                    } else {
+                        "$normalizedManager: ${normalizedPackages.joinToString(", ")}"
+                    }
+                }
+                .sorted()
+
+            if (packageRequirements.isNotEmpty()) {
+                add(
+                    Strings.plugin_diagnostic_requirements_packages.strOr(
+                        context,
+                        packageRequirements.joinToString("; ")
+                    )
+                )
+            }
+        }
+    }
+
     private fun buildCommandInspectionContext(
         manifest: PluginManifest,
     ): CommandInspectionContext {
@@ -595,6 +665,16 @@ internal object PluginHealthInspector {
             ?.trim()
             ?.lowercase()
             ?.takeIf { it.isNotEmpty() }
+    }
+
+    private fun normalizeRequirementItems(items: List<String>?): List<String> {
+        return items.orEmpty()
+            .asSequence()
+            .map { item -> item.trim() }
+            .filter { item -> item.isNotBlank() }
+            .distinct()
+            .sorted()
+            .toList()
     }
 
     private fun isSupportedFileTreeWhenExpression(whenExpr: String?): Boolean {

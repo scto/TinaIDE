@@ -14,6 +14,7 @@
 | `optionalPermissions` | 否 | 实验 | 预留给后续“按需授权”流程，当前只参与声明校验。 |
 | `activationEvents` | 否 | 实验 | 保留字段，当前事件总线仍以运行时订阅为主。 |
 | `contributions.commands` / `menus` | 否 | 稳定 | 已用于命令与菜单贡献。 |
+| `requires` | 否 | 稳定 | 依赖声明提示字段；宿主解析并展示/诊断提示，但不检测真实安装状态，也不自动安装依赖。 |
 
 ## `tina` 全局对象
 
