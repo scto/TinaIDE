@@ -472,6 +472,12 @@ class PluginManager(
         )
     }
 
+    fun resolveKeyBindings(
+        installedPlugins: List<InstalledPlugin>
+    ): List<ResolvedPluginKeyBinding> {
+        return PluginKeyBindingResolver.resolve(installedPlugins)
+    }
+
     private fun resolveProjectTemplateOption(
         plugin: InstalledPlugin,
         template: PluginProjectTemplate

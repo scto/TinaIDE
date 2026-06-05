@@ -66,6 +66,9 @@ internal object PluginManifestValidator {
             require(isSafePluginRelativePath(path)) {
                 Strings.plugin_error_keybindings_path_invalid.strOr(context, path)
             }
+            require(File(pluginDir, path).isFile) {
+                Strings.plugin_error_keybindings_file_not_exist.strOr(context, path)
+            }
         }
 
         manifest.contributions?.projectTemplates?.forEach { template ->

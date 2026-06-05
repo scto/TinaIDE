@@ -138,6 +138,32 @@ class PluginDoctorTest {
     }
 
     @Test
+    fun `inspectDirectory should accept keybinding host command`() {
+        File(pluginDir, "keybindings.json").writeText(
+            """
+            [
+              { "key": "Ctrl+Alt+S", "command": "${HostCommands.EDITOR_SAVE}", "when": "isDirty" }
+            ]
+            """.trimIndent()
+        )
+        writeManifest(
+            PluginManifest(
+                id = "demo.config.keybinding",
+                name = "Demo Config Keybinding",
+                version = "1.0.0",
+                type = PluginTypes.CONFIG,
+                contributions = PluginContributions(
+                    keybindings = listOf("keybindings.json")
+                )
+            )
+        )
+
+        val report = PluginDoctor.inspectDirectory(context, pluginDir)
+
+        assertThat(report.entries).isEmpty()
+    }
+
+    @Test
     fun `inspectDirectory should warn when script menu command is not declared and command permission missing`() {
         writeMainLua()
         writeManifest(

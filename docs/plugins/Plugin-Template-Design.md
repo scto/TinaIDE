@@ -208,14 +208,14 @@ CMake/Make 工程。所以 `projectTemplates.buildSystem` 应声明为：
 - `contributions.menus["filetree/context"]`
 - `contributions.menus["editor/context"]`
 - `contributions.menus["editor/toolbar"]`
+- `contributions.keybindings`
 - `contributions.fileIcons`
 
 不建议默认塞进去的字段：
 
-- `keybindings`
 - `panels`
 
-原因很简单：这些字段在模型里存在，但不适合作为 v1 模板的默认承诺。
+原因很简单：`keybindings` 已可用但会增加第一版模板的学习成本；`panels` 仍未提供 UI 入口。
 
 推荐示例 `manifest.json`：
 

@@ -1,8 +1,12 @@
 package com.wuxianggujun.tinaide.ui
 
 import android.view.KeyEvent
+import com.wuxianggujun.tinaide.core.commands.HostCommandExecutor
+import com.wuxianggujun.tinaide.core.commands.HostCommandInvocation
 import com.wuxianggujun.tinaide.core.config.KeyboardShortcutManager
 import com.wuxianggujun.tinaide.core.config.ShortcutAction
+import com.wuxianggujun.tinaide.plugin.PluginKeyBindingResolver
+import com.wuxianggujun.tinaide.plugin.ResolvedPluginKeyBinding
 import com.wuxianggujun.tinaide.ui.compose.state.editor.EditorContainerState
 
 /**
@@ -12,6 +16,7 @@ import com.wuxianggujun.tinaide.ui.compose.state.editor.EditorContainerState
  */
 class MainActivityShortcutDispatcher {
     private var dispatchShortcutAction: ((ShortcutAction) -> Unit)? = null
+    private var dispatchPluginShortcut: ((KeyEvent) -> Boolean)? = null
 
     fun bind(
         editorContainerState: EditorContainerState,
@@ -44,15 +49,54 @@ class MainActivityShortcutDispatcher {
         }
     }
 
+    fun bindPluginKeyBindings(
+        keyBindingsProvider: () -> List<ResolvedPluginKeyBinding>,
+        invocationProvider: () -> HostCommandInvocation,
+        editorFocusProvider: () -> Boolean,
+        hostCommandExecutor: HostCommandExecutor,
+    ) {
+        dispatchPluginShortcut = { event ->
+            val invocation = invocationProvider()
+            val isDirty = invocation.isDirty ?: false
+            val editorFocus = editorFocusProvider()
+
+            keyBindingsProvider()
+                .asSequence()
+                .filter { binding ->
+                    binding.matches(
+                        event = event,
+                        isDirty = isDirty,
+                        editorFocus = editorFocus
+                    )
+                }
+                .filter(PluginKeyBindingResolver::isCommandSupported)
+                .any { binding ->
+                    hostCommandExecutor.execute(
+                        commandId = binding.commandId,
+                        invocation = invocation
+                    )
+                }
+        }
+    }
+
+    fun clearPluginKeyBindings() {
+        dispatchPluginShortcut = null
+    }
+
     fun dispatch(event: KeyEvent?): Boolean {
         if (event == null) return false
-        val action = KeyboardShortcutManager.findActionForEvent(event) ?: return false
-        val dispatcher = dispatchShortcutAction ?: return false
-        dispatcher(action)
-        return true
+        val action = KeyboardShortcutManager.findActionForEvent(event)
+        if (action != null) {
+            val dispatcher = dispatchShortcutAction ?: return false
+            dispatcher(action)
+            return true
+        }
+
+        return dispatchPluginShortcut?.invoke(event) == true
     }
 
     fun clear() {
         dispatchShortcutAction = null
+        clearPluginKeyBindings()
     }
 }

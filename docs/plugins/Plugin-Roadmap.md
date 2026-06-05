@@ -51,7 +51,7 @@
 | 文件树目录菜单扩展 | ⭐⭐⭐⭐ | ⭐⭐⭐ | P0 | ✅ 已完成（`menus["filetree/context"]` → 宿主内置命令 / 当前插件已注册命令） |
 | 编辑器菜单/工具栏扩展 | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | P1 | ✅ editor/context（Tab 长按菜单）与 editor/toolbar（标签栏右侧动作菜单）已完成 |
 | SnippetManager（代码片段） | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | P1 | ✅ 已完成（`contributions.snippets`） |
-| Keybindings（快捷键绑定） | ⭐⭐⭐ | ⭐⭐⭐ | P2 | 与现有快捷键系统融合 |
+| Keybindings（快捷键绑定） | ⭐⭐⭐ | ⭐⭐⭐ | P2 | ✅ JSON 文件声明，MainActivity 硬件快捷键分发已接入 |
 | requires（依赖声明提示） | ⭐⭐⭐ | ⭐⭐ | P2 | 仅展示与跳转，不做安装 |
 | 插件详情页（权限/依赖/贡献预览） | ⭐⭐⭐ | ⭐⭐⭐ | P2 | UX 完整性 |
 | **插件设置页面** | ⭐⭐⭐ | ⭐⭐⭐ | P2 | 预留，阶段 2 前置；规范已定义，代码待实现 |
@@ -189,10 +189,11 @@ interface HostCommand {
 
 - `core/config/src/main/java/.../core/config/KeyboardShortcuts.kt`
 
-建议：
+已落地：
 
 - 插件 keybindings 只能绑定宿主命令注册表（同菜单）
-- `when` 条件先不做或只做最小集（如 `editorFocus == true`）
+- 支持 `isDirty` 与 `editorFocus` 最小 `when` 条件
+- 用户自定义/内置快捷键优先，插件快捷键作为兜底分发
 
 ### 3.6 requires（依赖声明提示）（P2）
 

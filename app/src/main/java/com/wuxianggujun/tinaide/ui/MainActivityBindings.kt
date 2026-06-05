@@ -10,10 +10,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wuxianggujun.tinaide.core.commands.HostCommandExecutor
+import com.wuxianggujun.tinaide.core.commands.HostCommandInvocation
 import com.wuxianggujun.tinaide.file.FileChangeListener
 import com.wuxianggujun.tinaide.file.IFileWatchService
 import com.wuxianggujun.tinaide.file.IProjectContext
+import com.wuxianggujun.tinaide.plugin.PluginManager
+import com.wuxianggujun.tinaide.plugin.ResolvedPluginKeyBinding
 import com.wuxianggujun.tinaide.plugin.script.api.PluginDiagnosticsProviderHolder
 import com.wuxianggujun.tinaide.plugin.script.api.PluginEditorBridgeHolder
 import com.wuxianggujun.tinaide.plugin.script.api.PluginHostCommandExecutorHolder
@@ -25,9 +29,11 @@ import com.wuxianggujun.tinaide.ui.compose.screens.main.MainActivityLocationDial
 import com.wuxianggujun.tinaide.ui.compose.state.editor.EditorActionsState
 import com.wuxianggujun.tinaide.ui.compose.state.editor.EditorContainerState
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 
 private const val FILE_TREE_WATCH_DEBOUNCE_MS = 96L
@@ -230,6 +236,50 @@ internal fun BindMainActivityEditorHost(
         onToastError = onToastError,
     )
     BindPluginEditorBridge(editorContainerState)
+}
+
+@Composable
+internal fun BindPluginKeyBindings(
+    shortcutDispatcher: MainActivityShortcutDispatcher,
+    editorContainerState: EditorContainerState,
+    hostCommandExecutor: HostCommandExecutor,
+) {
+    val context = LocalContext.current
+    val pluginManager = remember(context) {
+        PluginManager.getInstance(context.applicationContext)
+    }
+    val enabledPlugins by pluginManager.enabledPluginsFlow.collectAsStateWithLifecycle()
+    var pluginKeyBindings by remember { mutableStateOf<List<ResolvedPluginKeyBinding>>(emptyList()) }
+
+    LaunchedEffect(pluginManager, enabledPlugins) {
+        pluginKeyBindings = withContext(Dispatchers.IO) {
+            pluginManager.resolveKeyBindings(enabledPlugins)
+        }
+    }
+
+    DisposableEffect(
+        shortcutDispatcher,
+        editorContainerState,
+        hostCommandExecutor,
+        pluginKeyBindings,
+    ) {
+        shortcutDispatcher.bindPluginKeyBindings(
+            keyBindingsProvider = { pluginKeyBindings },
+            invocationProvider = {
+                val activeFile = editorContainerState.getActiveFileOrNull()
+                HostCommandInvocation(
+                    file = activeFile,
+                    isDirectory = activeFile?.isDirectory,
+                    isDirty = editorContainerState.isActiveTabDirty()
+                )
+            },
+            editorFocusProvider = { editorContainerState.getActiveFileOrNull() != null },
+            hostCommandExecutor = hostCommandExecutor,
+        )
+        onDispose {
+            shortcutDispatcher.clearPluginKeyBindings()
+        }
+    }
 }
 
 @Composable

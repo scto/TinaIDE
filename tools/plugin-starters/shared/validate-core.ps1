@@ -411,7 +411,7 @@ if ($contributions -is [pscustomobject]) {
     }
 
     foreach ($keybindingPath in (Get-Items (Get-PropValue $contributions "keybindings"))) {
-        Require-SafePath -PathValue (Get-Text $keybindingPath) -FieldName "contributions.keybindings[]" -MustExist $false
+        Require-SafePath -PathValue (Get-Text $keybindingPath) -FieldName "contributions.keybindings[]" -MustExist $true
     }
 
     $projectTemplateIndex = 0

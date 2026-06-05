@@ -12,6 +12,7 @@ import com.wuxianggujun.tinaide.ui.BindMainActivityEditorHost
 import com.wuxianggujun.tinaide.ui.BindPluginDiagnosticsProvider
 import com.wuxianggujun.tinaide.ui.BindPluginHostCommandExecutor
 import com.wuxianggujun.tinaide.ui.BindPluginHostEvents
+import com.wuxianggujun.tinaide.ui.BindPluginKeyBindings
 import com.wuxianggujun.tinaide.ui.BottomPanelViewModel
 import com.wuxianggujun.tinaide.ui.CompileActionsHelper
 import com.wuxianggujun.tinaide.ui.DebugViewModel
@@ -80,21 +81,6 @@ internal fun MainActivityWorkspaceSection(
         bottomPanelController = bottomPanelController,
     )
 
-    BindMainActivityEditorHost(
-        editorContainerState = editorContainerState,
-        editorActionBridge = editorActionBridge,
-        actionsDelegate = actionsDelegate,
-        shortcutDispatcher = shortcutDispatcher,
-        editorActionsState = editorActionsState,
-        locationDialogState = locationDialogState,
-        scope = uiScope,
-        onFileNotExist = {
-            callbacks.toastError(Strings.toast_file_not_exist.strOr(activity))
-        },
-        onToastInfo = callbacks.toastInfo,
-        onToastError = callbacks.toastError,
-    )
-
     val workspaceUi = rememberMainActivityWorkspaceUi(
         activity = activity,
         editorContainerState = editorContainerState,
@@ -111,7 +97,27 @@ internal fun MainActivityWorkspaceSection(
         callbacks = callbacks,
     )
 
+    BindMainActivityEditorHost(
+        editorContainerState = editorContainerState,
+        editorActionBridge = editorActionBridge,
+        actionsDelegate = actionsDelegate,
+        shortcutDispatcher = shortcutDispatcher,
+        editorActionsState = editorActionsState,
+        locationDialogState = locationDialogState,
+        scope = uiScope,
+        onFileNotExist = {
+            callbacks.toastError(Strings.toast_file_not_exist.strOr(activity))
+        },
+        onToastInfo = callbacks.toastInfo,
+        onToastError = callbacks.toastError,
+    )
+
     BindPluginHostCommandExecutor(workspaceUi.hostCommandExecutor)
+    BindPluginKeyBindings(
+        shortcutDispatcher = shortcutDispatcher,
+        editorContainerState = editorContainerState,
+        hostCommandExecutor = workspaceUi.hostCommandExecutor,
+    )
     BindPluginDiagnosticsProvider(
         bottomPanelViewModel = bottomPanelViewModel,
         projectRootProvider = { projectSnapshot.rootPath },

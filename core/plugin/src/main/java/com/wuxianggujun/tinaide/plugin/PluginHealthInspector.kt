@@ -32,10 +32,16 @@ internal object PluginHealthInspector {
                 commandContext = commandContext,
                 issues = this,
             )
+            val customKeyBindingCommandIds = inspectKeyBindings(
+                context = context,
+                plugin = plugin,
+                commandContext = commandContext,
+                issues = this,
+            )
             inspectCommandPermission(
                 context = context,
                 commandContext = commandContext,
-                customMenuCommandIds = customMenuCommandIds,
+                customCommandIds = customMenuCommandIds + customKeyBindingCommandIds,
                 issues = this,
             )
             inspectUnsupportedContributions(context, plugin.manifest, this)
@@ -335,24 +341,139 @@ internal object PluginHealthInspector {
     private fun inspectCommandPermission(
         context: Context,
         commandContext: CommandInspectionContext,
-        customMenuCommandIds: Set<String>,
+        customCommandIds: Set<String>,
         issues: MutableList<PluginDiagnosticIssue>,
     ) {
         if (!commandContext.supportsRuntimePluginCommands) return
         if (commandContext.hasCommandExecutePermission) return
 
-        val customCommandIds = commandContext.declaredCustomCommandIds + customMenuCommandIds
-        if (customCommandIds.isEmpty()) return
+        val allCustomCommandIds = commandContext.declaredCustomCommandIds + customCommandIds
+        if (allCustomCommandIds.isEmpty()) return
 
         issues += PluginDiagnosticIssue(
             severity = PluginDiagnosticSeverity.WARNING,
             category = PluginDiagnosticCategory.PERMISSIONS,
             message = Strings.plugin_diagnostic_command_permission_missing.strOr(
                 context,
-                customCommandIds.sorted().joinToString(", ")
+                allCustomCommandIds.sorted().joinToString(", ")
             ),
             fixHint = Strings.plugin_diagnostic_command_permission_missing_fix.strOr(context),
         )
+    }
+
+    private fun inspectKeyBindings(
+        context: Context,
+        plugin: InstalledPlugin,
+        commandContext: CommandInspectionContext,
+        issues: MutableList<PluginDiagnosticIssue>,
+    ): Set<String> {
+        val keyBindingPaths = plugin.manifest.contributions?.keybindings.orEmpty()
+        if (keyBindingPaths.isEmpty()) return emptySet()
+
+        val customKeyBindingCommandIds = mutableSetOf<String>()
+        keyBindingPaths.forEach { path ->
+            val keyBindingPath = path.trim()
+            if (!isSafePluginRelativePath(keyBindingPath)) {
+                issues += PluginDiagnosticIssue(
+                    severity = PluginDiagnosticSeverity.ERROR,
+                    category = PluginDiagnosticCategory.CONTRIBUTIONS,
+                    message = Strings.plugin_diagnostic_keybinding_path_invalid.strOr(context, path),
+                    fixHint = Strings.plugin_diagnostic_keybinding_path_fix.strOr(context),
+                )
+                return@forEach
+            }
+
+            val file = File(plugin.directory, keyBindingPath)
+            if (!file.isFile) {
+                issues += PluginDiagnosticIssue(
+                    severity = PluginDiagnosticSeverity.ERROR,
+                    category = PluginDiagnosticCategory.CONTRIBUTIONS,
+                    message = Strings.plugin_diagnostic_keybinding_file_missing.strOr(context, keyBindingPath),
+                    fixHint = Strings.plugin_diagnostic_keybinding_fix.strOr(context),
+                )
+                return@forEach
+            }
+
+            val bindings = PluginKeyBindingResolver.readKeyBindingFile(file).getOrElse {
+                issues += PluginDiagnosticIssue(
+                    severity = PluginDiagnosticSeverity.ERROR,
+                    category = PluginDiagnosticCategory.CONTRIBUTIONS,
+                    message = Strings.plugin_diagnostic_keybinding_file_invalid.strOr(context, keyBindingPath),
+                    fixHint = Strings.plugin_diagnostic_keybinding_fix.strOr(context),
+                )
+                return@forEach
+            }
+
+            bindings.forEachIndexed { index, binding ->
+                val location = "$keyBindingPath#${index + 1}"
+                if (PluginKeyBindingResolver.parseShortcut(binding.key) == null) {
+                    issues += PluginDiagnosticIssue(
+                        severity = PluginDiagnosticSeverity.WARNING,
+                        category = PluginDiagnosticCategory.CONTRIBUTIONS,
+                        message = Strings.plugin_diagnostic_keybinding_invalid_key.strOr(
+                            context,
+                            binding.key,
+                            location
+                        ),
+                        fixHint = Strings.plugin_diagnostic_keybinding_fix.strOr(context),
+                    )
+                }
+
+                val commandId = binding.command.trim()
+                if (commandId.isBlank()) {
+                    issues += PluginDiagnosticIssue(
+                        severity = PluginDiagnosticSeverity.ERROR,
+                        category = PluginDiagnosticCategory.CONTRIBUTIONS,
+                        message = Strings.plugin_diagnostic_keybinding_blank_command.strOr(context, location),
+                        fixHint = Strings.plugin_diagnostic_command_fix.strOr(context),
+                    )
+                } else if (HostCommands.isSupported(commandId)) {
+                    // 宿主白名单命令，静态合法。
+                } else if (commandContext.supportsRuntimePluginCommands) {
+                    customKeyBindingCommandIds += commandId
+                    if (commandId !in commandContext.declaredCommandIds) {
+                        issues += PluginDiagnosticIssue(
+                            severity = PluginDiagnosticSeverity.WARNING,
+                            category = PluginDiagnosticCategory.CONTRIBUTIONS,
+                            message = Strings.plugin_diagnostic_keybinding_plugin_command_not_declared.strOr(
+                                context,
+                                commandId,
+                                location
+                            ),
+                            fixHint = Strings.plugin_diagnostic_menu_plugin_command_not_declared_fix
+                                .strOr(context),
+                        )
+                    }
+                } else {
+                    issues += PluginDiagnosticIssue(
+                        severity = PluginDiagnosticSeverity.ERROR,
+                        category = PluginDiagnosticCategory.COMPATIBILITY,
+                        message = Strings.plugin_diagnostic_keybinding_unsupported_command.strOr(
+                            context,
+                            commandId,
+                            location
+                        ),
+                        fixHint = Strings.plugin_diagnostic_command_fix.strOr(context),
+                    )
+                }
+
+                val whenExpr = binding.`when`?.trim().orEmpty()
+                if (whenExpr.isNotBlank() && !PluginKeyBindingResolver.isSupportedWhenExpression(whenExpr)) {
+                    issues += PluginDiagnosticIssue(
+                        severity = PluginDiagnosticSeverity.WARNING,
+                        category = PluginDiagnosticCategory.COMPATIBILITY,
+                        message = Strings.plugin_diagnostic_keybinding_unknown_when.strOr(
+                            context,
+                            whenExpr,
+                            location
+                        ),
+                        fixHint = Strings.plugin_diagnostic_menu_when_fix.strOr(context),
+                    )
+                }
+            }
+        }
+
+        return customKeyBindingCommandIds
     }
 
     private fun inspectUnsupportedContributions(

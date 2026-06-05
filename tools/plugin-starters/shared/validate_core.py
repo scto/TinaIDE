@@ -218,7 +218,7 @@ def main() -> int:
         require_safe_path(snippet_path, "contributions.snippets[]", must_exist=True)
 
     for keybinding_path in as_list(contributions.get("keybindings")):
-        require_safe_path(keybinding_path, "contributions.keybindings[]", must_exist=False)
+        require_safe_path(keybinding_path, "contributions.keybindings[]", must_exist=True)
 
     for index, template in enumerate(as_list(contributions.get("projectTemplates")), start=1):
         if not isinstance(template, dict):
