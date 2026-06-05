@@ -1,25 +1,73 @@
 package com.wuxianggujun.tinaide.ai.integration
 
+import android.app.Application
 import com.google.common.truth.Truth.assertThat
+import com.wuxianggujun.tinaide.ai.tools.executor.execution.BuildRequest
 import com.wuxianggujun.tinaide.ai.tools.executor.execution.ExecutionResult
 import com.wuxianggujun.tinaide.ai.tools.executor.execution.ExecutionStatus
+import com.wuxianggujun.tinaide.ai.tools.executor.execution.RunRequest
+import com.wuxianggujun.tinaide.ai.tools.executor.execution.TestRequest
 import com.wuxianggujun.tinaide.core.compile.CompileProjectUseCase
 import com.wuxianggujun.tinaide.core.compile.ProcessManager
 import com.wuxianggujun.tinaide.core.compile.RunConfigurationManager
+import com.wuxianggujun.tinaide.core.i18n.AppStrings
 import com.wuxianggujun.tinaide.editor.IEditorManager
+import com.wuxianggujun.tinaide.editor.session.SaveReason
+import com.wuxianggujun.tinaide.editor.session.SaveResult
 import com.wuxianggujun.tinaide.output.IOutputManager
 import com.wuxianggujun.tinaide.ui.BottomPanelController
 import com.wuxianggujun.tinaide.ui.BottomPanelViewModel
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.withTimeout
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestWatcher
+import org.junit.runner.Description
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(
+    sdk = [34],
+    manifest = Config.NONE,
+    application = Application::class
+)
+@OptIn(ExperimentalCoroutinesApi::class)
 class ExecutionCallbacksImplTest {
+
+    @get:Rule
+    val mainDispatcherRule = ExecutionCallbacksMainDispatcherRule()
+
+    @Before
+    fun setUp() {
+        resetAppStrings()
+        AppStrings.initialize(RuntimeEnvironment.getApplication())
+    }
+
+    @After
+    fun tearDown() {
+        resetAppStrings()
+    }
 
     @Test
     fun `stopExecution returns false for unknown execution id without stopping process`() {
@@ -125,6 +173,108 @@ class ExecutionCallbacksImplTest {
     }
 
     @Test
+    fun `runProject fails and skips compile when editor save fails`() = runTest {
+        val editorManager = mockk<IEditorManager>(relaxed = true)
+        val outputManager = mockk<IOutputManager>(relaxed = true)
+        val compileProjectUseCase = mockk<CompileProjectUseCase>(relaxed = true)
+        coEvery { editorManager.saveAll(SaveReason.MANUAL) } returns listOf(
+            SaveResult.Failure("disk full")
+        )
+        val callbacks = newCallbacks(
+            processManager = mockk(relaxed = true),
+            editorManager = editorManager,
+            outputManager = outputManager,
+            compileProjectUseCase = compileProjectUseCase,
+            scope = this
+        )
+
+        val started = callbacks.runProject(RunRequest())
+        val result = callbacks.awaitTerminalResult(started.executionId)
+
+        assertThat(started.status).isEqualTo(ExecutionStatus.RUNNING)
+        assertThat(result.status).isEqualTo(ExecutionStatus.FAILED)
+        assertThat(result.success).isFalse()
+        assertThat(result.exitCode).isEqualTo(-1)
+        assertThat(result.errorOutput).contains("disk full")
+        coVerify(exactly = 1) { editorManager.saveAll(SaveReason.MANUAL) }
+        coVerify(exactly = 0) { compileProjectUseCase.execute(any(), any(), any(), any(), any()) }
+        verify {
+            outputManager.appendOutput(
+                match { it.contains("disk full") },
+                IOutputManager.OutputChannel.RUN
+            )
+        }
+    }
+
+    @Test
+    fun `runTests fails and skips target resolution when editor save fails`() = runTest {
+        val editorManager = mockk<IEditorManager>(relaxed = true)
+        val outputManager = mockk<IOutputManager>(relaxed = true)
+        val compileProjectUseCase = mockk<CompileProjectUseCase>(relaxed = true)
+        coEvery { editorManager.saveAll(SaveReason.MANUAL) } returns listOf(
+            SaveResult.Failure("permission denied")
+        )
+        val callbacks = newCallbacks(
+            processManager = mockk(relaxed = true),
+            editorManager = editorManager,
+            outputManager = outputManager,
+            compileProjectUseCase = compileProjectUseCase,
+            scope = this
+        )
+
+        val started = callbacks.runTests(TestRequest())
+        val result = callbacks.awaitTerminalResult(started.executionId)
+
+        assertThat(started.status).isEqualTo(ExecutionStatus.RUNNING)
+        assertThat(result.status).isEqualTo(ExecutionStatus.FAILED)
+        assertThat(result.success).isFalse()
+        assertThat(result.errorOutput).contains("permission denied")
+        coVerify(exactly = 1) { editorManager.saveAll(SaveReason.MANUAL) }
+        coVerify(exactly = 0) { compileProjectUseCase.getAvailableTargets() }
+        coVerify(exactly = 0) { compileProjectUseCase.execute(any(), any(), any(), any(), any()) }
+        verify {
+            outputManager.appendOutput(
+                match { it.contains("permission denied") },
+                IOutputManager.OutputChannel.RUN
+            )
+        }
+    }
+
+    @Test
+    fun `buildProject fails and skips compile when editor save fails`() = runTest {
+        val editorManager = mockk<IEditorManager>(relaxed = true)
+        val outputManager = mockk<IOutputManager>(relaxed = true)
+        val compileProjectUseCase = mockk<CompileProjectUseCase>(relaxed = true)
+        coEvery { editorManager.saveAll(SaveReason.MANUAL) } returns listOf(
+            SaveResult.Failure("read only file")
+        )
+        val callbacks = newCallbacks(
+            processManager = mockk(relaxed = true),
+            editorManager = editorManager,
+            outputManager = outputManager,
+            compileProjectUseCase = compileProjectUseCase,
+            scope = this
+        )
+
+        val started = callbacks.buildProject(BuildRequest())
+        val result = callbacks.awaitTerminalResult(started.executionId)
+
+        assertThat(started.status).isEqualTo(ExecutionStatus.RUNNING)
+        assertThat(result.status).isEqualTo(ExecutionStatus.FAILED)
+        assertThat(result.success).isFalse()
+        assertThat(result.errorOutput).contains("read only file")
+        coVerify(exactly = 1) { editorManager.saveAll(SaveReason.MANUAL) }
+        coVerify(exactly = 0) { compileProjectUseCase.execute(any(), any(), any(), any(), any()) }
+        coVerify(exactly = 0) { compileProjectUseCase.executeCMakeMaintenance(any()) }
+        verify {
+            outputManager.appendOutput(
+                match { it.contains("read only file") },
+                IOutputManager.OutputChannel.BUILD
+            )
+        }
+    }
+
+    @Test
     fun `terminal completion does not overwrite cancelled execution`() {
         val callbacks = newCallbacks(mockk<ProcessManager>(relaxed = true))
         callbacks.putExecutionState("cancelled-execution", ExecutionStatus.CANCELLED)
@@ -161,18 +311,47 @@ class ExecutionCallbacksImplTest {
     }
 
     private fun newCallbacks(
-        processManager: ProcessManager
+        processManager: ProcessManager,
+        editorManager: IEditorManager = mockk(relaxed = true),
+        outputManager: IOutputManager = mockk(relaxed = true),
+        compileProjectUseCase: CompileProjectUseCase = mockk(relaxed = true),
+        scope: CoroutineScope = CoroutineScope(SupervisorJob())
     ): ExecutionCallbacksImpl = ExecutionCallbacksImpl(
         projectRoot = ".",
         processManager = processManager,
         runConfigManager = RunConfigurationManager(),
-        editorManager = mockk<IEditorManager>(relaxed = true),
-        outputManager = mockk<IOutputManager>(relaxed = true),
-        compileProjectUseCase = mockk<CompileProjectUseCase>(relaxed = true),
-        scope = CoroutineScope(SupervisorJob()),
+        editorManager = editorManager,
+        outputManager = outputManager,
+        compileProjectUseCase = compileProjectUseCase,
+        scope = scope,
         bottomPanelViewModel = mockk<BottomPanelViewModel>(relaxed = true),
         bottomPanelController = mockk<BottomPanelController>(relaxed = true)
     )
+
+    private suspend fun ExecutionCallbacksImpl.awaitTerminalResult(executionId: String): ExecutionResult =
+        withTimeout(2_000) {
+            while (true) {
+                val result = getExecutionResult(executionId)
+                if (result != null && result.status.isTerminalForTest()) {
+                    return@withTimeout result
+                }
+                delay(10)
+            }
+            error("Timed out waiting for execution result: $executionId")
+        }
+
+    private fun ExecutionStatus.isTerminalForTest(): Boolean = this in setOf(
+        ExecutionStatus.SUCCESS,
+        ExecutionStatus.FAILED,
+        ExecutionStatus.CANCELLED,
+        ExecutionStatus.TIMEOUT
+    )
+
+    private fun resetAppStrings() {
+        val field = AppStrings::class.java.getDeclaredField("appContext")
+        field.isAccessible = true
+        field.set(AppStrings, null)
+    }
 
     private fun ExecutionCallbacksImpl.putExecutionState(
         executionId: String,
@@ -210,6 +389,19 @@ class ExecutionCallbacksImplTest {
     private fun ExecutionCallbacksImpl.privateField(name: String): Any {
         val field = ExecutionCallbacksImpl::class.java.getDeclaredField(name)
         field.isAccessible = true
-        return field.get(this)
+        return field.get(this) ?: error("Expected non-null private field: $name")
+    }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class ExecutionCallbacksMainDispatcherRule(
+    private val dispatcher: TestDispatcher = UnconfinedTestDispatcher()
+) : TestWatcher() {
+    override fun starting(description: Description) {
+        Dispatchers.setMain(dispatcher)
+    }
+
+    override fun finished(description: Description) {
+        Dispatchers.resetMain()
     }
 }

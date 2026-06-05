@@ -8,6 +8,8 @@ import com.wuxianggujun.tinaide.core.compile.CompileProjectUseCase
 import com.wuxianggujun.tinaide.core.compile.ProcessManager
 import com.wuxianggujun.tinaide.core.compile.RunConfiguration
 import com.wuxianggujun.tinaide.core.compile.RunConfigurationManager
+import com.wuxianggujun.tinaide.core.i18n.Strings
+import com.wuxianggujun.tinaide.core.i18n.str
 import com.wuxianggujun.tinaide.editor.IEditorManager
 import com.wuxianggujun.tinaide.editor.session.SaveReason
 import com.wuxianggujun.tinaide.editor.session.SaveResult
@@ -99,9 +101,17 @@ class ExecutionCallbacksImpl(
                 try {
                     // 先保存所有文件
                     val saveResults = editorManager.saveAll(SaveReason.MANUAL)
-                    val saveFailures = saveResults.filterIsInstance<SaveResult.Failure>()
-                    if (saveFailures.isNotEmpty()) {
-                        Timber.tag(TAG).w("Some files failed to save before running: ${saveFailures.size}")
+                    val saveFailure = firstSaveFailureMessage(saveResults)
+                    if (saveFailure != null) {
+                        Timber.tag(TAG).w("Failed to save files before running project: $saveFailure")
+                        failExecutionForSaveFailure(
+                            executionId = executionId,
+                            startTime = startTime,
+                            actionName = Strings.ai_tool_run_project.str(),
+                            failureMessage = saveFailure,
+                            outputChannel = IOutputManager.OutputChannel.RUN
+                        )
+                        return@launch
                     }
 
                     val result = compileProjectUseCase.execute(
@@ -204,9 +214,17 @@ class ExecutionCallbacksImpl(
             scope.launch(Dispatchers.IO) {
                 try {
                     val saveResults = editorManager.saveAll(SaveReason.MANUAL)
-                    val saveFailures = saveResults.filterIsInstance<SaveResult.Failure>()
-                    if (saveFailures.isNotEmpty()) {
-                        Timber.tag(TAG).w("Some files failed to save before running tests: ${saveFailures.size}")
+                    val saveFailure = firstSaveFailureMessage(saveResults)
+                    if (saveFailure != null) {
+                        Timber.tag(TAG).w("Failed to save files before running tests: $saveFailure")
+                        failExecutionForSaveFailure(
+                            executionId = executionId,
+                            startTime = startTime,
+                            actionName = Strings.ai_tool_run_tests.str(),
+                            failureMessage = saveFailure,
+                            outputChannel = IOutputManager.OutputChannel.RUN
+                        )
+                        return@launch
                     }
 
                     val testPlan = resolveTestExecutionPlan(request)
@@ -346,9 +364,17 @@ class ExecutionCallbacksImpl(
                 try {
                     // 先保存所有文件
                     val saveResults = editorManager.saveAll(SaveReason.MANUAL)
-                    val saveFailures = saveResults.filterIsInstance<SaveResult.Failure>()
-                    if (saveFailures.isNotEmpty()) {
-                        Timber.tag(TAG).w("Some files failed to save before building: ${saveFailures.size}")
+                    val saveFailure = firstSaveFailureMessage(saveResults)
+                    if (saveFailure != null) {
+                        Timber.tag(TAG).w("Failed to save files before building project: $saveFailure")
+                        failExecutionForSaveFailure(
+                            executionId = executionId,
+                            startTime = startTime,
+                            actionName = Strings.ai_tool_build_project.str(),
+                            failureMessage = saveFailure,
+                            outputChannel = IOutputManager.OutputChannel.BUILD
+                        )
+                        return@launch
                     }
 
                     if (request.clean) {
@@ -468,6 +494,38 @@ class ExecutionCallbacksImpl(
     }
 
     private fun detectBuildSystem(): BuildSystem = BuildSystemDetector.detect(File(projectRoot))
+
+    private fun firstSaveFailureMessage(saveResults: List<SaveResult>): String? =
+        saveResults
+            .filterIsInstance<SaveResult.Failure>()
+            .firstOrNull()
+            ?.message
+            ?.ifBlank { Strings.editor_error_save_failed.str() }
+
+    private fun failExecutionForSaveFailure(
+        executionId: String,
+        startTime: Long,
+        actionName: String,
+        failureMessage: String,
+        outputChannel: IOutputManager.OutputChannel
+    ) {
+        val message = Strings.toast_save_failed_cancelled.str(actionName, failureMessage)
+        val duration = System.currentTimeMillis() - startTime
+        if (completeExecutionIfActive(
+                ExecutionResult(
+                    executionId = executionId,
+                    success = false,
+                    exitCode = -1,
+                    output = "",
+                    errorOutput = message,
+                    duration = duration,
+                    status = ExecutionStatus.FAILED
+                )
+            )
+        ) {
+            outputManager.appendOutput("$message\n", outputChannel)
+        }
+    }
 
     private suspend fun runRequestedCleanBuild(
         buildSystem: BuildSystem
