@@ -68,6 +68,7 @@ internal data class MainActivityCommand(
     val title: MainActivityCommandText,
     val category: MainActivityCommandCategory,
     val enabled: Boolean = true,
+    val disabledReason: MainActivityCommandText? = null,
     val shortcutAction: ShortcutAction? = null,
     val keywords: List<String> = emptyList(),
     val source: MainActivityCommandSource = MainActivityCommandSource.BUILT_IN,
@@ -80,8 +81,10 @@ internal data class MainActivityCommand(
 
         val titleText = title.resolve(context)
         val categoryText = context.getString(category.titleRes)
+        val disabledReasonText = disabledReason?.resolve(context)
         return titleText.contains(normalizedQuery, ignoreCase = true) ||
             categoryText.contains(normalizedQuery, ignoreCase = true) ||
+            disabledReasonText?.contains(normalizedQuery, ignoreCase = true) == true ||
             sourceName?.contains(normalizedQuery, ignoreCase = true) == true ||
             keywords.any { keyword -> keyword.contains(normalizedQuery, ignoreCase = true) }
     }
@@ -98,7 +101,7 @@ internal fun orderMainActivityCommands(
     val recentRank = recentCommandIds.rankByCommandId()
     return commands
         .asSequence()
-        .filter { command -> command.enabled && command.matches(context, query) }
+        .filter { command -> command.isVisibleInCommandPalette() && command.matches(context, query) }
         .sortedWith(
             compareBy<MainActivityCommand> { command -> pinnedRank[command.id] ?: Int.MAX_VALUE }
                 .thenBy { command -> recentRank[command.id] ?: Int.MAX_VALUE }
@@ -107,6 +110,10 @@ internal fun orderMainActivityCommands(
                 .thenBy { command -> command.id }
         )
         .toList()
+}
+
+private fun MainActivityCommand.isVisibleInCommandPalette(): Boolean {
+    return enabled || disabledReason != null
 }
 
 internal fun groupMainActivityCommands(

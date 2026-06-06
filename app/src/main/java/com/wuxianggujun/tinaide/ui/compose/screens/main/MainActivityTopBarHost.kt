@@ -106,8 +106,10 @@ internal fun MainActivityTopBarHost(
     )
     val executeCommand: (MainActivityCommand) -> Unit = remember(commandStore) {
         { command ->
-            commandStore.recordExecuted(command.id)
-            command.execute()
+            if (command.enabled) {
+                commandStore.recordExecuted(command.id)
+                command.execute()
+            }
         }
     }
 

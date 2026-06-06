@@ -40,7 +40,7 @@ class MainActivityCommandOrderingTest {
     }
 
     @Test
-    fun `orderMainActivityCommands should filter disabled commands and match plugin source name`() {
+    fun `orderMainActivityCommands should hide silent disabled commands and match plugin source name`() {
         val context = RuntimeEnvironment.getApplication()
         val commands = listOf(
             command("plugin.command", MainActivityCommandCategory.PLUGIN, sourceName = "Plugin Tools"),
@@ -57,6 +57,32 @@ class MainActivityCommandOrderingTest {
 
         assertThat(ordered.map(MainActivityCommand::id))
             .containsExactly("plugin.command")
+    }
+
+    @Test
+    fun `orderMainActivityCommands should keep unavailable commands with visible reason`() {
+        val context = RuntimeEnvironment.getApplication()
+        val commands = listOf(
+            command(
+                id = "plugin.unavailable",
+                category = MainActivityCommandCategory.PLUGIN,
+                enabled = false,
+                disabledReason = MainActivityCommandText.Literal("Permission not granted"),
+                sourceName = "Plugin Tools"
+            ),
+            command("disabled.command", MainActivityCommandCategory.CODE, enabled = false),
+        )
+
+        val ordered = orderMainActivityCommands(
+            commands = commands,
+            context = context,
+            pinnedCommandIds = emptyList(),
+            recentCommandIds = emptyList(),
+            query = "permission"
+        )
+
+        assertThat(ordered.map(MainActivityCommand::id))
+            .containsExactly("plugin.unavailable")
     }
 
     @Test
@@ -131,6 +157,7 @@ class MainActivityCommandOrderingTest {
         id: String,
         category: MainActivityCommandCategory,
         enabled: Boolean = true,
+        disabledReason: MainActivityCommandText? = null,
         sourceName: String? = null,
     ): MainActivityCommand {
         return MainActivityCommand(
@@ -138,6 +165,7 @@ class MainActivityCommandOrderingTest {
             title = MainActivityCommandText.Literal(id),
             category = category,
             enabled = enabled,
+            disabledReason = disabledReason,
             sourceName = sourceName,
             execute = {}
         )

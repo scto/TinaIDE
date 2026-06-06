@@ -18,6 +18,8 @@ import com.wuxianggujun.tinaide.core.i18n.Strings
 import com.wuxianggujun.tinaide.plugin.InstalledPlugin
 import com.wuxianggujun.tinaide.plugin.PluginManager
 import com.wuxianggujun.tinaide.plugin.ResolvedPluginCommand
+import com.wuxianggujun.tinaide.plugin.ResolvedPluginCommandSource
+import com.wuxianggujun.tinaide.plugin.script.api.PluginCommandRegistry
 import com.wuxianggujun.tinaide.project.ProjectApkExportType
 import com.wuxianggujun.tinaide.ui.compose.state.editor.EditorContainerState
 import java.io.File
@@ -420,10 +422,20 @@ private fun ResolvedPluginCommand.toCommand(
     hostCommandExecutor: HostCommandExecutor,
 ): MainActivityCommand {
     val commandId = commandId.trim()
+    val availability = when (source) {
+        ResolvedPluginCommandSource.HOST -> null
+        ResolvedPluginCommandSource.PLUGIN -> PluginCommandRegistry.availability(commandId, pluginId)
+    }
+    val disabledReason = availability
+        ?.errorMessage
+        ?.takeIf(String::isNotBlank)
+        ?.let(MainActivityCommandText::Literal)
     return MainActivityCommand(
         id = "$PLUGIN_TOOLBAR_COMMAND_PREFIX$pluginId:$group:$commandId",
         title = MainActivityCommandText.Literal(title),
         category = MainActivityCommandCategory.PLUGIN,
+        enabled = availability?.available ?: true,
+        disabledReason = disabledReason,
         keywords = listOf("plugin", pluginId, pluginName, commandId),
         source = MainActivityCommandSource.PLUGIN,
         sourceName = pluginName,

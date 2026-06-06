@@ -2123,6 +2123,7 @@
   <string name="command_palette_move_pinned_up">上移置顶命令</string>
   <string name="command_palette_move_pinned_down">下移置顶命令</string>
   <string name="command_palette_plugin_source">插件：%1$s</string>
+  <string name="command_palette_plugin_unavailable_source">插件：%1$s - %2$s</string>
   <string name="menu_section_file">文件</string>
   <string name="menu_section_code">代码</string>
   <string name="menu_section_plugin">插件</string>

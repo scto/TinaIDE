@@ -166,6 +166,36 @@ class PluginCommandRegistryTest {
     }
 
     @Test
+    fun `availability should expose permission denial message without logging denial`() {
+        val runtime = mockk<ScriptPluginRuntime>()
+        every { runtime.checkPermission(PluginPermission.COMMAND_EXECUTE) } returns false
+        every {
+            runtime.describePermissionDenial(PluginPermission.COMMAND_EXECUTE)
+        } returns "Permission not granted"
+        PluginCommandRegistry.setRuntimeProvider { pluginId ->
+            if (pluginId == "plugin.one") runtime else null
+        }
+        PluginCommandRegistry.register(
+            pluginId = "plugin.one",
+            pluginName = "Plugin One",
+            commandId = "plugin.sayHello",
+            callbackName = "handleHello",
+            title = "Say hello"
+        ).getOrThrow()
+
+        val availability = PluginCommandRegistry.availability(
+            commandId = "plugin.sayHello",
+            pluginId = "plugin.one"
+        )
+
+        assertThat(availability.available).isFalse()
+        assertThat(availability.errorMessage).isEqualTo("Permission not granted")
+        verify(exactly = 0) {
+            runtime.reportPermissionDenied(any(), any(), any())
+        }
+    }
+
+    @Test
     fun `dispatch should return false when runtime provider has no runtime`() {
         PluginCommandRegistry.register(
             pluginId = "plugin.one",

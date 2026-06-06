@@ -25,6 +25,11 @@ data class PluginCommandDispatchResult(
     val errorMessage: String? = null
 )
 
+data class PluginCommandAvailability(
+    val available: Boolean,
+    val errorMessage: String? = null
+)
+
 object PluginCommandRegistry {
     private const val TAG = "PluginCommandRegistry"
     private const val COMMANDS_API_NAMESPACE = "commands"
@@ -116,6 +121,24 @@ object PluginCommandRegistry {
         val command = commandsById[commandId.trim()] ?: return null
         if (pluginId != null && command.pluginId != pluginId) return null
         return command.title
+    }
+
+    fun availability(commandId: String, pluginId: String? = null): PluginCommandAvailability {
+        val command = commandsById[commandId.trim()] ?: return PluginCommandAvailability(available = false)
+        if (pluginId != null && command.pluginId != pluginId) {
+            return PluginCommandAvailability(available = false)
+        }
+
+        val runtime = runtimeProvider?.invoke(command.pluginId)
+            ?: return PluginCommandAvailability(available = false)
+        if (runtime.checkPermission(PluginPermission.COMMAND_EXECUTE)) {
+            return PluginCommandAvailability(available = true)
+        }
+
+        return PluginCommandAvailability(
+            available = false,
+            errorMessage = runtime.describePermissionDenial(PluginPermission.COMMAND_EXECUTE)
+        )
     }
 
     fun dispatch(

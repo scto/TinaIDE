@@ -92,6 +92,7 @@ internal fun MainActivityCommandPalette(
     }
 
     fun executeCommand(command: MainActivityCommand) {
+        if (!command.enabled) return
         onDismissRequest()
         onExecuteCommand(command)
     }
@@ -276,14 +277,38 @@ private fun CommandPaletteItem(
         ?.let(KeyboardShortcutManager::getShortcut)
         ?.toDisplayString()
     val titleText = command.title.asString()
-    val subtitleText = command.sourceName?.let { sourceName ->
-        stringResource(Strings.command_palette_plugin_source, sourceName)
-    } ?: stringResource(command.category.titleRes)
+    val disabledReasonText = command.disabledReason?.asString()
+    val subtitleText = when {
+        !command.enabled && disabledReasonText != null && command.sourceName != null -> {
+            stringResource(
+                Strings.command_palette_plugin_unavailable_source,
+                command.sourceName,
+                disabledReasonText
+            )
+        }
+
+        !command.enabled && disabledReasonText != null -> disabledReasonText
+        command.sourceName != null -> stringResource(Strings.command_palette_plugin_source, command.sourceName)
+        else -> stringResource(command.category.titleRes)
+    }
+    val titleColor = if (command.enabled) {
+        MaterialTheme.colorScheme.onSurface
+    } else {
+        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.48f)
+    }
+    val subtitleColor = if (command.enabled) {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.62f)
+    }
 
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable(
+                enabled = command.enabled,
+                onClick = onClick
+            ),
         shape = MaterialTheme.shapes.small,
         color = if (selected) {
             MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.42f)
@@ -312,13 +337,14 @@ private fun CommandPaletteItem(
                     text = titleText,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium,
+                    color = titleColor,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = subtitleText,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = subtitleColor,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
