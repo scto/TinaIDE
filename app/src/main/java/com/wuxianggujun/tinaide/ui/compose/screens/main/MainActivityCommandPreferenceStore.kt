@@ -77,6 +77,20 @@ internal class MainActivityCommandPreferenceStore(
         recentState.value = next
     }
 
+    fun pruneUnavailablePluginCommands(enabledPluginIds: Set<String>) {
+        val nextPinned = pinnedState.value.filterAvailablePluginCommands(enabledPluginIds)
+        if (nextPinned != pinnedState.value) {
+            writeCommandIds(KEY_PINNED_COMMAND_IDS, nextPinned)
+            pinnedState.value = nextPinned
+        }
+
+        val nextRecent = recentState.value.filterAvailablePluginCommands(enabledPluginIds)
+        if (nextRecent != recentState.value) {
+            writeCommandIds(KEY_RECENT_COMMAND_IDS, nextRecent)
+            recentState.value = nextRecent
+        }
+    }
+
     private fun readCommandIds(key: String): List<String> {
         return prefs.getString(key, null)
             ?.lineSequence()
@@ -100,6 +114,15 @@ internal class MainActivityCommandPreferenceStore(
                 '\n' !in it &&
                 '\r' !in it
         }
+    }
+}
+
+private fun List<String>.filterAvailablePluginCommands(
+    enabledPluginIds: Set<String>
+): List<String> {
+    return filter { commandId ->
+        val pluginId = commandId.pluginToolbarPluginIdOrNull()
+        pluginId == null || pluginId in enabledPluginIds
     }
 }
 

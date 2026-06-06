@@ -2,10 +2,13 @@ package com.wuxianggujun.tinaide.ui.compose.screens.main
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wuxianggujun.tinaide.core.commands.HostCommandExecutor
+import com.wuxianggujun.tinaide.plugin.PluginManager
 import com.wuxianggujun.tinaide.ui.DebugViewModel
 import com.wuxianggujun.tinaide.ui.MainActivityActionsDelegate
 import com.wuxianggujun.tinaide.ui.MainActivityCompileDelegate
@@ -36,6 +39,14 @@ internal fun MainActivityTopBarHost(
     onDismissCommandPalette: () -> Unit,
     callbacks: MainActivityScreenCallbacks,
 ) {
+    val context = LocalContext.current
+    val pluginManager = remember(context) {
+        PluginManager.getInstance(context.applicationContext)
+    }
+    val enabledPlugins by pluginManager.enabledPluginsFlow.collectAsStateWithLifecycle()
+    val enabledPluginIds = remember(enabledPlugins) {
+        enabledPlugins.mapTo(linkedSetOf()) { plugin -> plugin.manifest.id }
+    }
     val commandStore = rememberMainActivityCommandPreferenceStore()
     val pinnedCommandIds by commandStore.pinnedCommandIdsFlow.collectAsStateWithLifecycle()
     val recentCommandIds by commandStore.recentCommandIdsFlow.collectAsStateWithLifecycle()
@@ -86,6 +97,9 @@ internal fun MainActivityTopBarHost(
         callbacks = topBarCallbacks,
         hostCommandExecutor = hostCommandExecutor,
     )
+    LaunchedEffect(commandStore, enabledPluginIds) {
+        commandStore.pruneUnavailablePluginCommands(enabledPluginIds)
+    }
     val quickCommands = rememberMainActivityQuickCommands(
         commands = commandPaletteCommands,
         pinnedCommandIds = pinnedCommandIds,

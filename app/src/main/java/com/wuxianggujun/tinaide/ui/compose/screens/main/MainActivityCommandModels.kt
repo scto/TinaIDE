@@ -6,6 +6,15 @@ import com.wuxianggujun.tinaide.core.commands.HostCommandCategory
 import com.wuxianggujun.tinaide.core.config.ShortcutAction
 import com.wuxianggujun.tinaide.core.i18n.Strings
 
+internal const val PLUGIN_TOOLBAR_COMMAND_PREFIX = "pluginToolbar:"
+
+internal fun String.pluginToolbarPluginIdOrNull(): String? {
+    if (!startsWith(PLUGIN_TOOLBAR_COMMAND_PREFIX)) return null
+    return removePrefix(PLUGIN_TOOLBAR_COMMAND_PREFIX)
+        .substringBefore(':', missingDelimiterValue = "")
+        .takeIf(String::isNotBlank)
+}
+
 internal sealed interface MainActivityCommandText {
     fun resolve(context: Context): String
 

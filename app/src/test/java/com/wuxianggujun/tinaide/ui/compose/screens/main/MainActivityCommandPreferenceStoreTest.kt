@@ -94,4 +94,25 @@ class MainActivityCommandPreferenceStoreTest {
         assertThat(store.pinnedCommandIdsFlow.value).isEmpty()
         assertThat(store.recentCommandIdsFlow.value).isEmpty()
     }
+
+    @Test
+    fun `pruneUnavailablePluginCommands should remove disabled plugin commands`() {
+        val store = MainActivityCommandPreferenceStore(context)
+
+        store.togglePinned("view.settings")
+        store.togglePinned("pluginToolbar:disabledPlugin:editor:format")
+        store.togglePinned("pluginToolbar:enabledPlugin:editor:format")
+        store.recordExecuted("project.build")
+        store.recordExecuted("pluginToolbar:disabledPlugin:editor:format")
+        store.recordExecuted("pluginToolbar:enabledPlugin:editor:format")
+
+        store.pruneUnavailablePluginCommands(setOf("enabledPlugin"))
+
+        assertThat(store.pinnedCommandIdsFlow.value)
+            .containsExactly("pluginToolbar:enabledPlugin:editor:format", "view.settings")
+            .inOrder()
+        assertThat(store.recentCommandIdsFlow.value)
+            .containsExactly("pluginToolbar:enabledPlugin:editor:format", "project.build")
+            .inOrder()
+    }
 }

@@ -426,7 +426,7 @@ private fun ResolvedHostMenuItem.toCommand(
 ): MainActivityCommand {
     val commandId = commandId.trim()
     return MainActivityCommand(
-        id = "pluginToolbar:$pluginId:$group:$commandId",
+        id = "$PLUGIN_TOOLBAR_COMMAND_PREFIX$pluginId:$group:$commandId",
         title = MainActivityCommandText.Literal(title),
         category = MainActivityCommandCategory.PLUGIN,
         keywords = listOf("plugin", pluginId, pluginName, commandId),
