@@ -1453,6 +1453,90 @@ private fun PluginInfoRow(text: String) {
     )
 }
 
+@Composable
+private fun PluginCommandContributionsCard(
+    commands: List<PluginsCommandContribution>,
+    summary: PluginsCommandContributionSummary,
+) {
+    DetailInfoCard(
+        title = stringResource(Strings.plugins_commands_title)
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(TinaSpacing.md)) {
+            Text(
+                text = stringResource(
+                    Strings.plugins_commands_summary,
+                    summary.totalCount,
+                    summary.availableCount,
+                    summary.issueCount,
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            commands.forEachIndexed { index, command ->
+                if (index > 0) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                }
+                PluginCommandContributionRow(command = command)
+            }
+        }
+    }
+}
+
+@Composable
+private fun PluginCommandContributionRow(command: PluginsCommandContribution) {
+    val missingCommandIdText = stringResource(Strings.plugins_commands_missing_command_id_value)
+    val commandIdText = if (command.commandId.isBlank()) {
+        missingCommandIdText
+    } else {
+        command.commandId
+    }
+    val commandTitle = if (command.title.isBlank()) {
+        commandIdText
+    } else {
+        command.title
+    }
+    val statusText = stringResource(
+        PluginsSettingsSectionSupport.resolvePluginCommandStatusLabelRes(command.status)
+    )
+    val statusColor = when (command.status) {
+        PluginCommandContributionStatus.AVAILABLE -> MaterialTheme.colorScheme.tertiary
+        PluginCommandContributionStatus.MISSING_COMMAND_ID,
+        PluginCommandContributionStatus.MISSING_COMMAND_DECLARATION -> MaterialTheme.colorScheme.error
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(TinaSpacing.xs)) {
+        Text(
+            text = commandTitle,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Text(
+            text = stringResource(
+                Strings.plugins_commands_metadata,
+                stringResource(
+                    PluginsSettingsSectionSupport.resolvePluginCommandSurfaceLabelRes(
+                        command.surface
+                    )
+                ),
+                stringResource(
+                    PluginsSettingsSectionSupport.resolvePluginCommandSourceLabelRes(
+                        command.source
+                    )
+                ),
+                statusText,
+            ),
+            style = MaterialTheme.typography.labelSmall,
+            color = statusColor,
+        )
+        PluginInfoRow(stringResource(Strings.plugins_commands_id, commandIdText))
+        PluginInfoRow(stringResource(Strings.plugins_commands_group, command.group))
+        command.whenExpression?.let { whenExpression ->
+            PluginInfoRow(stringResource(Strings.plugins_commands_when, whenExpression))
+        }
+    }
+}
+
 private fun List<PluginsPackageRequirementGroup>.toPluginRequirementsPackageDisplay(): String = joinToString(
     separator = "; "
 ) { group ->
@@ -1781,6 +1865,12 @@ private fun InstalledPluginDetailScreen(
     val contributionSummary = PluginsSettingsSectionSupport.resolveContributionSummary(manifest)
     val requirementsSummary = PluginsSettingsSectionSupport.resolveRequirementsSummary(manifest)
     val configurationSummary = PluginsSettingsSectionSupport.resolveConfigurationSummary(manifest)
+    val commandContributions = remember(manifest) {
+        PluginsSettingsSectionSupport.resolveCommandContributions(manifest)
+    }
+    val commandContributionSummary = remember(commandContributions) {
+        PluginsSettingsSectionSupport.resolveCommandContributionSummary(commandContributions)
+    }
     val scope = rememberCoroutineScope()
     var doctorDiagnosticsReport by remember(manifest.id) { mutableStateOf<PluginDiagnosticsReport?>(null) }
     var isDoctorRunning by remember(manifest.id) { mutableStateOf(false) }
@@ -1980,9 +2070,17 @@ private fun InstalledPluginDetailScreen(
                         contributionSummary.themeCount,
                         contributionSummary.fileTreeMenuCount,
                         contributionSummary.editorContextMenuCount,
+                        contributionSummary.editorToolbarMenuCount,
                     )
                 )
             }
+        }
+
+        if (commandContributions.isNotEmpty()) {
+            PluginCommandContributionsCard(
+                commands = commandContributions,
+                summary = commandContributionSummary,
+            )
         }
 
         if (requirementsSummary.hasRequirements) {

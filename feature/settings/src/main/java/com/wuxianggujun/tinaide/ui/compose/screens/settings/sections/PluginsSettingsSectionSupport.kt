@@ -1,8 +1,10 @@
 package com.wuxianggujun.tinaide.ui.compose.screens.settings.sections
 
 import androidx.annotation.StringRes
+import com.wuxianggujun.tinaide.core.commands.HostCommands
 import com.wuxianggujun.tinaide.core.i18n.Strings
 import com.wuxianggujun.tinaide.plugin.InstalledPlugin
+import com.wuxianggujun.tinaide.plugin.PluginCommand
 import com.wuxianggujun.tinaide.plugin.PluginDiagnosticCategory
 import com.wuxianggujun.tinaide.plugin.PluginDiagnosticEntry
 import com.wuxianggujun.tinaide.plugin.PluginDiagnosticIssue
@@ -13,6 +15,9 @@ import com.wuxianggujun.tinaide.plugin.PluginDiagnosticsSnapshot
 import com.wuxianggujun.tinaide.plugin.PluginLogLevel
 import com.wuxianggujun.tinaide.plugin.PluginManifest
 import com.wuxianggujun.tinaide.plugin.PluginConfigurationSchema
+import com.wuxianggujun.tinaide.plugin.PluginMenuItem
+import com.wuxianggujun.tinaide.plugin.ResolvedPluginCommandSource
+import com.wuxianggujun.tinaide.plugin.ResolvedPluginCommandSurface
 import com.wuxianggujun.tinaide.plugin.ResolvedPluginConfigurationProperty
 import com.wuxianggujun.tinaide.plugin.ThemeConfig
 import com.wuxianggujun.tinaide.plugin.lsp.LspPluginInfo
@@ -26,7 +31,30 @@ internal data class PluginsContributionSummary(
     val themeCount: Int,
     val fileTreeMenuCount: Int,
     val editorContextMenuCount: Int,
+    val editorToolbarMenuCount: Int = 0,
 )
+
+internal data class PluginsCommandContribution(
+    val surface: ResolvedPluginCommandSurface,
+    val commandId: String,
+    val title: String,
+    val group: String,
+    val source: ResolvedPluginCommandSource?,
+    val status: PluginCommandContributionStatus,
+    val whenExpression: String?,
+)
+
+internal data class PluginsCommandContributionSummary(
+    val totalCount: Int,
+    val availableCount: Int,
+    val issueCount: Int,
+)
+
+internal enum class PluginCommandContributionStatus {
+    AVAILABLE,
+    MISSING_COMMAND_ID,
+    MISSING_COMMAND_DECLARATION,
+}
 
 internal data class PluginsRequirementsSummary(
     val recommendedToolchains: List<String>,
@@ -122,6 +150,8 @@ internal sealed interface PluginsBatchUninstallSpec {
 }
 
 internal object PluginsSettingsSectionSupport {
+
+    private const val DEFAULT_PLUGIN_COMMAND_GROUP = "9_plugin"
 
     fun toggleSelectedPlugin(
         selectedIds: Set<String>,
@@ -324,7 +354,79 @@ internal object PluginsSettingsSectionSupport {
         themeCount = manifest.contributions?.themes?.size ?: 0,
         fileTreeMenuCount = manifest.contributions?.menus?.fileTreeContext?.size ?: 0,
         editorContextMenuCount = manifest.contributions?.menus?.editorContext?.size ?: 0,
+        editorToolbarMenuCount = manifest.contributions?.menus?.editorToolbar?.size ?: 0,
     )
+
+    fun resolveCommandContributions(manifest: PluginManifest): List<PluginsCommandContribution> {
+        val contributions = manifest.contributions ?: return emptyList()
+        val declaredCommands = contributions.commands.orEmpty()
+            .associateBy { command -> command.id.trim() }
+        return buildList {
+            appendCommandContributions(
+                surface = ResolvedPluginCommandSurface.EDITOR_CONTEXT,
+                menuItems = contributions.menus?.editorContext.orEmpty(),
+                declaredCommands = declaredCommands,
+            )
+            appendCommandContributions(
+                surface = ResolvedPluginCommandSurface.EDITOR_TOOLBAR,
+                menuItems = contributions.menus?.editorToolbar.orEmpty(),
+                declaredCommands = declaredCommands,
+            )
+            appendCommandContributions(
+                surface = ResolvedPluginCommandSurface.FILE_TREE_CONTEXT,
+                menuItems = contributions.menus?.fileTreeContext.orEmpty(),
+                declaredCommands = declaredCommands,
+            )
+        }.sortedWith(
+            compareBy<PluginsCommandContribution> { command -> command.surface.ordinal }
+                .thenBy { command -> command.group }
+                .thenBy { command -> command.title.ifBlank { command.commandId } }
+                .thenBy { command -> command.commandId }
+        )
+    }
+
+    fun resolveCommandContributionSummary(
+        commands: List<PluginsCommandContribution>,
+    ): PluginsCommandContributionSummary = PluginsCommandContributionSummary(
+        totalCount = commands.size,
+        availableCount = commands.count { command -> command.status == PluginCommandContributionStatus.AVAILABLE },
+        issueCount = commands.count { command -> command.status != PluginCommandContributionStatus.AVAILABLE },
+    )
+
+    private fun MutableList<PluginsCommandContribution>.appendCommandContributions(
+        surface: ResolvedPluginCommandSurface,
+        menuItems: List<PluginMenuItem>,
+        declaredCommands: Map<String, PluginCommand>,
+    ) {
+        menuItems.forEach { menuItem ->
+            val commandId = menuItem.command.trim()
+            val declaredCommand = declaredCommands[commandId]
+            val source = when {
+                commandId.isBlank() -> null
+                HostCommands.isSupported(commandId) -> ResolvedPluginCommandSource.HOST
+                declaredCommand != null -> ResolvedPluginCommandSource.PLUGIN
+                else -> null
+            }
+            val status = when {
+                commandId.isBlank() -> PluginCommandContributionStatus.MISSING_COMMAND_ID
+                source == null -> PluginCommandContributionStatus.MISSING_COMMAND_DECLARATION
+                else -> PluginCommandContributionStatus.AVAILABLE
+            }
+            add(
+                PluginsCommandContribution(
+                    surface = surface,
+                    commandId = commandId,
+                    title = declaredCommand?.title?.trim()?.takeIf { title -> title.isNotBlank() }
+                        ?: commandId,
+                    group = menuItem.group?.trim()?.takeIf { group -> group.isNotBlank() }
+                        ?: DEFAULT_PLUGIN_COMMAND_GROUP,
+                    source = source,
+                    status = status,
+                    whenExpression = menuItem.`when`?.trim()?.takeIf { expression -> expression.isNotBlank() },
+                )
+            )
+        }
+    }
 
     fun resolveRequirementsSummary(manifest: PluginManifest): PluginsRequirementsSummary {
         val requirements = manifest.requires
@@ -854,5 +956,26 @@ internal object PluginsSettingsSectionSupport {
         PluginDiagnosticAction.SHOW_PERMISSIONS -> Strings.plugins_diagnostics_action_view_permissions
         PluginDiagnosticAction.REPAIR_LSP_DEPENDENCIES -> Strings.plugins_diagnostics_action_repair_lsp
         PluginDiagnosticAction.COPY_DIAGNOSTIC -> Strings.action_copy
+    }
+
+    @StringRes
+    fun resolvePluginCommandSurfaceLabelRes(surface: ResolvedPluginCommandSurface): Int = when (surface) {
+        ResolvedPluginCommandSurface.EDITOR_CONTEXT -> Strings.plugins_commands_surface_editor_context
+        ResolvedPluginCommandSurface.EDITOR_TOOLBAR -> Strings.plugins_commands_surface_editor_toolbar
+        ResolvedPluginCommandSurface.FILE_TREE_CONTEXT -> Strings.plugins_commands_surface_file_tree_context
+    }
+
+    @StringRes
+    fun resolvePluginCommandSourceLabelRes(source: ResolvedPluginCommandSource?): Int = when (source) {
+        ResolvedPluginCommandSource.HOST -> Strings.plugins_commands_source_host
+        ResolvedPluginCommandSource.PLUGIN -> Strings.plugins_commands_source_plugin
+        null -> Strings.plugins_commands_source_unknown
+    }
+
+    @StringRes
+    fun resolvePluginCommandStatusLabelRes(status: PluginCommandContributionStatus): Int = when (status) {
+        PluginCommandContributionStatus.AVAILABLE -> Strings.plugins_commands_status_available
+        PluginCommandContributionStatus.MISSING_COMMAND_ID -> Strings.plugins_commands_status_missing_command_id
+        PluginCommandContributionStatus.MISSING_COMMAND_DECLARATION -> Strings.plugins_commands_status_missing_declaration
     }
 }

@@ -6,6 +6,7 @@ import com.wuxianggujun.tinaide.plugin.InstalledPlugin
 import com.wuxianggujun.tinaide.plugin.PluginConfiguration
 import com.wuxianggujun.tinaide.plugin.PluginConfigurationProperty
 import com.wuxianggujun.tinaide.plugin.PluginContributions
+import com.wuxianggujun.tinaide.plugin.PluginCommand
 import com.wuxianggujun.tinaide.plugin.PluginDiagnosticCategory
 import com.wuxianggujun.tinaide.plugin.PluginDiagnosticEntry
 import com.wuxianggujun.tinaide.plugin.PluginDiagnosticIssue
@@ -19,6 +20,8 @@ import com.wuxianggujun.tinaide.plugin.PluginMenuItem
 import com.wuxianggujun.tinaide.plugin.PluginMenus
 import com.wuxianggujun.tinaide.plugin.PluginRequirements
 import com.wuxianggujun.tinaide.plugin.PluginToolchainRequirements
+import com.wuxianggujun.tinaide.plugin.ResolvedPluginCommandSource
+import com.wuxianggujun.tinaide.plugin.ResolvedPluginCommandSurface
 import com.wuxianggujun.tinaide.plugin.ThemeConfig
 import com.wuxianggujun.tinaide.plugin.lsp.LspPluginInfo
 import com.wuxianggujun.tinaide.plugin.lsp.LspPluginInstallState
@@ -307,6 +310,9 @@ class PluginsSettingsSectionSupportTest {
                     editorContext = listOf(
                         PluginMenuItem(command = "c"),
                     ),
+                    editorToolbar = listOf(
+                        PluginMenuItem(command = "d"),
+                    ),
                 ),
             ),
         )
@@ -318,8 +324,112 @@ class PluginsSettingsSectionSupportTest {
                 themeCount = 2,
                 fileTreeMenuCount = 2,
                 editorContextMenuCount = 1,
+                editorToolbarMenuCount = 1,
             )
         )
+    }
+
+    @Test
+    fun commandContributions_shouldExposeSurfaceSourceAndStatus() {
+        val manifest = PluginManifest(
+            id = "demo.plugin",
+            name = "Demo Plugin",
+            version = "1.0.0",
+            contributions = PluginContributions(
+                commands = listOf(
+                    PluginCommand(id = "plugin.run", title = "Run Demo"),
+                    PluginCommand(id = "plugin.open", title = "Open Demo"),
+                ),
+                menus = PluginMenus(
+                    editorContext = listOf(
+                        PluginMenuItem(
+                            command = "plugin.run",
+                            group = "1_run",
+                            `when` = " isDirty ",
+                        ),
+                        PluginMenuItem(
+                            command = "missing.command",
+                            group = "2_missing",
+                        ),
+                        PluginMenuItem(
+                            command = " ",
+                            group = "3_blank",
+                        ),
+                    ),
+                    editorToolbar = listOf(
+                        PluginMenuItem(command = "editor.save"),
+                    ),
+                    fileTreeContext = listOf(
+                        PluginMenuItem(command = "plugin.open", group = "0_open"),
+                    ),
+                ),
+            ),
+        )
+
+        val commands = PluginsSettingsSectionSupport.resolveCommandContributions(manifest)
+
+        assertThat(commands.map { command -> command.surface }).containsExactly(
+            ResolvedPluginCommandSurface.EDITOR_CONTEXT,
+            ResolvedPluginCommandSurface.EDITOR_CONTEXT,
+            ResolvedPluginCommandSurface.EDITOR_CONTEXT,
+            ResolvedPluginCommandSurface.EDITOR_TOOLBAR,
+            ResolvedPluginCommandSurface.FILE_TREE_CONTEXT,
+        ).inOrder()
+        assertThat(commands.map { command -> command.commandId }).containsExactly(
+            "plugin.run",
+            "missing.command",
+            "",
+            "editor.save",
+            "plugin.open",
+        ).inOrder()
+        assertThat(commands.map { command -> command.source }).containsExactly(
+            ResolvedPluginCommandSource.PLUGIN,
+            null,
+            null,
+            ResolvedPluginCommandSource.HOST,
+            ResolvedPluginCommandSource.PLUGIN,
+        ).inOrder()
+        assertThat(commands.map { command -> command.status }).containsExactly(
+            PluginCommandContributionStatus.AVAILABLE,
+            PluginCommandContributionStatus.MISSING_COMMAND_DECLARATION,
+            PluginCommandContributionStatus.MISSING_COMMAND_ID,
+            PluginCommandContributionStatus.AVAILABLE,
+            PluginCommandContributionStatus.AVAILABLE,
+        ).inOrder()
+        assertThat(commands.first().title).isEqualTo("Run Demo")
+        assertThat(commands.first().whenExpression).isEqualTo("isDirty")
+        assertThat(commands[3].group).isEqualTo("9_plugin")
+        assertThat(
+            PluginsSettingsSectionSupport.resolveCommandContributionSummary(commands)
+        ).isEqualTo(
+            PluginsCommandContributionSummary(
+                totalCount = 5,
+                availableCount = 3,
+                issueCount = 2,
+            )
+        )
+    }
+
+    @Test
+    fun commandContributionLabels_shouldMapToStableStringResources() {
+        assertThat(
+            PluginsSettingsSectionSupport.resolvePluginCommandSurfaceLabelRes(
+                ResolvedPluginCommandSurface.EDITOR_CONTEXT
+            )
+        ).isEqualTo(Strings.plugins_commands_surface_editor_context)
+        assertThat(
+            PluginsSettingsSectionSupport.resolvePluginCommandSourceLabelRes(
+                ResolvedPluginCommandSource.HOST
+            )
+        ).isEqualTo(Strings.plugins_commands_source_host)
+        assertThat(
+            PluginsSettingsSectionSupport.resolvePluginCommandSourceLabelRes(null)
+        ).isEqualTo(Strings.plugins_commands_source_unknown)
+        assertThat(
+            PluginsSettingsSectionSupport.resolvePluginCommandStatusLabelRes(
+                PluginCommandContributionStatus.MISSING_COMMAND_DECLARATION
+            )
+        ).isEqualTo(Strings.plugins_commands_status_missing_declaration)
     }
 
     @Test
