@@ -37,6 +37,33 @@
 - 本项目不使用 `Unreleased` / `未发布` 区块。
 - 所有变更必须归档到明确的版本号区块（版本号来源：`version.properties` 的 `versionName`）。
 
+## [0.18.0] - 2026-06-06
+
+### Added
+- 新增主编辑器命令面板，统一承载构建、代码导航、视图切换、书签、终端、设置和插件动作，支持搜索、键盘选择、固定命令和最近命令。
+- 插件 `editor/toolbar` 命令进入命令面板，并复用宿主命令执行入口，插件命令和宿主命令可以在同一套入口中查找和触发。
+
+### Changed
+- 右上角工具菜单收束为命令面板入口和最多 6 个固定/快速命令，避免功能增多后继续出现长菜单滚动。
+- 宿主命令元数据统一到 `HostCommandCatalog`，`HostCommands` 只保留稳定命令 ID 和查询代理，减少插件白名单、快捷键和 UI 菜单之间的清单漂移。
+- 默认快捷键从宿主命令目录派生，并新增 `Ctrl + Shift + P` 打开命令面板。
+- 插件仓库读取链路切换为 Registry v2-only，移除旧版 v1 全量索引 fallback。
+- x86_64 tina-toolchain 资产更新为 `v0.2.4-patched`，用于修复模拟器链路上的工具链兼容问题。
+- 当前 App 版本收敛为 `0.18.0 / 2001`，避免从 `0.17.x` 直接跳到 `0.20.0` 造成版本节奏误解。
+
+### Verification
+- `.\gradlew.bat :app:compileArm64DebugKotlin --console=plain`
+- `.\gradlew.bat :app:testArm64DebugUnitTest --tests "com.wuxianggujun.tinaide.ui.MainActivityShortcutDispatcherTest" --tests "com.wuxianggujun.tinaide.ui.compose.screens.main.MainActivityCommandOrderingTest" --tests "com.wuxianggujun.tinaide.ui.compose.screens.main.MainActivityCommandPreferenceStoreTest" --console=plain`
+- `.\gradlew.bat :core:common:testDebugUnitTest --tests "com.wuxianggujun.tinaide.core.commands.HostCommandsTest" --console=plain`
+- `.\gradlew.bat :core:config:testDebugUnitTest --tests "com.wuxianggujun.tinaide.core.config.KeyboardShortcutTest" --console=plain`
+- `.\gradlew.bat :core:plugin:testDebugUnitTest --tests "com.wuxianggujun.tinaide.plugin.PluginKeyBindingResolverTest" --tests "com.wuxianggujun.tinaide.plugin.PluginMenuResolverTest" --tests "com.wuxianggujun.tinaide.plugin.script.ScriptPluginManagerTest" --tests "com.wuxianggujun.tinaide.plugin.script.api.PluginCommandRegistryTest" --console=plain`
+- `py tools/i18n/check_all.py`
+- `git diff --check`
+- `tools/plugin-starters/config-basic/validate.ps1`
+- `tools/plugin-starters/script-command/validate.ps1`
+- `tools/plugin-starters/script-basic/validate.ps1`
+- `tools/plugin-starters/lsp-basic/validate.ps1`
+
 ## [0.17.9] - 2026-06-02
 
 ### Changed
