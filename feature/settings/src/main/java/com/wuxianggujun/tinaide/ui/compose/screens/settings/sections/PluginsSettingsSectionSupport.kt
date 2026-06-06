@@ -25,6 +25,8 @@ import com.wuxianggujun.tinaide.plugin.lsp.LspPluginInstallState
 import com.wuxianggujun.tinaide.plugin.lsp.LspToolchainConfig
 import com.wuxianggujun.tinaide.plugin.lsp.ToolchainInstallState
 import com.wuxianggujun.tinaide.plugin.script.ScriptPluginState
+import com.wuxianggujun.tinaide.plugin.script.api.PluginCommandAvailability
+import com.wuxianggujun.tinaide.plugin.script.api.PluginCommandRegistry
 import java.util.Locale
 
 internal data class PluginsContributionSummary(
@@ -42,6 +44,7 @@ internal data class PluginsCommandContribution(
     val source: ResolvedPluginCommandSource?,
     val status: PluginCommandContributionStatus,
     val whenExpression: String?,
+    val statusMessage: String? = null,
 )
 
 internal data class PluginsCommandContributionSummary(
@@ -54,6 +57,8 @@ internal enum class PluginCommandContributionStatus {
     AVAILABLE,
     MISSING_COMMAND_ID,
     MISSING_COMMAND_DECLARATION,
+    MISSING_RUNTIME_REGISTRATION,
+    UNAVAILABLE,
 }
 
 internal data class PluginsRequirementsSummary(
@@ -357,25 +362,42 @@ internal object PluginsSettingsSectionSupport {
         editorToolbarMenuCount = manifest.contributions?.menus?.editorToolbar?.size ?: 0,
     )
 
-    fun resolveCommandContributions(manifest: PluginManifest): List<PluginsCommandContribution> {
+    fun resolveCommandContributions(
+        manifest: PluginManifest,
+        isPluginCommandRegistered: (commandId: String, pluginId: String) -> Boolean = { commandId, pluginId ->
+            PluginCommandRegistry.isRegistered(commandId, pluginId)
+        },
+        pluginCommandAvailability: (commandId: String, pluginId: String) -> PluginCommandAvailability = { commandId, pluginId ->
+            PluginCommandRegistry.availability(commandId, pluginId)
+        },
+    ): List<PluginsCommandContribution> {
         val contributions = manifest.contributions ?: return emptyList()
         val declaredCommands = contributions.commands.orEmpty()
             .associateBy { command -> command.id.trim() }
         return buildList {
             appendCommandContributions(
+                pluginId = manifest.id,
                 surface = ResolvedPluginCommandSurface.EDITOR_CONTEXT,
                 menuItems = contributions.menus?.editorContext.orEmpty(),
                 declaredCommands = declaredCommands,
+                isPluginCommandRegistered = isPluginCommandRegistered,
+                pluginCommandAvailability = pluginCommandAvailability,
             )
             appendCommandContributions(
+                pluginId = manifest.id,
                 surface = ResolvedPluginCommandSurface.EDITOR_TOOLBAR,
                 menuItems = contributions.menus?.editorToolbar.orEmpty(),
                 declaredCommands = declaredCommands,
+                isPluginCommandRegistered = isPluginCommandRegistered,
+                pluginCommandAvailability = pluginCommandAvailability,
             )
             appendCommandContributions(
+                pluginId = manifest.id,
                 surface = ResolvedPluginCommandSurface.FILE_TREE_CONTEXT,
                 menuItems = contributions.menus?.fileTreeContext.orEmpty(),
                 declaredCommands = declaredCommands,
+                isPluginCommandRegistered = isPluginCommandRegistered,
+                pluginCommandAvailability = pluginCommandAvailability,
             )
         }.sortedWith(
             compareBy<PluginsCommandContribution> { command -> command.surface.ordinal }
@@ -394,9 +416,12 @@ internal object PluginsSettingsSectionSupport {
     )
 
     private fun MutableList<PluginsCommandContribution>.appendCommandContributions(
+        pluginId: String,
         surface: ResolvedPluginCommandSurface,
         menuItems: List<PluginMenuItem>,
         declaredCommands: Map<String, PluginCommand>,
+        isPluginCommandRegistered: (commandId: String, pluginId: String) -> Boolean,
+        pluginCommandAvailability: (commandId: String, pluginId: String) -> PluginCommandAvailability,
     ) {
         menuItems.forEach { menuItem ->
             val commandId = menuItem.command.trim()
@@ -407,11 +432,18 @@ internal object PluginsSettingsSectionSupport {
                 declaredCommand != null -> ResolvedPluginCommandSource.PLUGIN
                 else -> null
             }
-            val status = when {
-                commandId.isBlank() -> PluginCommandContributionStatus.MISSING_COMMAND_ID
-                source == null -> PluginCommandContributionStatus.MISSING_COMMAND_DECLARATION
-                else -> PluginCommandContributionStatus.AVAILABLE
+            val availability = if (source == ResolvedPluginCommandSource.PLUGIN &&
+                isPluginCommandRegistered(commandId, pluginId)
+            ) {
+                pluginCommandAvailability(commandId, pluginId)
+            } else {
+                null
             }
+            val status = resolveCommandContributionStatus(
+                commandId = commandId,
+                source = source,
+                availability = availability,
+            )
             add(
                 PluginsCommandContribution(
                     surface = surface,
@@ -423,9 +455,26 @@ internal object PluginsSettingsSectionSupport {
                     source = source,
                     status = status,
                     whenExpression = menuItem.`when`?.trim()?.takeIf { expression -> expression.isNotBlank() },
+                    statusMessage = availability
+                        ?.errorMessage
+                        ?.trim()
+                        ?.takeIf { message -> message.isNotBlank() },
                 )
             )
         }
+    }
+
+    private fun resolveCommandContributionStatus(
+        commandId: String,
+        source: ResolvedPluginCommandSource?,
+        availability: PluginCommandAvailability?,
+    ): PluginCommandContributionStatus = when {
+        commandId.isBlank() -> PluginCommandContributionStatus.MISSING_COMMAND_ID
+        source == null -> PluginCommandContributionStatus.MISSING_COMMAND_DECLARATION
+        source == ResolvedPluginCommandSource.HOST -> PluginCommandContributionStatus.AVAILABLE
+        availability == null -> PluginCommandContributionStatus.MISSING_RUNTIME_REGISTRATION
+        availability.available -> PluginCommandContributionStatus.AVAILABLE
+        else -> PluginCommandContributionStatus.UNAVAILABLE
     }
 
     fun resolveRequirementsSummary(manifest: PluginManifest): PluginsRequirementsSummary {
@@ -977,5 +1026,9 @@ internal object PluginsSettingsSectionSupport {
         PluginCommandContributionStatus.AVAILABLE -> Strings.plugins_commands_status_available
         PluginCommandContributionStatus.MISSING_COMMAND_ID -> Strings.plugins_commands_status_missing_command_id
         PluginCommandContributionStatus.MISSING_COMMAND_DECLARATION -> Strings.plugins_commands_status_missing_declaration
+        PluginCommandContributionStatus.MISSING_RUNTIME_REGISTRATION -> {
+            Strings.plugins_commands_status_missing_registration
+        }
+        PluginCommandContributionStatus.UNAVAILABLE -> Strings.plugins_commands_status_unavailable
     }
 }

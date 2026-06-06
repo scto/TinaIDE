@@ -256,6 +256,9 @@
   <string name="plugins_commands_status_available">可用</string>
   <string name="plugins_commands_status_missing_command_id">缺少命令 ID</string>
   <string name="plugins_commands_status_missing_declaration">缺少命令声明</string>
+  <string name="plugins_commands_status_missing_registration">运行时未注册</string>
+  <string name="plugins_commands_status_unavailable">当前不可用</string>
+  <string name="plugins_commands_status_message">原因：%1$s</string>
   <string name="plugins_details_requirements_title">依赖声明</string>
   <string name="plugins_details_requirements_toolchain_recommended">推荐工具链：%1$s</string>
   <string name="plugins_details_requirements_toolchain_optional">可选工具链：%1$s</string>

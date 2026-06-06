@@ -162,6 +162,7 @@ internal fun PluginsSettingsSection(
     val permissionRuntimeFixHint = stringResource(Strings.plugins_diagnostics_permission_runtime_fix_hint)
 
     val permissionManager = remember { PluginPermissionManager.getInstance(appContext) }
+    val permissionGrants by permissionManager.grantsFlow.collectAsState()
     val pluginLogManager = remember { PluginLogManager.getInstance(appContext) }
     val pluginLogs by pluginLogManager.logsFlow.collectAsState()
     val scriptPluginManager = remember { ScriptPluginManager.getInstance(appContext) }
@@ -469,7 +470,7 @@ internal fun PluginsSettingsSection(
             scriptPluginInfo = scriptPluginStates[detailPlugin.manifest.id],
             diagnosticsReport = diagnosticsSnapshot.getInstalledReport(detailPlugin.manifest.id),
             initialDiagnosticsSourceFilter = diagnosticsSourceFilter,
-            grantedPermissions = permissionManager.getGrantedPermissions(detailPlugin.manifest.id),
+            grantedPermissions = permissionGrants[detailPlugin.manifest.id].orEmpty(),
             onNavigateBack = { onPluginDetailChanged(null) },
             onToggleEnabled = { enabled ->
                 scope.launch {
@@ -1501,7 +1502,9 @@ private fun PluginCommandContributionRow(command: PluginsCommandContribution) {
     val statusColor = when (command.status) {
         PluginCommandContributionStatus.AVAILABLE -> MaterialTheme.colorScheme.tertiary
         PluginCommandContributionStatus.MISSING_COMMAND_ID,
-        PluginCommandContributionStatus.MISSING_COMMAND_DECLARATION -> MaterialTheme.colorScheme.error
+        PluginCommandContributionStatus.MISSING_COMMAND_DECLARATION,
+        PluginCommandContributionStatus.MISSING_RUNTIME_REGISTRATION,
+        PluginCommandContributionStatus.UNAVAILABLE -> MaterialTheme.colorScheme.error
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(TinaSpacing.xs)) {
@@ -1533,6 +1536,9 @@ private fun PluginCommandContributionRow(command: PluginsCommandContribution) {
         PluginInfoRow(stringResource(Strings.plugins_commands_group, command.group))
         command.whenExpression?.let { whenExpression ->
             PluginInfoRow(stringResource(Strings.plugins_commands_when, whenExpression))
+        }
+        command.statusMessage?.let { statusMessage ->
+            PluginInfoRow(stringResource(Strings.plugins_commands_status_message, statusMessage))
         }
     }
 }
@@ -1865,7 +1871,7 @@ private fun InstalledPluginDetailScreen(
     val contributionSummary = PluginsSettingsSectionSupport.resolveContributionSummary(manifest)
     val requirementsSummary = PluginsSettingsSectionSupport.resolveRequirementsSummary(manifest)
     val configurationSummary = PluginsSettingsSectionSupport.resolveConfigurationSummary(manifest)
-    val commandContributions = remember(manifest) {
+    val commandContributions = remember(manifest, scriptPluginInfo, grantedPermissions) {
         PluginsSettingsSectionSupport.resolveCommandContributions(manifest)
     }
     val commandContributionSummary = remember(commandContributions) {

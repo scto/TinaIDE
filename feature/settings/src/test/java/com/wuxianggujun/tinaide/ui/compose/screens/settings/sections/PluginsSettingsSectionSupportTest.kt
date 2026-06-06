@@ -27,6 +27,7 @@ import com.wuxianggujun.tinaide.plugin.lsp.LspPluginInfo
 import com.wuxianggujun.tinaide.plugin.lsp.LspPluginInstallState
 import com.wuxianggujun.tinaide.plugin.lsp.LspToolchainConfig
 import com.wuxianggujun.tinaide.plugin.lsp.ToolchainInstallState
+import com.wuxianggujun.tinaide.plugin.script.api.PluginCommandAvailability
 import java.io.File
 import kotlinx.serialization.json.JsonPrimitive
 import org.junit.Test
@@ -366,7 +367,11 @@ class PluginsSettingsSectionSupportTest {
             ),
         )
 
-        val commands = PluginsSettingsSectionSupport.resolveCommandContributions(manifest)
+        val commands = PluginsSettingsSectionSupport.resolveCommandContributions(
+            manifest = manifest,
+            isPluginCommandRegistered = { _, _ -> true },
+            pluginCommandAvailability = { _, _ -> PluginCommandAvailability(available = true) },
+        )
 
         assertThat(commands.map { command -> command.surface }).containsExactly(
             ResolvedPluginCommandSurface.EDITOR_CONTEXT,
@@ -411,6 +416,65 @@ class PluginsSettingsSectionSupportTest {
     }
 
     @Test
+    fun commandContributions_shouldExposeRuntimeAvailabilityDiagnostics() {
+        val manifest = PluginManifest(
+            id = "demo.plugin",
+            name = "Demo Plugin",
+            version = "1.0.0",
+            contributions = PluginContributions(
+                commands = listOf(
+                    PluginCommand(id = "plugin.missing", title = "Missing Runtime"),
+                    PluginCommand(id = "plugin.denied", title = "Denied Runtime"),
+                    PluginCommand(id = "plugin.ready", title = "Ready Runtime"),
+                ),
+                menus = PluginMenus(
+                    editorContext = listOf(
+                        PluginMenuItem(command = "plugin.missing", group = "1_missing"),
+                        PluginMenuItem(command = "plugin.denied", group = "2_denied"),
+                        PluginMenuItem(command = "plugin.ready", group = "3_ready"),
+                    ),
+                ),
+            ),
+        )
+
+        val commands = PluginsSettingsSectionSupport.resolveCommandContributions(
+            manifest = manifest,
+            isPluginCommandRegistered = { commandId, _ -> commandId != "plugin.missing" },
+            pluginCommandAvailability = { commandId, _ ->
+                when (commandId) {
+                    "plugin.denied" -> PluginCommandAvailability(
+                        available = false,
+                        errorMessage = "Permission command.execute is not granted",
+                    )
+                    else -> PluginCommandAvailability(available = true)
+                }
+            },
+        )
+
+        assertThat(commands.map { command -> command.commandId }).containsExactly(
+            "plugin.missing",
+            "plugin.denied",
+            "plugin.ready",
+        ).inOrder()
+        assertThat(commands.map { command -> command.status }).containsExactly(
+            PluginCommandContributionStatus.MISSING_RUNTIME_REGISTRATION,
+            PluginCommandContributionStatus.UNAVAILABLE,
+            PluginCommandContributionStatus.AVAILABLE,
+        ).inOrder()
+        assertThat(commands[0].statusMessage).isNull()
+        assertThat(commands[1].statusMessage).isEqualTo("Permission command.execute is not granted")
+        assertThat(
+            PluginsSettingsSectionSupport.resolveCommandContributionSummary(commands)
+        ).isEqualTo(
+            PluginsCommandContributionSummary(
+                totalCount = 3,
+                availableCount = 1,
+                issueCount = 2,
+            )
+        )
+    }
+
+    @Test
     fun commandContributionLabels_shouldMapToStableStringResources() {
         assertThat(
             PluginsSettingsSectionSupport.resolvePluginCommandSurfaceLabelRes(
@@ -430,6 +494,16 @@ class PluginsSettingsSectionSupportTest {
                 PluginCommandContributionStatus.MISSING_COMMAND_DECLARATION
             )
         ).isEqualTo(Strings.plugins_commands_status_missing_declaration)
+        assertThat(
+            PluginsSettingsSectionSupport.resolvePluginCommandStatusLabelRes(
+                PluginCommandContributionStatus.MISSING_RUNTIME_REGISTRATION
+            )
+        ).isEqualTo(Strings.plugins_commands_status_missing_registration)
+        assertThat(
+            PluginsSettingsSectionSupport.resolvePluginCommandStatusLabelRes(
+                PluginCommandContributionStatus.UNAVAILABLE
+            )
+        ).isEqualTo(Strings.plugins_commands_status_unavailable)
     }
 
     @Test
