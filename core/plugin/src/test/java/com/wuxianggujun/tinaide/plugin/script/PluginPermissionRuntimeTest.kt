@@ -9,6 +9,7 @@ import com.wuxianggujun.tinaide.plugin.PluginLogEventKeys
 import com.wuxianggujun.tinaide.plugin.PluginLogLevel
 import com.wuxianggujun.tinaide.plugin.PluginLogManager
 import com.wuxianggujun.tinaide.plugin.PluginManifest
+import java.io.File
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -16,7 +17,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
 @Config(

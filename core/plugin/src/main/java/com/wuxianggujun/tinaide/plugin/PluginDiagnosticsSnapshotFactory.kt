@@ -104,31 +104,29 @@ object PluginDiagnosticsSnapshotFactory {
     private fun buildPermissionRuntimeEntriesByPluginId(
         pluginLogs: List<PluginLogEntry>,
         permissionRuntimeFixHint: String,
-    ): Map<String, List<PluginDiagnosticEntry>> {
-        return pluginLogs
-            .asSequence()
-            .filter { log -> log.eventCode == PluginLogEventCodes.PERMISSION_DENIED }
-            .groupBy { log -> log.pluginId }
-            .mapValues { (_, logs) ->
-                logs.asSequence()
-                    .sortedWith(compareByDescending<PluginLogEntry> { it.timestamp }.thenByDescending { it.id })
-                    .distinctBy { log -> resolvePermissionRuntimeDedupKey(log) }
-                    .take(MAX_PERMISSION_RUNTIME_ENTRIES_PER_PLUGIN)
-                    .map { log ->
-                        PluginDiagnosticEntry(
-                            source = PluginDiagnosticSource.RUNTIME,
-                            issue = PluginDiagnosticIssue(
-                                severity = PluginDiagnosticSeverity.WARNING,
-                                category = PluginDiagnosticCategory.PERMISSIONS,
-                                message = log.message,
-                                fixHint = permissionRuntimeFixHint,
-                            ),
-                        )
-                    }
-                    .toList()
-            }
-            .filterValues { entries -> entries.isNotEmpty() }
-    }
+    ): Map<String, List<PluginDiagnosticEntry>> = pluginLogs
+        .asSequence()
+        .filter { log -> log.eventCode == PluginLogEventCodes.PERMISSION_DENIED }
+        .groupBy { log -> log.pluginId }
+        .mapValues { (_, logs) ->
+            logs.asSequence()
+                .sortedWith(compareByDescending<PluginLogEntry> { it.timestamp }.thenByDescending { it.id })
+                .distinctBy { log -> resolvePermissionRuntimeDedupKey(log) }
+                .take(MAX_PERMISSION_RUNTIME_ENTRIES_PER_PLUGIN)
+                .map { log ->
+                    PluginDiagnosticEntry(
+                        source = PluginDiagnosticSource.RUNTIME,
+                        issue = PluginDiagnosticIssue(
+                            severity = PluginDiagnosticSeverity.WARNING,
+                            category = PluginDiagnosticCategory.PERMISSIONS,
+                            message = log.message,
+                            fixHint = permissionRuntimeFixHint,
+                        ),
+                    )
+                }
+                .toList()
+        }
+        .filterValues { entries -> entries.isNotEmpty() }
 
     private fun resolvePermissionRuntimeDedupKey(log: PluginLogEntry): String {
         val attributes = log.attributes

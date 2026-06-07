@@ -60,17 +60,13 @@ enum class PluginPermission(
 
         fun fromId(id: String): PluginPermission? = lookup[id.trim()]
 
-        fun parseList(permissions: List<String>?): Set<PluginPermission> {
-            return permissions?.mapNotNull { fromId(it) }?.toSet() ?: emptySet()
-        }
+        fun parseList(permissions: List<String>?): Set<PluginPermission> = permissions?.mapNotNull { fromId(it) }?.toSet() ?: emptySet()
 
-        fun findUnknownIds(permissions: List<String>?): Set<String> {
-            return permissions.orEmpty()
-                .asSequence()
-                .map(String::trim)
-                .filter(String::isNotBlank)
-                .filter { fromId(it) == null }
-                .toSet()
-        }
+        fun findUnknownIds(permissions: List<String>?): Set<String> = permissions.orEmpty()
+            .asSequence()
+            .map(String::trim)
+            .filter(String::isNotBlank)
+            .filter { fromId(it) == null }
+            .toSet()
     }
 }

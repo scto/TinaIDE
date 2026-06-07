@@ -37,13 +37,11 @@ class PluginMarketplaceApi private constructor(
     companion object {
         private const val TAG = "PluginMarketplaceApi"
 
-        fun create(context: Context): PluginMarketplaceApi {
-            return PluginMarketplaceApi(
-                indexUrls = GitHubRegistryConfig.pluginIndexV2Urls(),
-                indexClient = GitHubRegistryHttpClientFactory.probe(context.applicationContext),
-                downloadClient = GitHubRegistryHttpClientFactory.download(context.applicationContext),
-            )
-        }
+        fun create(context: Context): PluginMarketplaceApi = PluginMarketplaceApi(
+            indexUrls = GitHubRegistryConfig.pluginIndexV2Urls(),
+            indexClient = GitHubRegistryHttpClientFactory.probe(context.applicationContext),
+            downloadClient = GitHubRegistryHttpClientFactory.download(context.applicationContext),
+        )
     }
 
     suspend fun listPlugins(
@@ -168,13 +166,11 @@ class PluginMarketplaceApi private constructor(
         }
     }
 
-    private suspend fun <T> withIndex(block: (LoadedPluginRegistryCatalog) -> T): ApiResult<T> {
-        return when (val result = loadIndex()) {
-            is ApiResult.Success -> runCatching { ApiResult.Success(block(result.data)) }
-                .getOrElse { error -> ApiResult.Error(-1, error.message ?: Strings.error_unknown.str()) }
-            is ApiResult.Error -> result
-            is ApiResult.NetworkError -> result
-        }
+    private suspend fun <T> withIndex(block: (LoadedPluginRegistryCatalog) -> T): ApiResult<T> = when (val result = loadIndex()) {
+        is ApiResult.Success -> runCatching { ApiResult.Success(block(result.data)) }
+            .getOrElse { error -> ApiResult.Error(-1, error.message ?: Strings.error_unknown.str()) }
+        is ApiResult.Error -> result
+        is ApiResult.NetworkError -> result
     }
 
     private suspend fun loadIndex(): ApiResult<LoadedPluginRegistryCatalog> = withContext(Dispatchers.IO) {
@@ -355,12 +351,10 @@ class PluginMarketplaceApi private constructor(
         }
     }
 
-    private fun pluginSortComparator(sort: String?): Comparator<PluginRegistryCatalogEntry> {
-        return when (sort) {
-            PluginSortType.NEWEST.value -> compareByDescending { it.createdAt }
-            PluginSortType.UPDATED.value -> compareByDescending { it.updatedAt }
-            else -> compareByDescending { it.updatedAt }
-        }
+    private fun pluginSortComparator(sort: String?): Comparator<PluginRegistryCatalogEntry> = when (sort) {
+        PluginSortType.NEWEST.value -> compareByDescending { it.createdAt }
+        PluginSortType.UPDATED.value -> compareByDescending { it.updatedAt }
+        else -> compareByDescending { it.updatedAt }
     }
 
     private fun isNewerVersion(remote: String, local: String): Boolean {
@@ -426,26 +420,22 @@ data class PluginRegistryCatalogEntry(
     @SerialName("updated_at")
     val updatedAt: String = "",
 ) {
-    fun toSummary(): PluginSummary {
-        return PluginSummary(
-            id = id,
-            pluginId = pluginId,
-            name = name,
-            description = description,
-            category = category,
-            tags = tags,
-            iconUrl = iconUrl,
-            publisher = publisher,
-            latestVersion = latestVersion,
-            updatedAt = updatedAt,
-        )
-    }
+    fun toSummary(): PluginSummary = PluginSummary(
+        id = id,
+        pluginId = pluginId,
+        name = name,
+        description = description,
+        category = category,
+        tags = tags,
+        iconUrl = iconUrl,
+        publisher = publisher,
+        latestVersion = latestVersion,
+        updatedAt = updatedAt,
+    )
 }
 
-private fun PluginDetail.resolveVersion(version: String?): PluginVersion? {
-    return if (version.isNullOrBlank()) {
-        latestVersionEntry()
-    } else {
-        versions.firstOrNull { it.version == version }
-    }
+private fun PluginDetail.resolveVersion(version: String?): PluginVersion? = if (version.isNullOrBlank()) {
+    latestVersionEntry()
+} else {
+    versions.firstOrNull { it.version == version }
 }

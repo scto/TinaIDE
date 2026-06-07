@@ -330,22 +330,20 @@ class PluginMenuResolverTest {
     private fun createPlugin(
         commands: List<PluginCommand>,
         menuItems: List<PluginMenuItem>
-    ): InstalledPlugin {
-        return InstalledPlugin(
-            manifest = PluginManifest(
-                id = "plugin.menu",
-                name = "Plugin Menu",
-                version = "1.0.0",
-                type = "script",
-                contributions = PluginContributions(
-                    commands = commands,
-                    menus = PluginMenus(
-                        fileTreeContext = menuItems
-                    )
+    ): InstalledPlugin = InstalledPlugin(
+        manifest = PluginManifest(
+            id = "plugin.menu",
+            name = "Plugin Menu",
+            version = "1.0.0",
+            type = "script",
+            contributions = PluginContributions(
+                commands = commands,
+                menus = PluginMenus(
+                    fileTreeContext = menuItems
                 )
-            ),
-            directory = pluginDir,
-            enabled = true
-        )
-    }
+            )
+        ),
+        directory = pluginDir,
+        enabled = true
+    )
 }

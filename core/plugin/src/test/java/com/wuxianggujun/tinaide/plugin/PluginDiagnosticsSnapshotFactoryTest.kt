@@ -3,8 +3,8 @@ package com.wuxianggujun.tinaide.plugin
 import com.google.common.truth.Truth.assertThat
 import com.wuxianggujun.tinaide.plugin.script.ScriptPluginInfo
 import com.wuxianggujun.tinaide.plugin.script.ScriptPluginState
-import org.junit.Test
 import java.io.File
+import org.junit.Test
 
 class PluginDiagnosticsSnapshotFactoryTest {
 
@@ -256,15 +256,13 @@ class PluginDiagnosticsSnapshotFactoryTest {
     private fun installedPlugin(
         id: String,
         name: String,
-    ): InstalledPlugin {
-        return InstalledPlugin(
-            manifest = PluginManifest(
-                id = id,
-                name = name,
-                version = "1.0.0",
-            ),
-            directory = File("build/$id"),
-            enabled = true,
-        )
-    }
+    ): InstalledPlugin = InstalledPlugin(
+        manifest = PluginManifest(
+            id = id,
+            name = name,
+            version = "1.0.0",
+        ),
+        directory = File("build/$id"),
+        enabled = true,
+    )
 }

@@ -6,10 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.wuxianggujun.tinaide.core.i18n.Strings
 import com.wuxianggujun.tinaide.core.i18n.str
 import com.wuxianggujun.tinaide.core.network.ApiResult
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -81,10 +81,10 @@ class PluginMarketplaceViewModel(application: Application) : AndroidViewModel(ap
                     _uiState.update {
                         PluginMarketplaceSelectionSupport.applyInstallState(
                             state = it.copy(
-                            isLoading = false,
-                            plugins = newPlugins,
-                            currentPage = data.pagination.page,
-                            hasMorePages = data.pagination.page < data.pagination.totalPages,
+                                isLoading = false,
+                                plugins = newPlugins,
+                                currentPage = data.pagination.page,
+                                hasMorePages = data.pagination.page < data.pagination.totalPages,
                             ),
                             installedPlugins = installState.installedPlugins,
                             updatablePlugins = installState.updatablePlugins,
@@ -128,10 +128,10 @@ class PluginMarketplaceViewModel(application: Application) : AndroidViewModel(ap
                     _uiState.update {
                         PluginMarketplaceSelectionSupport.applyInstallState(
                             state = it.copy(
-                            isLoadingMore = false,
-                            plugins = newPlugins,
-                            currentPage = data.pagination.page,
-                            hasMorePages = data.pagination.page < data.pagination.totalPages,
+                                isLoadingMore = false,
+                                plugins = newPlugins,
+                                currentPage = data.pagination.page,
+                                hasMorePages = data.pagination.page < data.pagination.totalPages,
                             ),
                             installedPlugins = installState.installedPlugins,
                             updatablePlugins = installState.updatablePlugins,

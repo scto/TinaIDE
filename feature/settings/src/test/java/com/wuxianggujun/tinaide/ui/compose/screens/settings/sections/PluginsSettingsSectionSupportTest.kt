@@ -3,10 +3,10 @@ package com.wuxianggujun.tinaide.ui.compose.screens.settings.sections
 import com.google.common.truth.Truth.assertThat
 import com.wuxianggujun.tinaide.core.i18n.Strings
 import com.wuxianggujun.tinaide.plugin.InstalledPlugin
+import com.wuxianggujun.tinaide.plugin.PluginCommand
 import com.wuxianggujun.tinaide.plugin.PluginConfiguration
 import com.wuxianggujun.tinaide.plugin.PluginConfigurationProperty
 import com.wuxianggujun.tinaide.plugin.PluginContributions
-import com.wuxianggujun.tinaide.plugin.PluginCommand
 import com.wuxianggujun.tinaide.plugin.PluginDiagnosticCategory
 import com.wuxianggujun.tinaide.plugin.PluginDiagnosticEntry
 import com.wuxianggujun.tinaide.plugin.PluginDiagnosticIssue
