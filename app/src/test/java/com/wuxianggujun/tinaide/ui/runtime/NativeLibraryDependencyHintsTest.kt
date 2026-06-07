@@ -1,6 +1,7 @@
 package com.wuxianggujun.tinaide.ui.runtime
 
 import com.google.common.truth.Truth.assertThat
+import com.wuxianggujun.tinaide.core.packages.model.GUIPackage
 import java.io.File
 import java.nio.file.Files
 import org.junit.Test
@@ -14,6 +15,29 @@ class NativeLibraryDependencyHintsTest {
         )
 
         assertThat(packageIds).containsExactly("sdl3-image", "sdl3-ttf").inOrder()
+    }
+
+    @Test
+    fun `inferPackageIds prefers available package index before fallback hints`() {
+        val packageIds = NativeLibraryDependencyHints.inferPackageIds(
+            libraryNames = listOf("libSkiaSharp.so", "libSDL3_image.so"),
+            availablePackages = listOf(
+                GUIPackage(id = "skia-sharp", name = "SkiaSharp"),
+                GUIPackage(id = "sdl3-image", name = "SDL3 Image")
+            )
+        )
+
+        assertThat(packageIds).containsExactly("sdl3-image", "skia-sharp").inOrder()
+    }
+
+    @Test
+    fun `inferPackageIds uses installed library index before fallback hints`() {
+        val packageIds = NativeLibraryDependencyHints.inferPackageIds(
+            libraryNames = listOf("libSDL3_image.so"),
+            installedLibraryPackageIndex = mapOf("libSDL3_image.so" to "custom-sdl3-image")
+        )
+
+        assertThat(packageIds).containsExactly("custom-sdl3-image", "sdl3-image").inOrder()
     }
 
     @Test

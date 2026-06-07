@@ -103,10 +103,19 @@ class PackageManagerViewModel(
         installStates: Map<String, PackageInstallState>,
         filter: PackageFilterState
     ): List<GUIPackage> {
+        val tokens = filter.searchQuery
+            .split(',', ' ', '\n', '\t')
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+        if (tokens.isEmpty()) return packages
+
         return packages.filter { pkg ->
-            filter.searchQuery.isBlank() ||
-                    pkg.name.contains(filter.searchQuery, ignoreCase = true) ||
-                    pkg.description?.contains(filter.searchQuery, ignoreCase = true) == true
+            tokens.any { token ->
+                pkg.id.contains(token, ignoreCase = true) ||
+                    pkg.name.contains(token, ignoreCase = true) ||
+                    pkg.description?.contains(token, ignoreCase = true) == true ||
+                    pkg.category?.contains(token, ignoreCase = true) == true
+            }
         }
     }
 
@@ -315,6 +324,53 @@ class PackageManagerViewModel(
         }
     }
 
+    fun batchInstall(platform: Platform) {
+        val selectedIds = _uiState.value.selectedPackageIds.toList()
+        if (selectedIds.isEmpty()) return
+
+        val installableIds = selectedIds.filter { packageId ->
+            val pkg = _uiState.value.packages.find { it.id == packageId }
+            pkg?.platformPackageFor(platform) != null
+        }
+        if (installableIds.isEmpty()) return
+
+        viewModelScope.launch {
+            val plans = previewInstallPlans(
+                packageIds = installableIds,
+                platform = platform
+            ).getOrElse { error ->
+                _dialogState.value = PackageDialogState.InstallComplete(
+                    packageId = installableIds.first(),
+                    result = InstallResult.Failure(
+                        packageId = installableIds.first(),
+                        error = InstallError.UnknownError(
+                            error.message ?: Strings.pkg_manager_error_unknown.strOr(appContext)
+                        )
+                    )
+                )
+                return@launch
+            }
+
+            if (plans.hasPendingDependencies()) {
+                _dialogState.value = PackageDialogState.BatchInstallConfirm(
+                    packageIds = installableIds,
+                    platform = platform,
+                    plans = plans
+                )
+                return@launch
+            }
+
+            startBatchInstall(installableIds, platform)
+        }
+    }
+
+    fun confirmBatchInstall() {
+        val state = _dialogState.value as? PackageDialogState.BatchInstallConfirm ?: return
+        viewModelScope.launch {
+            startBatchInstall(state.packageIds, state.platform)
+        }
+    }
+
     fun checkForUpdates() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
@@ -329,6 +385,100 @@ class PackageManagerViewModel(
         if (updates.isEmpty()) return
 
         val updateList = updates.values.toList()
+        viewModelScope.launch {
+            val plans = previewUpdatePlans(updateList).getOrElse { error ->
+                val failedUpdate = updateList.first()
+                _dialogState.value = PackageDialogState.InstallComplete(
+                    packageId = failedUpdate.packageId,
+                    result = InstallResult.Failure(
+                        packageId = failedUpdate.packageId,
+                        error = InstallError.UnknownError(
+                            error.message ?: Strings.pkg_manager_error_unknown.strOr(appContext)
+                        )
+                    )
+                )
+                return@launch
+            }
+
+            if (plans.hasPendingDependencies()) {
+                _dialogState.value = PackageDialogState.BatchUpdateConfirm(
+                    updates = updateList,
+                    plans = plans
+                )
+                return@launch
+            }
+
+            startUpdateAllPackages(updateList)
+        }
+    }
+
+    fun confirmBatchUpdate() {
+        val state = _dialogState.value as? PackageDialogState.BatchUpdateConfirm ?: return
+        viewModelScope.launch {
+            startUpdateAllPackages(state.updates)
+        }
+    }
+
+    private suspend fun startBatchInstall(
+        packageIds: List<String>,
+        platform: Platform
+    ) {
+        if (packageIds.isEmpty()) return
+        val firstPackageName = _uiState.value.packages.find { it.id == packageIds.first() }?.name
+            ?: packageIds.first()
+        _dialogState.value = PackageDialogState.BatchInstalling(
+            packageIds = packageIds,
+            platform = platform,
+            currentIndex = 0,
+            totalCount = packageIds.size,
+            currentPackageName = firstPackageName,
+            event = InstallProgressEvent.Preparing(
+                Strings.pkg_manager_progress_starting.strOr(appContext)
+            )
+        )
+
+        for ((index, packageId) in packageIds.withIndex()) {
+            val packageName = _uiState.value.packages.find { it.id == packageId }?.name ?: packageId
+            _dialogState.update { current ->
+                if (current is PackageDialogState.BatchInstalling) {
+                    current.copy(
+                        currentIndex = index,
+                        currentPackageName = packageName,
+                        event = InstallProgressEvent.Preparing(
+                            Strings.pkg_manager_progress_installing.strOr(appContext, packageName)
+                        )
+                    )
+                } else current
+            }
+
+            val result = packageManager.install(packageId, platform) { event ->
+                _dialogState.update { current ->
+                    if (current is PackageDialogState.BatchInstalling) {
+                        current.copy(event = event)
+                    } else current
+                }
+            }
+
+            refreshInstallState(packageId)
+            refreshInstalledMetadata(packageId)
+
+            if (result is InstallResult.Failure) {
+                Timber.tag(TAG).e(
+                    "Batch install failed for %s: %s",
+                    packageId,
+                    result.error.toDisplayMessage()
+                )
+            }
+        }
+
+        _dialogState.value = PackageDialogState.BatchInstallComplete(packageIds.size, platform)
+        _uiState.update { it.copy(isSelectionMode = false, selectedPackageIds = emptySet()) }
+        loadPackages()
+    }
+
+    private suspend fun startUpdateAllPackages(
+        updateList: List<com.wuxianggujun.tinaide.core.packages.UpdateInfo>
+    ) {
         _dialogState.value = PackageDialogState.BatchUpdating(
             updates = updateList,
             currentIndex = 0,
@@ -339,45 +489,69 @@ class PackageManagerViewModel(
             )
         )
 
-        viewModelScope.launch {
-            for ((index, update) in updateList.withIndex()) {
-                _dialogState.update { current ->
-                    if (current is PackageDialogState.BatchUpdating) {
-                        current.copy(
-                            currentIndex = index,
-                            currentPackageName = update.packageName,
-                            event = InstallProgressEvent.Preparing(
-                                Strings.pkg_manager_progress_updating_package.strOr(
-                                    appContext,
-                                    update.packageName
-                                )
+        for ((index, update) in updateList.withIndex()) {
+            _dialogState.update { current ->
+                if (current is PackageDialogState.BatchUpdating) {
+                    current.copy(
+                        currentIndex = index,
+                        currentPackageName = update.packageName,
+                        event = InstallProgressEvent.Preparing(
+                            Strings.pkg_manager_progress_updating_package.strOr(
+                                appContext,
+                                update.packageName
                             )
                         )
-                    } else current
-                }
-
-                val result = packageManager.install(update.packageId, update.platform) { event ->
-                    _dialogState.update { current ->
-                        if (current is PackageDialogState.BatchUpdating) {
-                            current.copy(event = event)
-                        } else current
-                    }
-                }
-
-                refreshInstallState(update.packageId)
-
-                if (result is InstallResult.Failure) {
-                    Timber.tag(TAG).e(
-                        "Update failed for %s: %s",
-                        update.packageId,
-                        result.error.toDisplayMessage()
                     )
+                } else current
+            }
+
+            val result = packageManager.install(update.packageId, update.platform) { event ->
+                _dialogState.update { current ->
+                    if (current is PackageDialogState.BatchUpdating) {
+                        current.copy(event = event)
+                    } else current
                 }
             }
 
-            _dialogState.value = PackageDialogState.BatchUpdateComplete(updateList.size)
-            _uiState.update { it.copy(availableUpdates = emptyMap()) }
+            refreshInstallState(update.packageId)
+
+            if (result is InstallResult.Failure) {
+                Timber.tag(TAG).e(
+                    "Update failed for %s: %s",
+                    update.packageId,
+                    result.error.toDisplayMessage()
+                )
+            }
         }
+
+        _dialogState.value = PackageDialogState.BatchUpdateComplete(updateList.size)
+        _uiState.update { it.copy(availableUpdates = emptyMap()) }
+        loadPackages()
+    }
+
+    private suspend fun previewInstallPlans(
+        packageIds: List<String>,
+        platform: Platform
+    ): Result<List<PackageInstallPlan>> {
+        val plans = mutableListOf<PackageInstallPlan>()
+        for (packageId in packageIds) {
+            plans += packageManager.previewInstallPlan(packageId, platform).getOrElse { error ->
+                return Result.failure(error)
+            }
+        }
+        return Result.success(plans)
+    }
+
+    private suspend fun previewUpdatePlans(
+        updates: List<com.wuxianggujun.tinaide.core.packages.UpdateInfo>
+    ): Result<List<PackageInstallPlan>> {
+        val plans = mutableListOf<PackageInstallPlan>()
+        for (update in updates) {
+            plans += packageManager.previewInstallPlan(update.packageId, update.platform).getOrElse { error ->
+                return Result.failure(error)
+            }
+        }
+        return Result.success(plans)
     }
 
     private fun buildInstalledMetadataMap(
@@ -505,6 +679,12 @@ sealed class PackageDialogState {
 
     data class PackageDetails(val packageInfo: GUIPackage) : PackageDialogState()
 
+    data class BatchInstallConfirm(
+        val packageIds: List<String>,
+        val platform: Platform,
+        val plans: List<PackageInstallPlan>
+    ) : PackageDialogState()
+
     data class BatchInstalling(
         val packageIds: List<String>,
         val platform: Platform,
@@ -531,7 +711,23 @@ sealed class PackageDialogState {
         val event: InstallProgressEvent
     ) : PackageDialogState()
 
+    data class BatchUpdateConfirm(
+        val updates: List<com.wuxianggujun.tinaide.core.packages.UpdateInfo>,
+        val plans: List<PackageInstallPlan>
+    ) : PackageDialogState()
+
     data class BatchUpdateComplete(
         val totalCount: Int
     ) : PackageDialogState()
+}
+
+private fun GUIPackage.platformPackageFor(platform: Platform): PlatformPackage? = when (platform) {
+    Platform.LINUX -> linux
+    Platform.ANDROID -> android
+}
+
+private fun List<PackageInstallPlan>.hasPendingDependencies(): Boolean {
+    return any { plan ->
+        plan.packages.any { item -> !item.isRoot && !item.isAlreadyInstalled }
+    }
 }

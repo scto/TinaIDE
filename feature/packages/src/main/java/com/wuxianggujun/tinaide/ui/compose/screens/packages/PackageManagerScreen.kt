@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.wuxianggujun.tinaide.core.i18n.Strings
 import com.wuxianggujun.tinaide.core.packages.InstalledPackageMetadata
 import com.wuxianggujun.tinaide.core.packages.PackageInstallPlan
+import com.wuxianggujun.tinaide.core.packages.PackageInstallPlanItem
 import org.koin.androidx.compose.koinViewModel
 import com.wuxianggujun.tinaide.core.packages.model.*
 import com.wuxianggujun.tinaide.ui.compose.components.TinaTopBar
@@ -42,12 +43,19 @@ import com.wuxianggujun.tinaide.ui.compose.components.tinaBackAction
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun PackageManagerScreen(
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    initialSearchQuery: String? = null
 ) {
     val viewModel: PackageManagerViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
     val filterState by viewModel.filterState.collectAsState()
     val dialogState by viewModel.dialogState.collectAsState()
+
+    LaunchedEffect(initialSearchQuery) {
+        initialSearchQuery
+            ?.takeUnless { it.isBlank() }
+            ?.let(viewModel::updateSearchQuery)
+    }
 
     // 处理系统返回键：优先处理内部子界面的返回
     TinaBackHandlers(
@@ -121,23 +129,42 @@ fun PackageManagerScreen(
         bottomBar = {
             AnimatedVisibility(visible = uiState.isSelectionMode && uiState.selectedPackageIds.isNotEmpty()) {
                 BottomAppBar {
-                    Row(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = TinaSpacing.xl),
-                        horizontalArrangement = Arrangement.SpaceEvenly
+                        verticalArrangement = Arrangement.spacedBy(TinaSpacing.sm)
                     ) {
-                        TinaDangerButton(
-                            text = stringResource(Strings.pkg_manager_uninstall_linux),
-                            onClick = { viewModel.batchUninstall(Platform.LINUX) },
-                            modifier = Modifier.weight(1f)
-                        )
-                        Spacer(modifier = Modifier.width(TinaSpacing.md))
-                        TinaDangerButton(
-                            text = stringResource(Strings.pkg_manager_uninstall_android),
-                            onClick = { viewModel.batchUninstall(Platform.ANDROID) },
-                            modifier = Modifier.weight(1f)
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(TinaSpacing.md)
+                        ) {
+                            TinaPrimaryButton(
+                                text = stringResource(Strings.pkg_manager_install_linux),
+                                onClick = { viewModel.batchInstall(Platform.LINUX) },
+                                modifier = Modifier.weight(1f)
+                            )
+                            TinaPrimaryButton(
+                                text = stringResource(Strings.pkg_manager_install_android),
+                                onClick = { viewModel.batchInstall(Platform.ANDROID) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(TinaSpacing.md)
+                        ) {
+                            TinaDangerButton(
+                                text = stringResource(Strings.pkg_manager_uninstall_linux),
+                                onClick = { viewModel.batchUninstall(Platform.LINUX) },
+                                modifier = Modifier.weight(1f)
+                            )
+                            TinaDangerButton(
+                                text = stringResource(Strings.pkg_manager_uninstall_android),
+                                onClick = { viewModel.batchUninstall(Platform.ANDROID) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
                     }
                 }
             }
@@ -281,6 +308,20 @@ fun PackageManagerScreen(
                     onDismiss = viewModel::dismissDialog
                 )
             }
+            is PackageDialogState.BatchInstallConfirm -> {
+                BatchPlanConfirmDialog(
+                    title = stringResource(Strings.pkg_manager_batch_install_confirm_title),
+                    message = stringResource(
+                        Strings.pkg_manager_batch_install_confirm_message,
+                        state.packageIds.size,
+                        platformDisplayName(state.platform)
+                    ),
+                    plans = state.plans,
+                    confirmText = stringResource(Strings.pkg_manager_install_confirm_button),
+                    onConfirm = { viewModel.confirmBatchInstall() },
+                    onDismiss = viewModel::dismissDialog
+                )
+            }
             is PackageDialogState.BatchInstalling -> {
                 BatchInstallProgressDialog(
                     currentIndex = state.currentIndex,
@@ -293,7 +334,11 @@ fun PackageManagerScreen(
             is PackageDialogState.BatchInstallComplete -> {
                 TinaInfoDialog(
                     title = stringResource(Strings.pkg_manager_batch_complete_title),
-                    message = stringResource(Strings.pkg_manager_batch_complete_msg, state.totalCount, state.platform.name),
+                    message = stringResource(
+                        Strings.pkg_manager_batch_complete_msg,
+                        state.totalCount,
+                        platformDisplayName(state.platform)
+                    ),
                     confirmText = stringResource(Strings.btn_confirm),
                     onDismiss = viewModel::dismissDialog
                 )
@@ -305,6 +350,19 @@ fun PackageManagerScreen(
                     totalCount = state.totalCount,
                     currentPackageName = state.currentPackageName,
                     event = state.event
+                )
+            }
+            is PackageDialogState.BatchUpdateConfirm -> {
+                BatchPlanConfirmDialog(
+                    title = stringResource(Strings.pkg_manager_batch_update_confirm_title),
+                    message = stringResource(
+                        Strings.pkg_manager_batch_update_confirm_message,
+                        state.updates.size
+                    ),
+                    plans = state.plans,
+                    confirmText = stringResource(Strings.pkg_manager_update_all),
+                    onConfirm = { viewModel.confirmBatchUpdate() },
+                    onDismiss = viewModel::dismissDialog
                 )
             }
             is PackageDialogState.BatchUpdateComplete -> {
@@ -454,7 +512,7 @@ fun PackageCard(
 
                     if (pkg.linux != null) {
                         PlatformRow(
-                            platformLabel = "Linux",
+                            platformLabel = platformDisplayName(Platform.LINUX),
                             platformIcon = "\uD83D\uDC27",
                             state = installState.linux,
                             onInstall = onInstallLinux,
@@ -465,7 +523,7 @@ fun PackageCard(
                     if (pkg.android != null) {
                         Spacer(modifier = Modifier.height(TinaSpacing.md))
                         PlatformRow(
-                            platformLabel = "Android",
+                            platformLabel = platformDisplayName(Platform.ANDROID),
                             platformIcon = "\uD83E\uDD16",
                             state = installState.android,
                             onInstall = onInstallAndroid,
@@ -548,7 +606,7 @@ private fun InstallConfirmDialog(
                 TinaDialogMessageCard(
                     message = stringResource(
                         Strings.pkg_manager_install_confirm_message,
-                        platform.name.lowercase(),
+                        platformDisplayName(platform),
                         packageInfo.name
                     )
                 )
@@ -590,6 +648,82 @@ private fun InstallConfirmDialog(
             )
         }
     )
+}
+
+@Composable
+private fun BatchPlanConfirmDialog(
+    title: String,
+    message: String,
+    plans: List<PackageInstallPlan>,
+    confirmText: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val dependenciesToInstall = remember(plans) {
+        collectBatchPlanDependencies(plans)
+    }
+    TinaAlertDialog(
+        onDismissRequest = onDismiss,
+        title = { TinaDialogTitleText(title) },
+        text = {
+            TinaDialogContentColumn {
+                TinaDialogMessageCard(message = message)
+                if (dependenciesToInstall.isNotEmpty()) {
+                    TinaDialogCard(
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.42f),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = stringResource(Strings.pkg_manager_install_confirm_dependencies_title),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        dependenciesToInstall.forEach { dependency ->
+                            Text(
+                                text = "\u2022 " + stringResource(
+                                    Strings.pkg_manager_install_confirm_dependency_item,
+                                    dependency.packageName,
+                                    dependency.version
+                                ),
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TinaPrimaryButton(
+                text = confirmText,
+                onClick = onConfirm
+            )
+        },
+        dismissButton = {
+            TinaTextButton(
+                text = stringResource(Strings.btn_cancel),
+                onClick = onDismiss
+            )
+        }
+    )
+}
+
+private fun collectBatchPlanDependencies(plans: List<PackageInstallPlan>): List<PackageInstallPlanItem> {
+    return plans.asSequence()
+        .flatMap { it.packages.asSequence() }
+        .filterNot { it.isRoot }
+        .filterNot { it.isAlreadyInstalled }
+        .distinctBy { it.packageId }
+        .sortedBy { it.packageName.lowercase() }
+        .toList()
+}
+
+@Composable
+private fun platformDisplayName(platform: Platform): String {
+    return when (platform) {
+        Platform.LINUX -> stringResource(Strings.pkg_manager_platform_linux)
+        Platform.ANDROID -> stringResource(Strings.pkg_manager_platform_android)
+    }
 }
 
 @Composable
@@ -724,7 +858,7 @@ private fun UninstallConfirmDialog(
                 TinaDialogMessageCard(
                     message = stringResource(
                         Strings.pkg_manager_uninstall_message,
-                        platform.name.lowercase(),
+                        platformDisplayName(platform),
                         packageInfo.name
                     )
                 )
@@ -953,7 +1087,7 @@ private fun BatchInstallProgressDialog(
                     message = stringResource(
                         Strings.pkg_manager_batch_install_msg,
                         currentPackageName,
-                        platform.name
+                        platformDisplayName(platform)
                     )
                 )
                 TinaDialogCard(verticalArrangement = Arrangement.spacedBy(8.dp)) {

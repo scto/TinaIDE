@@ -7,6 +7,7 @@ import com.wuxianggujun.tinaide.core.i18n.Strings
 import com.wuxianggujun.tinaide.core.i18n.str
 import com.wuxianggujun.tinaide.core.i18n.strOr
 import com.wuxianggujun.tinaide.core.network.ApiResult
+import com.wuxianggujun.tinaide.core.packages.PackageInstallPlan
 import com.wuxianggujun.tinaide.core.packages.PackageManager
 import com.wuxianggujun.tinaide.core.packages.PackageManagerImpl
 import com.wuxianggujun.tinaide.core.packages.api.PackageApiClient
@@ -357,55 +358,110 @@ class MarketScreenViewModel(
                 return@launch
             }
 
-            _packageState.update {
-                it.copy(
-                    installingPackages = it.installingPackages + (packageId to 0f),
-                    message = null
-                )
+            val plan = packageManager.previewInstallPlan(packageId, platform).getOrElse { error ->
+                _packageState.update {
+                    it.copy(
+                        message = Strings.market_package_install_failed.strOr(
+                            appContext,
+                            error.message ?: Strings.pkg_manager_error_unknown.strOr(appContext)
+                        )
+                    )
+                }
+                return@launch
             }
 
-            val result = runCatching {
-                packageManager.install(packageId, platform) { event ->
-                    _packageState.update { state ->
-                        state.copy(
-                            installingPackages = updatePackageInstallProgress(
-                                current = state.installingPackages,
-                                packageId = packageId,
-                                event = event
-                            )
-                        )
-                    }
-                }
-            }.getOrElse { throwable ->
-                InstallResult.Failure(
-                    packageId = packageId,
-                    error = com.wuxianggujun.tinaide.core.packages.model.InstallError.UnknownError(
-                        throwable.message ?: Strings.pkg_manager_error_unknown.strOr(appContext)
+            val dependenciesToInstall = plan.packages
+                .filterNot { it.isRoot }
+                .filterNot { it.isAlreadyInstalled }
+            if (dependenciesToInstall.isNotEmpty()) {
+                _packageState.update {
+                    it.copy(
+                        pendingInstallPlan = MarketPackageInstallPlan(
+                            packageId = packageId,
+                            packageInfo = pkg,
+                            platform = platform,
+                            plan = plan
+                        ),
+                        message = null
                     )
-                )
-            }
-            when (result) {
-                is InstallResult.Success -> {
-                    refreshPackageState(packageId)
-                    recordPackageDownload(pkg, result.version)
-                    loadPackages()
-                    _packageState.update {
-                        it.copy(
-                            installingPackages = it.installingPackages - packageId,
-                            message = Strings.market_package_install_success.strOr(appContext, pkg.name)
-                        )
-                    }
                 }
-                is InstallResult.Failure -> {
-                    _packageState.update {
-                        it.copy(
-                            installingPackages = it.installingPackages - packageId,
-                            message = Strings.market_package_install_failed.strOr(
-                                appContext,
-                                result.error.toDisplayMessage()
-                            )
+                return@launch
+            }
+
+            installPackageWithoutPreview(pkg, platform)
+        }
+    }
+
+    fun confirmPackageInstall() {
+        val pendingPlan = _packageState.value.pendingInstallPlan ?: return
+        val pkg = _packageState.value.packages.find { it.id == pendingPlan.packageId }
+            ?: pendingPlan.packageInfo
+        _packageState.update { it.copy(pendingInstallPlan = null) }
+        viewModelScope.launch {
+            installPackageWithoutPreview(pkg, pendingPlan.platform)
+        }
+    }
+
+    fun dismissPackageInstallConfirm() {
+        _packageState.update { it.copy(pendingInstallPlan = null) }
+    }
+
+    private suspend fun installPackageWithoutPreview(
+        pkg: GUIPackage,
+        platform: com.wuxianggujun.tinaide.core.packages.model.Platform
+    ) {
+        val packageId = pkg.id
+        if (packageId in _packageState.value.installingPackages) return
+
+        _packageState.update {
+            it.copy(
+                installingPackages = it.installingPackages + (packageId to 0f),
+                pendingInstallPlan = null,
+                message = null
+            )
+        }
+
+        val result = runCatching {
+            packageManager.install(packageId, platform) { event ->
+                _packageState.update { state ->
+                    state.copy(
+                        installingPackages = updatePackageInstallProgress(
+                            current = state.installingPackages,
+                            packageId = packageId,
+                            event = event
                         )
-                    }
+                    )
+                }
+            }
+        }.getOrElse { throwable ->
+            InstallResult.Failure(
+                packageId = packageId,
+                error = com.wuxianggujun.tinaide.core.packages.model.InstallError.UnknownError(
+                    throwable.message ?: Strings.pkg_manager_error_unknown.strOr(appContext)
+                )
+            )
+        }
+        when (result) {
+            is InstallResult.Success -> {
+                refreshPackageState(packageId)
+                recordPackageDownload(pkg, result.version)
+                loadPackages()
+                _packageState.update {
+                    it.copy(
+                        installingPackages = it.installingPackages - packageId,
+                        message = Strings.market_package_install_success.strOr(appContext, pkg.name)
+                    )
+                }
+            }
+            is InstallResult.Failure -> {
+                _packageState.update {
+                    it.copy(
+                        installingPackages = it.installingPackages - packageId,
+                        message = Strings.market_package_install_failed.strOr(
+                            appContext,
+                            result.error.toDisplayMessage()
+                        )
+                    )
                 }
             }
         }
@@ -507,6 +563,14 @@ data class PackageState(
     val filteredPackages: List<GUIPackage> = emptyList(),
     val installStates: Map<String, PackageInstallState> = emptyMap(),
     val installingPackages: Map<String, Float> = emptyMap(),
+    val pendingInstallPlan: MarketPackageInstallPlan? = null,
     val error: String? = null,
     val message: String? = null
+)
+
+data class MarketPackageInstallPlan(
+    val packageId: String,
+    val packageInfo: GUIPackage,
+    val platform: com.wuxianggujun.tinaide.core.packages.model.Platform,
+    val plan: PackageInstallPlan
 )

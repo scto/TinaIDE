@@ -64,16 +64,23 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wuxianggujun.tinaide.core.i18n.Strings
 import com.wuxianggujun.tinaide.core.packages.model.GUIPackage
+import com.wuxianggujun.tinaide.core.packages.model.Platform
 import com.wuxianggujun.tinaide.plugin.marketplace.PluginDetail
 import com.wuxianggujun.tinaide.plugin.marketplace.PluginMarketplaceSelectionSupport
 import com.wuxianggujun.tinaide.plugin.marketplace.PluginSummary
 import com.wuxianggujun.tinaide.plugin.marketplace.PluginVersion
 import com.wuxianggujun.tinaide.ui.compose.components.PluginCardSkeleton
 import com.wuxianggujun.tinaide.ui.compose.components.TinaBackHandlers
+import com.wuxianggujun.tinaide.ui.compose.components.TinaAlertDialog
 import com.wuxianggujun.tinaide.ui.compose.components.TinaCard
+import com.wuxianggujun.tinaide.ui.compose.components.TinaDialogCard
+import com.wuxianggujun.tinaide.ui.compose.components.TinaDialogContentColumn
+import com.wuxianggujun.tinaide.ui.compose.components.TinaDialogMessageCard
+import com.wuxianggujun.tinaide.ui.compose.components.TinaDialogTitleText
 import com.wuxianggujun.tinaide.ui.compose.components.TinaOutlinedButton
 import com.wuxianggujun.tinaide.ui.compose.components.TinaPrimaryButton
 import com.wuxianggujun.tinaide.ui.compose.components.TinaPullToRefreshBox
+import com.wuxianggujun.tinaide.ui.compose.components.TinaTextButton
 import com.wuxianggujun.tinaide.ui.compose.components.TinaTopBar
 import com.wuxianggujun.tinaide.ui.compose.components.tinaBackAction
 import org.koin.androidx.compose.koinViewModel
@@ -206,6 +213,14 @@ fun MarketScreen(
                 }
             }
         }
+    }
+
+    packageState.pendingInstallPlan?.let { pendingPlan ->
+        MarketPackageInstallConfirmDialog(
+            pendingPlan = pendingPlan,
+            onConfirm = viewModel::confirmPackageInstall,
+            onDismiss = viewModel::dismissPackageInstallConfirm
+        )
     }
 }
 
@@ -385,6 +400,79 @@ private fun PluginCard(
 }
 
 // ── PLACEHOLDER_PACKAGES ──
+
+@Composable
+private fun MarketPackageInstallConfirmDialog(
+    pendingPlan: MarketPackageInstallPlan,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val dependenciesToInstall = pendingPlan.plan.packages
+        .filterNot { it.isRoot }
+        .filterNot { it.isAlreadyInstalled }
+    TinaAlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            TinaDialogTitleText(
+                stringResource(Strings.pkg_manager_install_confirm_title, pendingPlan.packageInfo.name)
+            )
+        },
+        text = {
+            TinaDialogContentColumn {
+                TinaDialogMessageCard(
+                    message = stringResource(
+                        Strings.pkg_manager_install_confirm_message,
+                        marketPlatformDisplayName(pendingPlan.platform),
+                        pendingPlan.packageInfo.name
+                    )
+                )
+                if (dependenciesToInstall.isNotEmpty()) {
+                    TinaDialogCard(
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.42f),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = stringResource(Strings.pkg_manager_install_confirm_dependencies_title),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        dependenciesToInstall.forEach { dependency ->
+                            Text(
+                                text = "\u2022 " + stringResource(
+                                    Strings.pkg_manager_install_confirm_dependency_item,
+                                    dependency.packageName,
+                                    dependency.version
+                                ),
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TinaPrimaryButton(
+                text = stringResource(Strings.pkg_manager_install_confirm_button),
+                onClick = onConfirm
+            )
+        },
+        dismissButton = {
+            TinaTextButton(
+                text = stringResource(Strings.btn_cancel),
+                onClick = onDismiss
+            )
+        }
+    )
+}
+
+@Composable
+private fun marketPlatformDisplayName(platform: Platform): String {
+    return when (platform) {
+        Platform.LINUX -> stringResource(Strings.pkg_manager_platform_linux)
+        Platform.ANDROID -> stringResource(Strings.pkg_manager_platform_android)
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
