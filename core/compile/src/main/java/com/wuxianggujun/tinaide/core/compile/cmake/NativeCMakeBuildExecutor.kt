@@ -536,6 +536,18 @@ class NativeCMakeBuildExecutor(
             return env
         }
 
+        internal fun buildCMakePackageRootArguments(
+            packagePaths: InstalledPackagePathResolver.PackagePaths
+        ): List<String> {
+            if (packagePaths.prefixDirs.isEmpty()) return emptyList()
+            val packagePrefixPath = packagePaths.prefixDirs.joinToString(";") { it.absolutePath }
+            return listOf(
+                "-DCMAKE_PREFIX_PATH=$packagePrefixPath",
+                // Android/cross CMake 会把 find_package 限制在 root path 内，需同步注入包根。
+                "-DCMAKE_FIND_ROOT_PATH=$packagePrefixPath"
+            )
+        }
+
         internal fun buildCMakeExtraEnvironment(
             packageEnvironment: Map<String, String>,
             traceToolchainShim: Boolean
@@ -820,7 +832,6 @@ class NativeCMakeBuildExecutor(
 
         // 已安装包的 prefix 路径（供 find_package 使用）
         val packagePaths = InstalledPackagePathResolver.resolve(appContext, projectDir)
-        val packagePrefixPath = packagePaths.prefixDirs.joinToString(";") { it.absolutePath }
         val packageIncludePath = packagePaths.includeDirs.joinToString(";") { it.absolutePath }
         val packageLibraryPath = packagePaths.libDirs.joinToString(";") { it.absolutePath }
         val projectCFlags = options.cFlags
@@ -998,9 +1009,7 @@ class NativeCMakeBuildExecutor(
             }
 
             // 注入已安装包的路径，让 find_package() 能找到第三方库
-            if (packagePaths.prefixDirs.isNotEmpty()) {
-                add("-DCMAKE_PREFIX_PATH=$packagePrefixPath")
-            }
+            addAll(buildCMakePackageRootArguments(packagePaths))
             if (packagePaths.includeDirs.isNotEmpty()) {
                 add("-DCMAKE_INCLUDE_PATH=$packageIncludePath")
             }

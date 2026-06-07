@@ -426,6 +426,42 @@ class NativeCMakeBuildExecutorConfigTest {
     }
 
     @Test
+    fun `buildCMakePackageRootArguments mirrors package prefixes into find root path`() {
+        val sdlPrefix = File("/pkg/sdl3")
+        val box2dPrefix = File("/pkg/box2d")
+        val packagePrefixPath = listOf(sdlPrefix, box2dPrefix).joinToString(";") { it.absolutePath }
+
+        val args = NativeCMakeBuildExecutor.buildCMakePackageRootArguments(
+            InstalledPackagePathResolver.PackagePaths(
+                includeDirs = emptyList(),
+                libDirs = emptyList(),
+                prefixDirs = listOf(sdlPrefix, box2dPrefix),
+                pkgConfigDirs = emptyList(),
+                linkLibraries = emptyList(),
+                runtimeLibDirs = emptyList()
+            )
+        )
+
+        assertThat(args).containsExactly(
+            "-DCMAKE_PREFIX_PATH=$packagePrefixPath",
+            "-DCMAKE_FIND_ROOT_PATH=$packagePrefixPath"
+        ).inOrder()
+
+        assertThat(
+            NativeCMakeBuildExecutor.buildCMakePackageRootArguments(
+                InstalledPackagePathResolver.PackagePaths(
+                    includeDirs = emptyList(),
+                    libDirs = emptyList(),
+                    prefixDirs = emptyList(),
+                    pkgConfigDirs = emptyList(),
+                    linkLibraries = emptyList(),
+                    runtimeLibDirs = emptyList()
+                )
+            )
+        ).isEmpty()
+    }
+
+    @Test
     fun `buildCMakeExtraEnvironment adds shim trace flag when enabled`() {
         val env = NativeCMakeBuildExecutor.buildCMakeExtraEnvironment(
             packageEnvironment = mapOf("CPATH" to "/pkg/include"),
