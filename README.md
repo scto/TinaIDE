@@ -162,7 +162,7 @@ Release 任务不只是“生成 APK”，还可能触发以下副作用：
 
 - 自动递增 `version.properties`
 - 备份 R8 mapping 文件
-- 不会默认上传 mapping 文件；只有显式设置 `-Ptina.releaseMapping.uploadEnabled=true` 时才会上传
+- mapping 文件仅由公开构建逻辑做本地归档
 
 另外，脚本方式的 Release 构建会同时检查本地签名配置：
 

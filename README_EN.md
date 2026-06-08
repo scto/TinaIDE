@@ -203,9 +203,7 @@ Release tasks are not pure read-only checks. They may:
 - increment `version.properties`
 - back up R8 mapping files
 
-Mapping upload is off by default. Maintainers must explicitly set
-`-Ptina.releaseMapping.uploadEnabled=true` and `-Ptina.releaseMapping.serverUrl=...`
-to upload mappings to a private backend.
+Mapping files are only archived locally by the public build logic.
 
 ## Documentation
 
