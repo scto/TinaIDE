@@ -23,7 +23,7 @@ enum class PluginPermission(
     CLIPBOARD_WRITE("clipboard.write", PermissionLevel.L1_LOW_RISK, "Write clipboard"),
     COMMAND_EXECUTE(
         "command.execute",
-        PermissionLevel.L1_LOW_RISK,
+        PermissionLevel.L2_MEDIUM_RISK,
         "Execute host commands",
         aliases = setOf("commands.execute")
     ),

@@ -59,6 +59,8 @@ class PluginPermissionRuntimeTest {
             PluginPermission.COMMAND_EXECUTE,
             PluginPermission.DIAGNOSTICS_READ
         )
+        assertThat(PluginPermission.COMMAND_EXECUTE.level)
+            .isEqualTo(PermissionLevel.L2_MEDIUM_RISK)
     }
 
     @Test

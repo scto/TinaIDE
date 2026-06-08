@@ -92,8 +92,11 @@ android {
     }
 
     buildTypes {
-        debug {}
+        debug {
+            buildConfigField("boolean", "SERVER_CONFIG_SIGNATURE_REQUIRED", "false")
+        }
         release {
+            buildConfigField("boolean", "SERVER_CONFIG_SIGNATURE_REQUIRED", "true")
             // 启用代码压缩和混淆
             isMinifyEnabled = true
             // 启用资源压缩（移除未使用的资源）

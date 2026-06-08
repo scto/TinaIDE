@@ -86,8 +86,7 @@ object MTFileProviderManager {
         
         return try {
             val state = packageManager.getComponentEnabledSetting(providerComponent)
-            state == PackageManager.COMPONENT_ENABLED_STATE_ENABLED ||
-                    state == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT
+            state == PackageManager.COMPONENT_ENABLED_STATE_ENABLED
         } catch (e: Exception) {
             Timber.tag(TAG).e(e, "Failed to check MT File Provider state")
             false

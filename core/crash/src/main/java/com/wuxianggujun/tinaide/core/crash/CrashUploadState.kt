@@ -46,7 +46,7 @@ object CrashUploadState {
     fun isAutoUploadEnabled(context: Context): Boolean {
         return context
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getBoolean(KEY_AUTO_UPLOAD_ENABLED, true)
+            .getBoolean(KEY_AUTO_UPLOAD_ENABLED, false)
     }
 
     fun getLastUploadedName(context: Context): String {

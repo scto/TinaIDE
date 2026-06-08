@@ -145,6 +145,8 @@ class TinaServerApi private constructor(
                         signature = payload.signature
                     )
                     if (!ok) error("Invalid signature")
+                } else if (TinaServerEnvironment.serverConfigSignatureRequired) {
+                    error("Server config signature verification is required")
                 } else {
                     Timber.tag(TAG).w("SERVER_CONFIG_HMAC_SECRET is empty; skip signature verification")
                 }

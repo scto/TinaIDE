@@ -54,6 +54,11 @@ object TarExtractor {
         ZSTD    // tar.zst
     }
 
+    enum class SymlinkPolicy {
+        RESTRICT_TO_TARGET_DIR,
+        PRESERVE_ARCHIVE_TARGETS
+    }
+
     /**
      * 从文件解压 tar 归档
      *
@@ -65,13 +70,14 @@ object TarExtractor {
     fun extract(
         archiveFile: File,
         targetDir: File,
+        symlinkPolicy: SymlinkPolicy = SymlinkPolicy.RESTRICT_TO_TARGET_DIR,
         estimatedTotalEntries: Int = 2500,
         ensureActive: () -> Unit = {},
         progress: (Float) -> Unit = {},
     ) {
         FileInputStream(archiveFile).use { fis ->
             BufferedInputStream(fis, BUFFER_SIZE).use { bis ->
-                extract(bis, targetDir, estimatedTotalEntries, ensureActive, progress)
+                extract(bis, targetDir, symlinkPolicy, estimatedTotalEntries, ensureActive, progress)
             }
         }
     }
@@ -87,6 +93,7 @@ object TarExtractor {
     fun extract(
         bufferedInput: BufferedInputStream,
         targetDir: File,
+        symlinkPolicy: SymlinkPolicy = SymlinkPolicy.RESTRICT_TO_TARGET_DIR,
         estimatedTotalEntries: Int = 2500,
         ensureActive: () -> Unit = {},
         progress: (Float) -> Unit = {},
@@ -94,7 +101,7 @@ object TarExtractor {
         ensureActive()
         val compressionType = detectCompressionType(bufferedInput)
         val tarInput = wrapWithDecompressor(bufferedInput, compressionType)
-        extractTarStream(tarInput, targetDir, estimatedTotalEntries, ensureActive, progress)
+        extractTarStream(tarInput, targetDir, symlinkPolicy, estimatedTotalEntries, ensureActive, progress)
     }
 
     /**
@@ -104,6 +111,7 @@ object TarExtractor {
         input: InputStream,
         targetDir: File,
         compressionType: CompressionType,
+        symlinkPolicy: SymlinkPolicy = SymlinkPolicy.RESTRICT_TO_TARGET_DIR,
         estimatedTotalEntries: Int = 2500,
         ensureActive: () -> Unit = {},
         progress: (Float) -> Unit = {},
@@ -111,7 +119,7 @@ object TarExtractor {
         ensureActive()
         val buffered = if (input is BufferedInputStream) input else BufferedInputStream(input, BUFFER_SIZE)
         val tarInput = wrapWithDecompressor(buffered, compressionType)
-        extractTarStream(tarInput, targetDir, estimatedTotalEntries, ensureActive, progress)
+        extractTarStream(tarInput, targetDir, symlinkPolicy, estimatedTotalEntries, ensureActive, progress)
     }
 
     /**
@@ -175,6 +183,7 @@ object TarExtractor {
     private fun extractTarStream(
         tarInput: TarArchiveInputStream,
         targetDir: File,
+        symlinkPolicy: SymlinkPolicy,
         estimatedTotalEntries: Int,
         ensureActive: () -> Unit,
         progress: (Float) -> Unit,
@@ -188,20 +197,32 @@ object TarExtractor {
             while (entry != null) {
                 ensureActive()
                 entryCount++
-                val safeName = sanitizeTarPath(entry.name)
-                val outputFile = File(targetDir, safeName)
+                val outputFile = ArchivePathSafety.resolveEntryFile(targetDir, entry.name, "tar entry")
 
                 if (entry.isDirectory) {
                     outputFile.mkdirs()
                     applyUnixModeIfPresent(outputFile, entry.mode)
                 } else if (entry.isSymbolicLink) {
                     outputFile.parentFile?.mkdirs()
-                    recreateSymlink(outputFile, entry.linkName)
+                    val linkTarget = when (symlinkPolicy) {
+                        SymlinkPolicy.RESTRICT_TO_TARGET_DIR ->
+                            ArchivePathSafety.requireSymlinkTargetInsideTargetDir(
+                                targetDir = targetDir,
+                                linkFile = outputFile,
+                                linkTarget = entry.linkName,
+                                source = "tar symlink target"
+                            )
+                        SymlinkPolicy.PRESERVE_ARCHIVE_TARGETS -> entry.linkName
+                    }
+                    recreateSymlink(outputFile, linkTarget)
                 } else if (entry.isLink) {
                     pendingHardLinks.add(
                         PendingHardLink(
                             linkPath = outputFile,
-                            targetPathInTar = sanitizeTarPath(entry.linkName),
+                            targetPathInTar = ArchivePathSafety.sanitizeRelativePath(
+                                entry.linkName,
+                                "tar hardlink target"
+                            ),
                             mode = entry.mode
                         )
                     )
@@ -227,7 +248,11 @@ object TarExtractor {
 
             pendingHardLinks.forEach { link ->
                 ensureActive()
-                val targetFile = File(targetDir, link.targetPathInTar)
+                val targetFile = ArchivePathSafety.resolveEntryFile(
+                    targetDir,
+                    link.targetPathInTar,
+                    "tar hardlink target"
+                )
                 if (!targetFile.exists() || targetFile.isDirectory) {
                     throw IllegalStateException("Hardlink target missing: ${link.targetPathInTar}")
                 }
@@ -269,17 +294,6 @@ object TarExtractor {
         } catch (t: Throwable) {
             throw IllegalStateException("Failed to create symlink: ${linkFile.path} -> $linkTarget (${t.message})", t)
         }
-    }
-
-    private fun sanitizeTarPath(path: String): String {
-        var normalized = path.replace('\\', '/')
-        while (normalized.startsWith("./")) normalized = normalized.removePrefix("./")
-        while (normalized.startsWith("/")) normalized = normalized.removePrefix("/")
-
-        if (normalized == ".." || normalized.startsWith("../") || normalized.contains("/../")) {
-            throw IllegalArgumentException("Invalid tar path: $path")
-        }
-        return normalized
     }
 
     private fun applyUnixModeIfPresent(file: File, mode: Int) {

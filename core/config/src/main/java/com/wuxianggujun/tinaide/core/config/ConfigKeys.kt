@@ -30,11 +30,11 @@ sealed class ConfigKey<T>(val key: String, val default: T) {
 
     /**
      * 是否启用崩溃日志自动上传。
-     * 默认开启；关闭后仅保留本地 tombstone，不再后台上报。
+     * 默认关闭；用户明确开启后才后台上报。
      */
     object CrashAutoUploadEnabled : ConfigKey<Boolean>(
         key = "logs.crash.auto_upload",
-        default = true
+        default = false
     )
 
     /** 最近一次已上报的 tombstone 文件名（用于去重）。 */
@@ -169,11 +169,11 @@ sealed class ConfigKey<T>(val key: String, val default: T) {
     /**
      * MT 管理器文件提供器开关
      * 启用后允许 MT 管理器访问应用私有目录
-     * 默认开启，方便用户使用 MT 管理器访问应用目录
+     * 默认关闭，用户明确启用后才暴露应用私有目录
      */
     object MTFileProviderEnabled : ConfigKey<Boolean>(
         key = "storage.mt_file_provider.enabled",
-        default = true
+        default = false
     )
 
 }
