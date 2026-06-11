@@ -37,6 +37,46 @@
 - 本项目不使用 `Unreleased` / `未发布` 区块。
 - 所有变更必须归档到明确的版本号区块（版本号来源：`version.properties` 的 `versionName`）。
 
+## [0.18.3] - 2026-06-11
+
+### Changed
+- AI 助手连接方式收敛为自定义 BYOK 渠道，彻底移除官方统一网关入口、配置策略和相关兜底分支，避免开源版继续展示不可用的网关模式。
+- 渠道管理只保留渠道名称、服务商、API 地址和 API Key；模型配置统一移到 AI 助手的“模型”设置项，避免同一个模型在渠道配置和助手设置中重复维护。
+- AI 助手模型选择支持从当前激活渠道拉取模型列表，并保留“自定义模型”入口，用户既可以从服务端列表选择，也可以手动输入模型名称。
+- 编辑渠道时会从加密存储读取已保存的 API Key 并回填到输入框；默认密码遮挡，支持点击显示和复制，也支持清空后保存以删除该渠道 Key。
+- AI 运行时不再从渠道记录读取模型名：渠道只提供服务商、Base URL 和加密 Key，实际请求模型统一来自 `AiConfig.generation.model`。
+- 编辑器 Tree-sitter highlighter / folding provider 生命周期改由编辑器运行时复用管理，减少标签页切换或内容重载时的重复初始化。
+
+### Fixed
+- 修复长按代码编辑器空白区域时上下文菜单默认展开“代码”子菜单的问题，现在代码子菜单默认收起。
+- 修复添加/编辑 AI 渠道时模型配置位置不清晰的问题，避免渠道级模型字段覆盖 AI 助手中选择的模型。
+
+### Removed
+- 删除 `AiAccessMode`、`AiConfigStrategy` 及对应测试，清理官方统一网关相关的历史配置和测试入口。
+
+### Documentation
+- 更新 AI 设置帮助文档和设置概览，说明当前仅保留渠道管理、模型选择与工具调用相关配置。
+
+### Verification
+- `py tools/i18n/check_all.py`
+- `git diff --check`
+- 按要求未运行 Gradle 编译。
+
+## [0.18.2] - 2026-06-09
+
+### Changed
+- GitHub Registry 代理配置支持更完整的 URL 解析和 fallback 规则，依赖包与插件市场访问 GitHub 注册表时更稳定。
+- 编译、终端启动、APK 导出和 SDL 运行链路补齐运行时路径处理，减少 Android 运行环境下路径错位导致的启动失败。
+- 顶栏和命令入口继续收束，编辑器运行时状态增加更明确的缓存与资源复用能力。
+- App 更新检查增加更完整的 GitHub Release 解析与回归测试，减少网络响应格式差异导致的更新提示异常。
+
+### Fixed
+- 修复 GitHub 代理 fallback、包注册表协议解析和插件市场协议解析的边界问题。
+- 修复部分运行时库解析路径在 APK 导出或 SDL 启动场景下不一致的问题。
+
+### Verification
+- 新增/更新 GitHub Registry、Package Registry、Plugin Registry、LaunchEnvironment、AppUpdateChecker、SDL runtime 和 APK runtime resolver 相关单元测试覆盖。
+
 ## [0.18.1] - 2026-06-08
 
 ### Changed
