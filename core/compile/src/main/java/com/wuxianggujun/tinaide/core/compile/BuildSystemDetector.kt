@@ -91,6 +91,10 @@ object BuildSystemDetector {
                     Timber.tag(TAG).d("Detected TinaIDE plugin project")
                     BuildSystem.PLUGIN
                 }
+                hasGradleBuildFile(projectRoot) -> {
+                    Timber.tag(TAG).d("Detected Gradle project")
+                    BuildSystem.GRADLE
+                }
                 hasCMakeLists(projectRoot) -> {
                     Timber.tag(TAG).d("Detected CMake project")
                     BuildSystem.CMAKE
@@ -130,6 +134,7 @@ object BuildSystemDetector {
             ProjectBuildSystem.CMAKE -> BuildSystem.CMAKE
             ProjectBuildSystem.MAKE -> BuildSystem.MAKE
             ProjectBuildSystem.PLUGIN -> BuildSystem.PLUGIN
+            ProjectBuildSystem.GRADLE -> BuildSystem.GRADLE
             ProjectBuildSystem.UNKNOWN -> BuildSystem.UNKNOWN
         }
     }
@@ -143,6 +148,7 @@ object BuildSystemDetector {
             BuildSystem.CMAKE -> ProjectBuildSystem.CMAKE
             BuildSystem.MAKE -> ProjectBuildSystem.MAKE
             BuildSystem.PLUGIN -> ProjectBuildSystem.PLUGIN
+            BuildSystem.GRADLE -> ProjectBuildSystem.GRADLE
             BuildSystem.UNKNOWN -> ProjectBuildSystem.UNKNOWN
         }
     }
@@ -181,6 +187,16 @@ object BuildSystemDetector {
 
     private fun JsonObject.stringValue(name: String): String {
         return this[name]?.jsonPrimitive?.contentOrNull?.trim().orEmpty()
+    }
+
+    /**
+     * 检查是否存在 Gradle 构建文件
+     */
+    private fun hasGradleBuildFile(projectRoot: File): Boolean {
+        return File(projectRoot, "build.gradle").exists() ||
+                File(projectRoot, "build.gradle.kts").exists() ||
+                File(projectRoot, "settings.gradle").exists() ||
+                File(projectRoot, "settings.gradle.kts").exists()
     }
 
     /**

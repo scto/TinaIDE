@@ -14,5 +14,6 @@ enum class ArtifactKind {
     SHARED_LIBRARY,
     STATIC_LIBRARY,
     OBJECT,
+    APK,
     UNKNOWN,
 }

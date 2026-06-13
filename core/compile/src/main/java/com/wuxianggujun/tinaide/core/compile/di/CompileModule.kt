@@ -21,6 +21,7 @@ import com.wuxianggujun.tinaide.core.compile.strategy.BuildStrategyRegistry
 import com.wuxianggujun.tinaide.core.compile.strategy.CMakeStrategy
 import com.wuxianggujun.tinaide.core.compile.strategy.MakeStrategy
 import com.wuxianggujun.tinaide.core.compile.strategy.SingleFileStrategy
+import com.wuxianggujun.tinaide.core.compile.strategy.GradleStrategy
 import com.wuxianggujun.tinaide.core.linux.LinuxEnvironmentProvider
 import com.wuxianggujun.tinaide.core.linux.UnavailableLinuxEnvironmentProvider
 import org.koin.android.ext.koin.androidContext
@@ -69,11 +70,18 @@ val compileModule = module {
         )
     }
     single {
+        GradleStrategy(
+            context = androidContext(),
+            linuxEnvironmentProvider = getOrNull<LinuxEnvironmentProvider>() ?: UnavailableLinuxEnvironmentProvider,
+        )
+    }
+    single {
         BuildStrategyRegistry(
             strategies = listOf<BuildStrategy>(
                 get<SingleFileStrategy>(),
                 get<CMakeStrategy>(),
                 get<MakeStrategy>(),
+                get<GradleStrategy>(),
             )
         )
     }

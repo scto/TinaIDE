@@ -21,6 +21,9 @@ enum class ProjectBuildSystem {
     /** TinaIDE 插件项目 */
     PLUGIN,
 
+    /** Gradle 项目 */
+    GRADLE,
+
     /** 未知类型（需要自动检测） */
     UNKNOWN
 }

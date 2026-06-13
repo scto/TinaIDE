@@ -58,6 +58,30 @@
         "buildSystem": "cmake",
         "primaryLanguage": "CPP",
         "isNdkTemplate": true
+      },
+      {
+        "id": "java-gradle-console",
+        "name": "Java Gradle Console App",
+        "description": "A Java console application built with Gradle and JDK 17.",
+        "templatePath": "templates/java_gradle_console.zip",
+        "buildSystem": "gradle",
+        "primaryLanguage": "JAVA"
+      },
+      {
+        "id": "kotlin-gradle-console",
+        "name": "Kotlin Gradle Console App",
+        "description": "A Kotlin console application built with Gradle and JDK 17.",
+        "templatePath": "templates/kotlin_gradle_console.zip",
+        "buildSystem": "gradle",
+        "primaryLanguage": "KOTLIN"
+      },
+      {
+        "id": "compose-android-app",
+        "name": "Jetpack Compose App",
+        "description": "An Android Jetpack Compose application built with Gradle and JDK 17.",
+        "templatePath": "templates/compose_android_app.zip",
+        "buildSystem": "gradle",
+        "primaryLanguage": "KOTLIN"
       }
     ]
   }

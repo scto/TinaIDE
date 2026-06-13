@@ -16,6 +16,9 @@ enum class BuildSystem {
     /** TinaIDE 插件项目 */
     PLUGIN,
 
+    /** Gradle 项目 */
+    GRADLE,
+
     /** 未知类型 */
     UNKNOWN
 }
