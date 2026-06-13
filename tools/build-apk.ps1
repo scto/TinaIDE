@@ -22,6 +22,13 @@ Param(
     [switch]$OpenFolder       # 完成后打开输出目录
 )
 
+# GitHub Actions Umgebung erkennen und -Install erzwingen auf $false
+if ($env:GITHUB_ACTIONS -eq "true") {
+    Write-Host "CI environment detected. Disabling Install flag." -ForegroundColor Yellow
+    $Install = $false
+}
+
+
 $ErrorActionPreference = "Stop"
 
 # 全局变量：跟踪安装 Job
