@@ -38,9 +38,11 @@ jobs:
 
       - name: Run Build Script (Debug)
         shell: powershell
-        # WICHTIG: Pfad zum Skript-Ordner anpassen
-        run: .\tools\build-apk.ps1 -Variant debug
-
+        # Erzwinge UTF-8 Encoding für den PowerShell-Prozess
+        run: |
+          [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+          .\tools\build-apk.ps1 -Variant debug
+          
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
