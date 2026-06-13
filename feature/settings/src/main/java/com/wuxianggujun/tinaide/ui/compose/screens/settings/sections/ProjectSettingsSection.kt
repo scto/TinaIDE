@@ -950,6 +950,7 @@ private fun resolveUserProjectTemplateBuildSystemLabelRes(buildSystem: ProjectBu
         ProjectBuildSystem.CMAKE -> Strings.tag_cmake
         ProjectBuildSystem.MAKE -> Strings.tag_makefile
         ProjectBuildSystem.PLUGIN -> Strings.tag_plugin
+        ProjectBuildSystem.GRADLE -> Strings.settings_user_templates_build_system_gradle
         ProjectBuildSystem.UNKNOWN -> Strings.settings_user_templates_build_system_unknown
     }
 }

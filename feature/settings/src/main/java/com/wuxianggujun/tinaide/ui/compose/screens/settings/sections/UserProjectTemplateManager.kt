@@ -428,6 +428,7 @@ internal object UserProjectTemplateManager {
         ProjectBuildSystem.CMAKE -> "cmake"
         ProjectBuildSystem.MAKE -> "make"
         ProjectBuildSystem.PLUGIN -> "plugin"
+        ProjectBuildSystem.GRADLE -> "gradle"
         ProjectBuildSystem.UNKNOWN -> "unknown"
     }
 

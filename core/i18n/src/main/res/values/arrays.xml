@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="editor_theme_entries">
+        <item>Grey Theme (Default)</item>
+        <item>Dark Theme</item>
+        <item>Light Theme</item>
+        <item>Follow System</item>
+    </string-array>
+    <string-array name="editor_theme_values">
+        <item>GRAY</item>
+        <item>DARK</item>
+        <item>LIGHT</item>
+        <item>AUTO</item>
+    </string-array>
+</resources>

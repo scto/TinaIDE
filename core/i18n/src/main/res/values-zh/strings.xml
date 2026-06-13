@@ -594,6 +594,8 @@
   <string name="tag_cmake">CMake</string>
   <string name="tag_makefile">Makefile</string>
   <string name="tag_plugin">插件</string>
+  <string name="tag_gradle">Gradle</string>
+  <string name="settings_user_templates_build_system_gradle">Gradle</string>
   <string name="settings_user_templates_build_system_single_file">单文件</string>
   <string name="settings_user_templates_build_system_unknown">未知</string>
   <string name="tag_c_cpp">C/C++</string>

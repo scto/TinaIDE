@@ -528,6 +528,8 @@
   <string name="tag_cmake">CMake</string>
   <string name="tag_makefile">Makefile</string>
   <string name="tag_plugin">Plugin</string>
+  <string name="tag_gradle">Gradle</string>
+  <string name="settings_user_templates_build_system_gradle">Gradle</string>
   <string name="settings_user_templates_build_system_single_file">Single File</string>
   <string name="settings_user_templates_build_system_unknown">Unknown</string>
   <string name="tag_c_cpp">C/C++</string>
