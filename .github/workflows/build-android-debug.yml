@@ -20,7 +20,7 @@ env:
 
 jobs:
   build-debug-apk:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     timeout-minutes: 20
     
     steps:
@@ -35,12 +35,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
-          
+
       - name: Run Build Script (Debug)
         shell: powershell
-        # Wir führen das Skript aus und setzen -Install auf $false,
-        # da der GitHub-Runner keine Android-Umgebung für adb besitzt.
-        run: .\tools/build-apk.ps1 -Variant debug
+        # WICHTIG: Pfad zum Skript-Ordner anpassen
+        run: .\tools\build-apk.ps1 -Variant debug
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
