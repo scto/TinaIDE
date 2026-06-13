@@ -45,6 +45,16 @@ class GradleStrategy(
 
         /** JAVA_HOME im PRoot-Container (Standard unter Debian/Ubuntu). */
         private const val PROOT_JAVA_HOME = "/usr/lib/jvm/default-java"
+
+        private val TRACKED_GRADLE_FILES = setOf(
+            "build.gradle", "build.gradle.kts",
+            "settings.gradle", "settings.gradle.kts",
+            "gradle.properties", "local.properties",
+            "gradlew", "gradlew.bat",
+        )
+        private val TRACKED_SOURCE_EXTENSIONS = setOf(
+            "kt", "kts", "java", "xml",
+        )
     }
 
     override val buildSystem: BuildSystem = BuildSystem.GRADLE
@@ -263,7 +273,7 @@ class GradleStrategy(
         return (gradleScripts + sourceFiles).distinct()
     }
 
-    private fun buildSuccess(
+    private suspend fun buildSuccess(
         ctx: BuildContext,
         spec: ArtifactSpec,
         fingerprint: BuildFingerprint,
@@ -311,15 +321,4 @@ class GradleStrategy(
         }
     }
 
-    companion object {
-        private val TRACKED_GRADLE_FILES = setOf(
-            "build.gradle", "build.gradle.kts",
-            "settings.gradle", "settings.gradle.kts",
-            "gradle.properties", "local.properties",
-            "gradlew", "gradlew.bat",
-        )
-        private val TRACKED_SOURCE_EXTENSIONS = setOf(
-            "kt", "kts", "java", "xml",
-        )
-    }
 }

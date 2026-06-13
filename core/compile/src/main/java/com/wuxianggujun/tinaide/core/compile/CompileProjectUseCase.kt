@@ -689,6 +689,7 @@ class CompileProjectUseCase(
             com.wuxianggujun.tinaide.core.compile.artifact.ArtifactKind.SHARED_LIBRARY -> BuildArtifactKind.SHARED_LIBRARY
             com.wuxianggujun.tinaide.core.compile.artifact.ArtifactKind.STATIC_LIBRARY -> BuildArtifactKind.STATIC_LIBRARY
             com.wuxianggujun.tinaide.core.compile.artifact.ArtifactKind.OBJECT -> BuildArtifactKind.UNKNOWN
+            com.wuxianggujun.tinaide.core.compile.artifact.ArtifactKind.APK -> BuildArtifactKind.UNKNOWN
             com.wuxianggujun.tinaide.core.compile.artifact.ArtifactKind.UNKNOWN -> BuildArtifactKind.UNKNOWN
         }
 
