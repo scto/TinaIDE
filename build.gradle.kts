@@ -38,6 +38,16 @@ subprojects {
         exclude(group = "org.jetbrains", module = "annotations-java5")
     }
 
+    plugins.withId("com.android.application") {
+        configure<com.android.build.gradle.BaseExtension> {
+            ndkVersion = "28.2.13676358"
+        }
+    }
+    plugins.withId("com.android.library") {
+        configure<com.android.build.gradle.BaseExtension> {
+            ndkVersion = "28.2.13676358"
+        }
+    }
 }
 
 tasks.register("buildApkTemplates") {
