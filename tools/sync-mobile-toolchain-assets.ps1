@@ -70,10 +70,10 @@ function Move-StaleFile {
 
 $repoRoot = Resolve-RepoRoot
 $releaseRoot = (Resolve-InputPath -RepoRoot $repoRoot -InputPath $ReleaseDir)
-if (-not $releaseRoot) { $releaseRoot = Join-Path $repoRoot "build/tina-toolchain/release" }
+if (-not $releaseRoot) { $releaseRoot = Join-Path $repoRoot "build/mobile-toolchain/release" }
 
 $sysrootRoot = (Resolve-InputPath -RepoRoot $repoRoot -InputPath $SysrootDir)
-if (-not $sysrootRoot) { $sysrootRoot = Join-Path $repoRoot "build/tina-toolchain/_tmp_sysroot_out" }
+if (-not $sysrootRoot) { $sysrootRoot = Join-Path $repoRoot "build/mobile-toolchain/_tmp_sysroot_out" }
 
 $archiveRoot = (Resolve-InputPath -RepoRoot $repoRoot -InputPath $ArchiveDir)
 if (-not $archiveRoot) { $archiveRoot = Join-Path $repoRoot "app/.local/toolchain-archive/$Abi" }
@@ -84,10 +84,10 @@ if ($archiveRootFull.StartsWith($appSrcRootFull, [System.StringComparison]::Ordi
     throw "ArchiveDir must be outside app/src to avoid packaging into APK: $archiveRootFull"
 }
 
-$assetsRoot = Join-Path $repoRoot "app/src/$Abi/assets/tina-toolchain"
+$assetsRoot = Join-Path $repoRoot "app/src/$Abi/assets/mobile-toolchain"
 $sysrootAssetsRoot = Join-Path $repoRoot "app/src/$Abi/assets/android-sysroot"
 $specPath = Join-Path $assetsRoot "current.properties"
-$toolchainArchiveRoot = Join-Path $archiveRoot "tina-toolchain"
+$toolchainArchiveRoot = Join-Path $archiveRoot "mobile-toolchain"
 $sysrootArchiveRoot = Join-Path $archiveRoot "android-sysroot"
 $sysrootFileName = switch ($Abi) {
     "arm64" { "android-sysroot-arm64-all.tar.xz" }
@@ -150,7 +150,7 @@ $needed = @(
     $(if ([string]::IsNullOrWhiteSpace($sha256)) { $null } else { $sha256 })
 ) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique
 
-Write-Step "Sync tina-toolchain assets: abi=$Abi version=$version arch=$arch mode=$mode"
+Write-Step "Sync mobile-toolchain assets: abi=$Abi version=$version arch=$arch mode=$mode"
 Write-Host "  Spec:     $specPath" -ForegroundColor DarkGray
 Write-Host "  Release:  $releaseRoot" -ForegroundColor DarkGray
 Write-Host "  Assets:   $assetsRoot" -ForegroundColor DarkGray

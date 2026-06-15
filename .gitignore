@@ -127,7 +127,7 @@ temp/
 # Local toolchain archive (moved stale asset packs, not for commit/package)
 app/.local/
 # Legacy wrong path: never archive toolchains under packaged assets
-app/src/*/assets/tina-toolchain/archive/
+app/src/*/assets/mobile-toolchain/archive/
 
 # Do not commit local production env files
 /server/tina-admin/.env.production

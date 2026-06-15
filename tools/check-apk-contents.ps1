@@ -99,8 +99,8 @@ try {
     $assetsSize = ($assetsEntries | Measure-Object -Property Length -Sum).Sum
     Write-Host ("Total assets: {0} files, {1}" -f $assetsEntries.Count, (Format-MiB $assetsSize)) -ForegroundColor White
 
-    Write-Section "Assets: tina-toolchain"
-    Print-PrefixEntries -Entries $entries -Prefix "assets/tina-toolchain/"
+    Write-Section "Assets: mobile-toolchain"
+    Print-PrefixEntries -Entries $entries -Prefix "assets/mobile-toolchain/"
 
     Write-Section "Assets: android-sysroot"
     Print-PrefixEntries -Entries $entries -Prefix "assets/android-sysroot/"

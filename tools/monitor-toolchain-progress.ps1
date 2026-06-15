@@ -1,9 +1,9 @@
 $ErrorActionPreference = "SilentlyContinue"
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$logFile = Join-Path $repoRoot "build/tina-toolchain/progress-watch.log"
-$buildLog = Join-Path $repoRoot "build/tina-toolchain/static-build.log"
-$pidFile = Join-Path $repoRoot "build/tina-toolchain/progress-watch.pid"
+$logFile = Join-Path $repoRoot "build/mobile-toolchain/progress-watch.log"
+$buildLog = Join-Path $repoRoot "build/mobile-toolchain/static-build.log"
+$pidFile = Join-Path $repoRoot "build/mobile-toolchain/progress-watch.pid"
 
 New-Item -ItemType Directory -Force -Path (Split-Path $logFile) | Out-Null
 Set-Content -Path $pidFile -Value $PID -Encoding ascii

@@ -148,7 +148,7 @@ function Get-ExpectedArchName {
 }
 
 $repoRoot = Resolve-RepoRoot
-$assetDir = Join-Path $repoRoot ("app/src/{0}/assets/tina-toolchain" -f $Abi)
+$assetDir = Join-Path $repoRoot ("app/src/{0}/assets/mobile-toolchain" -f $Abi)
 if ([string]::IsNullOrWhiteSpace($SpecFile)) {
     $SpecFile = Join-Path $assetDir "current.properties"
 } elseif (-not [System.IO.Path]::IsPathRooted($SpecFile)) {
@@ -300,7 +300,7 @@ if ($script:Failures.Count -eq 0) {
                 }
 
                 if (-not $SkipBinaryMarkers -and $llvmMajor -and $script:Failures.Count -eq 0) {
-                    $tempDir = Join-Path ([System.IO.Path]::GetTempPath()) ("tina-toolchain-verify-{0}" -f ([System.Guid]::NewGuid().ToString("N")))
+                    $tempDir = Join-Path ([System.IO.Path]::GetTempPath()) ("mobile-toolchain-verify-{0}" -f ([System.Guid]::NewGuid().ToString("N")))
                     New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
                     try {
                         $clangEntry = "$root/bin/clang-$llvmMajor"
