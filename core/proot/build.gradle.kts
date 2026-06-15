@@ -1,11 +1,11 @@
 plugins {
-    id("tina.android.library")
+    id("mobile.android.library")
     alias(libs.plugins.kotlin.serialization)
     id("kotlin-parcelize")
 }
 
 android {
-    namespace = "com.wuxianggujun.tinaide.core.proot"
+    namespace = "com.scto.mobileide.core.proot"
 }
 
 dependencies {
@@ -19,7 +19,7 @@ dependencies {
     implementation(project(":core:network"))
     implementation(project(":core:security"))
     implementation(project(":core:storage"))
-    implementation(project(":tina-exec:integration"))
+    implementation(project(":mobile-exec:integration"))
     implementation(libs.timber)
     implementation(libs.kotlinx.coroutines)
     implementation(libs.okhttp)

@@ -1,5 +1,5 @@
-[submodule "external/tina-android-tree-sitter"]
-	path = external/tina-android-tree-sitter
+[submodule "external/mobile-android-tree-sitter"]
+	path = external/mobile-android-tree-sitter
 	url = https://github.com/wuxianggujun/tina-android-tree-sitter.git
 	ignore = untracked
 [submodule "external/android-rsync"]

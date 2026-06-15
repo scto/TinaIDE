@@ -12,7 +12,7 @@
 ### 1. 修改 EditorConfig
 
 ```kotlin
-// core/editor-view/src/main/java/com/wuxianggujun/tinaide/core/editorview/EditorConfig.kt
+// core/editor-view/src/main/java/com/scto/mobileide/core/editorview/EditorConfig.kt
 
 data class EditorConfig(
     // 原有配置
@@ -35,7 +35,7 @@ data class EditorConfig(
 ### 2. 修改 EditorState
 
 ```kotlin
-// core/editor-view/src/main/java/com/wuxianggujun/tinaide/core/editorview/EditorState.kt
+// core/editor-view/src/main/java/com/scto/mobileide/core/editorview/EditorState.kt
 
 class EditorState(
     // ... 现有代码
@@ -73,7 +73,7 @@ class EditorState(
 ### 3. 修改渲染逻辑
 
 ```kotlin
-// core/editor-view/src/main/java/com/wuxianggujun/tinaide/core/editorview/TextRenderer.kt
+// core/editor-view/src/main/java/com/scto/mobileide/core/editorview/TextRenderer.kt
 
 internal class TextRenderer {
     fun renderLine(
@@ -99,7 +99,7 @@ internal class TextRenderer {
 ### 4. 修改缩放逻辑
 
 ```kotlin
-// core/editor-view/src/main/java/com/wuxianggujun/tinaide/core/editorview/TinaEditorSession.kt
+// core/editor-view/src/main/java/com/scto/mobileide/core/editorview/MobileEditorSession.kt
 
 val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
     // ... 现有代码
@@ -121,7 +121,7 @@ val transformableState = rememberTransformableState { zoomChange, panChange, _ -
 ### 5. 添加设置界面
 
 ```kotlin
-// feature/settings/src/main/java/com/wuxianggujun/tinaide/ui/compose/screens/settings/sections/EditorSettingsSection.kt
+// feature/settings/src/main/java/com/scto/mobileide/ui/compose/screens/settings/sections/EditorSettingsSection.kt
 
 @Composable
 fun EditorSettingsSection(
@@ -295,7 +295,7 @@ private fun WrapModeOption(
 ### 6. 性能优化
 
 ```kotlin
-// core/editor-view/src/main/java/com/wuxianggujun/tinaide/core/editorview/EditorState.kt
+// core/editor-view/src/main/java/com/scto/mobileide/core/editorview/EditorState.kt
 
 class EditorState(
     // ... 现有代码

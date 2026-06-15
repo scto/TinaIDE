@@ -1,10 +1,10 @@
 plugins {
-    id("tina.android.library")
+    id("mobile.android.library")
     alias(libs.plugins.kotlin.serialization)
 }
 
 android {
-    namespace = "com.wuxianggujun.tinaide.core.plugin"
+    namespace = "com.scto.mobileide.core.plugin"
 
     testOptions {
         unitTests.isIncludeAndroidResources = true

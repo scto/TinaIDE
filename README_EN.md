@@ -1,4 +1,4 @@
-# TinaIDE
+# MobileIDE
 
 > A lightweight C/C++ IDE running on Android devices
 
@@ -6,7 +6,7 @@
 
 ---
 
-TinaIDE is an integrated development environment designed specifically for Android devices, allowing you to write, compile, and run C/C++ code directly on your phone or tablet. With a built-in complete Clang/LLVM toolchain and clangd language server, it provides a development experience close to desktop IDEs.
+MobileIDE is an integrated development environment designed specifically for Android devices, allowing you to write, compile, and run C/C++ code directly on your phone or tablet. With a built-in complete Clang/LLVM toolchain and clangd language server, it provides a development experience close to desktop IDEs.
 
 ## Features
 
@@ -15,7 +15,7 @@ TinaIDE is an integrated development environment designed specifically for Andro
 - **Syntax Highlighting**: High-performance incremental syntax highlighting based on Tree-sitter
 - **Code Navigation**: Go to definition, find references, hover documentation
 - **Real-time Diagnostics**: Display errors and warnings in real-time while editing
-- **Modern Editor**: Powered by Tina Editor (Compose + Canvas) with multi-tab editing
+- **Modern Editor**: Powered by Mobile Editor (Compose + Canvas) with multi-tab editing
 - **Material Design 3**: Following the latest Material Design guidelines
 - **In-process Execution**: Run compiled programs directly within the app
 - **Multi-shell Terminal**: Built-in Bash and Zsh environment
@@ -112,7 +112,7 @@ TinaIDE is an integrated development environment designed specifically for Andro
 | Theme Plugins | Provide editor themes via plugins |
 | Snippet Plugins | Show snippets in completion list and insert placeholders |
 | Bundled Plugins | `assets/bundled_plugins/*` auto install/update on app start |
-| Public Registry | Plugins and packages are published from `https://github.com/wuxianggujun/TinaIDE-Registry` |
+| Public Registry | Plugins and packages are published from `https://github.com/scto/MobileIDE-Registry` |
 
 ### File Preview
 
@@ -160,7 +160,7 @@ For detailed steps, see [Quick Start Guide](docs/快速开始.md)
 
 ## Documentation
 
-- [Quick Start](docs/快速开始.md) - Start using TinaIDE from scratch
+- [Quick Start](docs/快速开始.md) - Start using MobileIDE from scratch
 - [Architecture Overview](docs/架构概览.md) - Understand project architecture
 - [Development Guide](docs/开发指南.md) - Contribute to the project
 - [Documentation Center](docs/README.md) - Complete documentation index
@@ -179,7 +179,7 @@ For detailed steps, see [Quick Start Guide](docs/快速开始.md)
 |----------|------------|
 | Languages | Kotlin, C++ |
 | UI Framework | Android View + Material Design 3 |
-| Editor | Tina Editor (in-house, Compose + Canvas) |
+| Editor | Mobile Editor (in-house, Compose + Canvas) |
 | Syntax Highlighting | Tree-sitter (C/C++/CMake) |
 | Compiler | Clang/LLVM 17 |
 | Linker | LLD |
@@ -216,10 +216,10 @@ For detailed steps, see [Quick Start Guide](docs/快速开始.md)
 ## Project Structure
 
 ```
-TinaIDE/
+MobileIDE/
 ├── app/
 │   └── src/main/
-│       ├── java/.../tinaide/
+│       ├── java/.../mobileide/
 │       │   ├── core/                    # Core services
 │       │   │   ├── compile/             # Build & run
 │       │   │   ├── config/              # App configuration
@@ -239,7 +239,7 @@ TinaIDE/
 │           ├── lsp/            # clangd service JNI
 │           └── treesitter/     # Tree-sitter syntax highlighting
 ├── external/
-│   ├── tina-android-tree-sitter/ # Tree-sitter integration
+│   ├── mobile-android-tree-sitter/ # Tree-sitter integration
 │   └── termux-terminal/        # Terminal modules
 ├── language-cmake/             # CMake language support module
 └── docs/                       # Project documentation
@@ -247,7 +247,7 @@ TinaIDE/
 
 ## Support
 
-TinaIDE is being opened up fully, and future energy will focus on stable maintenance
+MobileIDE is being opened up fully, and future energy will focus on stable maintenance
 and community collaboration. If this project helps you, voluntary support is welcome.
 PRs are also welcome for features, bug fixes, and docs.
 

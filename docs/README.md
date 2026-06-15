@@ -1,8 +1,8 @@
-# TinaIDE 文档中心
+# MobileIDE 文档中心
 
 > 更新日期：2026-04-29
 
-这里汇总 TinaIDE 当前仍然有效的项目文档，并标出应该优先回看的源码入口。
+这里汇总 MobileIDE 当前仍然有效的项目文档，并标出应该优先回看的源码入口。
 
 ## 优先阅读
 
@@ -18,18 +18,18 @@
 
 - 模块清单与 included builds：`settings.gradle.kts`
 - App 构建、ABI flavor、工具链校验任务：`app/build.gradle.kts`
-- 首页与主编辑器入口：`app/src/main/java/com/wuxianggujun/tinaide/ui/MainPortalActivity.kt`、`app/src/main/java/com/wuxianggujun/tinaide/MainActivity.kt`
+- 首页与主编辑器入口：`app/src/main/java/com/scto/mobileide/ui/MainPortalActivity.kt`、`app/src/main/java/com/scto/mobileide/MainActivity.kt`
 - 本地构建脚本：`tools/build-apk.ps1`
-- 首次启动与依赖安装：`app/src/main/java/com/wuxianggujun/tinaide/startup/StartupFlowManager.kt`
-- 依赖安装页状态机：`feature/workspace/src/main/java/com/wuxianggujun/tinaide/ui/workspace/DependencyInstallViewModel.kt`
-- Native 工具链与 sysroot：`core/ndk/src/main/java/com/wuxianggujun/tinaide/core/ndk/AndroidNativeToolchainManager.kt`、`core/ndk/src/main/java/com/wuxianggujun/tinaide/core/ndk/AndroidSysrootManager.kt`
-- 编译与运行主流程：`core/compile/src/main/java/com/wuxianggujun/tinaide/core/compile/CompileProjectUseCase.kt`
-- 编辑器语言服务分流：`app/src/main/java/com/wuxianggujun/tinaide/ui/compose/state/editor/LspEditorManager.kt`
-- 内建 CMake / Make 语言服务：`app/src/main/java/com/wuxianggujun/tinaide/ui/compose/state/editor/BuiltinLanguageServiceSession.kt`、`app/src/main/java/com/wuxianggujun/tinaide/ui/compose/state/editor/CMakeLanguageServiceSession.kt`、`app/src/main/java/com/wuxianggujun/tinaide/ui/compose/state/editor/MakeLanguageServiceSession.kt`
-- LSP 会话与连接提供者：`core/lsp/src/main/java/com/wuxianggujun/tinaide/core/lsp/LspClientSession.kt`
-- 插件 LSP：`core/plugin/src/main/java/com/wuxianggujun/tinaide/plugin/lsp/LspPluginManager.kt`
-- AI 工具注册：`feature/ai/src/main/java/com/wuxianggujun/tinaide/ai/tools/ToolInitializer.kt`、`feature/ai/src/main/java/com/wuxianggujun/tinaide/ai/tools/ToolRegistry.kt`
-- 帮助文档入口：`feature/help/src/main/java/com/wuxianggujun/tinaide/core/help/HelpRepository.kt`
+- 首次启动与依赖安装：`app/src/main/java/com/scto/mobileide/startup/StartupFlowManager.kt`
+- 依赖安装页状态机：`feature/workspace/src/main/java/com/scto/mobileide/ui/workspace/DependencyInstallViewModel.kt`
+- Native 工具链与 sysroot：`core/ndk/src/main/java/com/scto/mobileide/core/ndk/AndroidNativeToolchainManager.kt`、`core/ndk/src/main/java/com/scto/mobileide/core/ndk/AndroidSysrootManager.kt`
+- 编译与运行主流程：`core/compile/src/main/java/com/scto/mobileide/core/compile/CompileProjectUseCase.kt`
+- 编辑器语言服务分流：`app/src/main/java/com/scto/mobileide/ui/compose/state/editor/LspEditorManager.kt`
+- 内建 CMake / Make 语言服务：`app/src/main/java/com/scto/mobileide/ui/compose/state/editor/BuiltinLanguageServiceSession.kt`、`app/src/main/java/com/scto/mobileide/ui/compose/state/editor/CMakeLanguageServiceSession.kt`、`app/src/main/java/com/scto/mobileide/ui/compose/state/editor/MakeLanguageServiceSession.kt`
+- LSP 会话与连接提供者：`core/lsp/src/main/java/com/scto/mobileide/core/lsp/LspClientSession.kt`
+- 插件 LSP：`core/plugin/src/main/java/com/scto/mobileide/plugin/lsp/LspPluginManager.kt`
+- AI 工具注册：`feature/ai/src/main/java/com/scto/mobileide/ai/tools/ToolInitializer.kt`、`feature/ai/src/main/java/com/scto/mobileide/ai/tools/ToolRegistry.kt`
+- 帮助文档入口：`feature/help/src/main/java/com/scto/mobileide/core/help/HelpRepository.kt`
 - PRoot / Linux 环境：PRootBootstrap.kt、SelfHostedLinuxDistroRuntime.kt、core/linux-distro manifest
 
 ## 文档导航
@@ -82,7 +82,7 @@
 
 为了避免继续沿用旧叙事，先明确四点：
 
-- 默认编译 / 运行链路依赖的是 `Android sysroot + native tina-toolchain`，不是 PRoot。
+- 默认编译 / 运行链路依赖的是 `Android sysroot + native mobile-toolchain`，不是 PRoot。
 - PRoot 是可选 Linux 环境，主要服务终端、Linux 工具和插件 / 调试扩展能力。
 - 编辑器语言服务不是单一路径：C/C++ 走 `clangd`，CMake / Make 走内建语言服务，其他语言可走插件 LSP。
 - App 首次启动默认只安装内置运行资产；只有显式进入 Linux 环境相关流程时，才会通过自研 Linux 发行版管理器安装 rootfs 与 guest toolchain。

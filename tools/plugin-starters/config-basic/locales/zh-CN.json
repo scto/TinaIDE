@@ -1,6 +1,6 @@
 {
   "name": "{{PROJECT_NAME}}",
-  "description": "TinaIDE 配置型插件入门模板。",
+  "description": "MobileIDE 配置型插件入门模板。",
   "contributions": {
     "commands": {
       "editor.format": {

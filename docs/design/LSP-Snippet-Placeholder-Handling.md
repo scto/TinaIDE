@@ -6,7 +6,7 @@
 
 ## 概述
 
-本文档说明 TinaIDE 如何处理 LSP 返回的 snippet 格式补全文本，以及已实现的 snippet 引擎功能。
+本文档说明 MobileIDE 如何处理 LSP 返回的 snippet 格式补全文本，以及已实现的 snippet 引擎功能。
 
 ## 背景
 
@@ -36,13 +36,13 @@ void ${1:functionName}(${2:int} ${3:param}) {
 
 | 文件 | 职责 |
 |------|------|
-| [`SnippetParser.kt`](../../core/editor-view/src/main/java/com/wuxianggujun/tinaide/core/editorview/SnippetParser.kt) | Snippet 语法解析，生成 AST 和展开文本 |
-| [`SnippetSession.kt`](../../core/editor-view/src/main/java/com/wuxianggujun/tinaide/core/editorview/SnippetSession.kt) | 会话状态管理，Tab/Shift+Tab 跳转，偏移与长度同步 |
-| [`EditorState.kt`](../../core/editor-view/src/main/java/com/wuxianggujun/tinaide/core/editorview/EditorState.kt) | 编辑器集成，占位符焦点/选区管理 |
-| [`EditorKeyboardShortcuts.kt`](../../core/editor-view/src/main/java/com/wuxianggujun/tinaide/core/editorview/EditorKeyboardShortcuts.kt) | Tab/Shift+Tab/Escape 快捷键处理 |
-| [`EditorStateEditOperations.kt`](../../core/editor-view/src/main/java/com/wuxianggujun/tinaide/core/editorview/EditorStateEditOperations.kt) | 编辑操作时同步 snippet 偏移 |
-| [`LspEditorManager.kt`](../../app/src/main/java/com/wuxianggujun/tinaide/ui/compose/state/editor/LspEditorManager.kt) | LSP 补全项转换，snippet 文本透传给引擎 |
-| [`PluginSnippetManager.kt`](../../core/plugin/src/main/java/com/wuxianggujun/tinaide/plugin/PluginSnippetManager.kt) | 插件 snippet 展开为纯文本 |
+| [`SnippetParser.kt`](../../core/editor-view/src/main/java/com/scto/mobileide/core/editorview/SnippetParser.kt) | Snippet 语法解析，生成 AST 和展开文本 |
+| [`SnippetSession.kt`](../../core/editor-view/src/main/java/com/scto/mobileide/core/editorview/SnippetSession.kt) | 会话状态管理，Tab/Shift+Tab 跳转，偏移与长度同步 |
+| [`EditorState.kt`](../../core/editor-view/src/main/java/com/scto/mobileide/core/editorview/EditorState.kt) | 编辑器集成，占位符焦点/选区管理 |
+| [`EditorKeyboardShortcuts.kt`](../../core/editor-view/src/main/java/com/scto/mobileide/core/editorview/EditorKeyboardShortcuts.kt) | Tab/Shift+Tab/Escape 快捷键处理 |
+| [`EditorStateEditOperations.kt`](../../core/editor-view/src/main/java/com/scto/mobileide/core/editorview/EditorStateEditOperations.kt) | 编辑操作时同步 snippet 偏移 |
+| [`LspEditorManager.kt`](../../app/src/main/java/com/scto/mobileide/ui/compose/state/editor/LspEditorManager.kt) | LSP 补全项转换，snippet 文本透传给引擎 |
+| [`PluginSnippetManager.kt`](../../core/plugin/src/main/java/com/scto/mobileide/plugin/PluginSnippetManager.kt) | 插件 snippet 展开为纯文本 |
 
 ### SnippetParser 支持的语法
 
@@ -68,7 +68,7 @@ void ${1:functionName}(${2:int} ${3:param}) {
 
 ### LSP 补全流转
 
-位置：[`LspEditorManager.kt`](../../app/src/main/java/com/wuxianggujun/tinaide/ui/compose/state/editor/LspEditorManager.kt)
+位置：[`LspEditorManager.kt`](../../app/src/main/java/com/scto/mobileide/ui/compose/state/editor/LspEditorManager.kt)
 
 当 LSP 返回 `InsertTextFormat.Snippet` 格式的补全项时：
 
@@ -136,14 +136,14 @@ private fun normalizeCompletionPayloadText(
 
 ## 相关文件
 
-- [`SnippetParser.kt`](../../core/editor-view/src/main/java/com/wuxianggujun/tinaide/core/editorview/SnippetParser.kt)：解析器
-- [`SnippetSession.kt`](../../core/editor-view/src/main/java/com/wuxianggujun/tinaide/core/editorview/SnippetSession.kt)：状态管理
-- [`EditorState.kt`](../../core/editor-view/src/main/java/com/wuxianggujun/tinaide/core/editorview/EditorState.kt)：编辑器集成
-- [`EditorKeyboardShortcuts.kt`](../../core/editor-view/src/main/java/com/wuxianggujun/tinaide/core/editorview/EditorKeyboardShortcuts.kt)：快捷键
-- [`EditorStateEditOperations.kt`](../../core/editor-view/src/main/java/com/wuxianggujun/tinaide/core/editorview/EditorStateEditOperations.kt)：编辑操作偏移同步
-- [`LspEditorManager.kt`](../../app/src/main/java/com/wuxianggujun/tinaide/ui/compose/state/editor/LspEditorManager.kt)：LSP 补全项转换
-- [`PluginSnippetManager.kt`](../../core/plugin/src/main/java/com/wuxianggujun/tinaide/plugin/PluginSnippetManager.kt)：插件 snippet 展开
-- [`Prefs.kt`](../../core/config/src/main/java/com/wuxianggujun/tinaide/core/config/Prefs.kt)：`clangdFunctionArgPlaceholders` 配置项
+- [`SnippetParser.kt`](../../core/editor-view/src/main/java/com/scto/mobileide/core/editorview/SnippetParser.kt)：解析器
+- [`SnippetSession.kt`](../../core/editor-view/src/main/java/com/scto/mobileide/core/editorview/SnippetSession.kt)：状态管理
+- [`EditorState.kt`](../../core/editor-view/src/main/java/com/scto/mobileide/core/editorview/EditorState.kt)：编辑器集成
+- [`EditorKeyboardShortcuts.kt`](../../core/editor-view/src/main/java/com/scto/mobileide/core/editorview/EditorKeyboardShortcuts.kt)：快捷键
+- [`EditorStateEditOperations.kt`](../../core/editor-view/src/main/java/com/scto/mobileide/core/editorview/EditorStateEditOperations.kt)：编辑操作偏移同步
+- [`LspEditorManager.kt`](../../app/src/main/java/com/scto/mobileide/ui/compose/state/editor/LspEditorManager.kt)：LSP 补全项转换
+- [`PluginSnippetManager.kt`](../../core/plugin/src/main/java/com/scto/mobileide/plugin/PluginSnippetManager.kt)：插件 snippet 展开
+- [`Prefs.kt`](../../core/config/src/main/java/com/scto/mobileide/core/config/Prefs.kt)：`clangdFunctionArgPlaceholders` 配置项
 
 ## 参考资料
 

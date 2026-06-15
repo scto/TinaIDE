@@ -1,6 +1,6 @@
 # Clangd 补全加速：本地候选先出 + LSP 异步追加
 
-> 目标：改善 TinaIDE 在 C/C++ 编辑时的补全响应速度，尤其是输入 `#i` 就能立刻看到 `include` 的补全提示。
+> 目标：改善 MobileIDE 在 C/C++ 编辑时的补全响应速度，尤其是输入 `#i` 就能立刻看到 `include` 的补全提示。
 
 ---
 
@@ -19,19 +19,19 @@
 
 `EditorAutoCompletion.CompletionThread.run()` → `Language.requireAutoComplete(...)`
 
-旧实现（`temp/tina-sora-editor/editor-lsp/.../LspLanguage.kt`）会在 `requireAutoComplete()` 内部同步等待：
+旧实现（`temp/mobile-sora-editor/editor-lsp/.../LspLanguage.kt`）会在 `requireAutoComplete()` 内部同步等待：
 
 - 等待 `didChange` 相关的 future：`Timeout[Timeouts.WILLSAVE]`（默认 2000ms）
 - 等待 `textDocument/completion` 结果：`Timeout[Timeouts.COMPLETION]`（默认 3000ms）
 
 当输入频繁触发补全时，这个同步等待会直接把“补全线程”阻塞住，导致补全弹窗出现延迟很大（最坏情况下接近 2s + 3s）。
 
-相关超时配置见：`temp/tina-sora-editor/editor-lsp/src/main/java/io/github/rosemoe/sora/lsp/requests/Timeout.kt`。
+相关超时配置见：`temp/mobile-sora-editor/editor-lsp/src/main/java/io/github/rosemoe/sora/lsp/requests/Timeout.kt`。
 
 ### 2.2 `#i` 不出 `include`：prefix 计算错误 + 过滤逻辑把结果筛掉
 
 补全列表的过滤/排序并不是“直接用 computePrefix() 的返回字符串”，而是依赖 **每个候选项自带的 `prefixLength`**：
-`filterCompletionItems()` 会用 `originItem.prefixLength` 从源码行里截取光标前的文本作为 pattern，然后对 label/filterText 做 fuzzy match（见 `temp/tina-sora-editor/editor/src/main/java/io/github/rosemoe/sora/lang/completion/comparators.kt:137`）。
+`filterCompletionItems()` 会用 `originItem.prefixLength` 从源码行里截取光标前的文本作为 pattern，然后对 label/filterText 做 fuzzy match（见 `temp/mobile-sora-editor/editor/src/main/java/io/github/rosemoe/sora/lang/completion/comparators.kt:137`）。
 
 而 LSP 候选（`LspCompletionItem`）的 `prefixLength` 来自 `LspLanguage.computePrefix(...).length`。
 
@@ -50,18 +50,18 @@
 
 ### 3.1 设计要点
 
-当前 TinaEditor 链路在 `DefaultCompletionProvider` 中拆成两段：
+当前 MobileEditor 链路在 `DefaultCompletionProvider` 中拆成两段：
 
-1. **本地候选（快）**：`TinaCodeEditorPage.buildLocalCompletions(...)` 先生成关键词、预处理指令、片段和邻近标识符候选。
+1. **本地候选（快）**：`MobileCodeEditorPage.buildLocalCompletions(...)` 先生成关键词、预处理指令、片段和邻近标识符候选。
 2. **LSP 候选（慢）**：并发请求 `LspEditorManager.requestCompletion(...)`，返回后由 `DefaultCompletionProvider.mergeCompletions(...)` 去重、排序和限流。
 
 当前真实入口：
 
-- 编辑器挂载点：`app/src/main/java/com/wuxianggujun/tinaide/ui/compose/components/editor/TinaCodeEditorPage.kt`
-- 本地/LSP 合并：`core/editor-lsp/src/main/java/com/wuxianggujun/tinaide/core/editorlsp/CompletionProvider.kt`
-- LSP 请求：`app/src/main/java/com/wuxianggujun/tinaide/ui/compose/state/editor/LspEditorManager.kt`
-- Tree-sitter 符号抽取：`feature/editor/src/main/java/com/wuxianggujun/tinaide/editor/symbol/ProjectSymbolIndexService.kt` → `feature/editor/src/main/java/com/wuxianggujun/tinaide/editor/symbol/CxxSymbolProvider.kt`
-- 预处理指令（如 `#include`）的本地关键词补全：`TinaCodeEditorPage.kt` 中的 `CXX_PREPROCESSOR_ITEMS`
+- 编辑器挂载点：`app/src/main/java/com/scto/mobileide/ui/compose/components/editor/MobileCodeEditorPage.kt`
+- 本地/LSP 合并：`core/editor-lsp/src/main/java/com/scto/mobileide/core/editorlsp/CompletionProvider.kt`
+- LSP 请求：`app/src/main/java/com/scto/mobileide/ui/compose/state/editor/LspEditorManager.kt`
+- Tree-sitter 符号抽取：`feature/editor/src/main/java/com/scto/mobileide/editor/symbol/ProjectSymbolIndexService.kt` → `feature/editor/src/main/java/com/scto/mobileide/editor/symbol/CxxSymbolProvider.kt`
+- 预处理指令（如 `#include`）的本地关键词补全：`MobileCodeEditorPage.kt` 中的 `CXX_PREPROCESSOR_ITEMS`
 
 ### 3.4 `#include` 路径输入阶段也走本地候选（避免弹窗空白）
 
@@ -77,7 +77,7 @@
 
 `EditorAutoCompletion` 在 `requireAutoComplete()` 返回后会检查 `publisher.hasData()`：
 
-- 如果没有任何候选，会直接 `hide()` 补全弹窗（`temp/tina-sora-editor/editor/.../EditorAutoCompletion.java:663`）。
+- 如果没有任何候选，会直接 `hide()` 补全弹窗（`temp/mobile-sora-editor/editor/.../EditorAutoCompletion.java:663`）。
 
 所以当 fallback 为空时，如果完全异步追加，LSP 结果回来时弹窗已经被隐藏，用户看不到结果。
 
@@ -91,19 +91,19 @@
 
 ## 4. 关键实现位置（代码索引）
 
-- 本地候选构建：`app/src/main/java/com/wuxianggujun/tinaide/ui/compose/components/editor/TinaCodeEditorPage.kt`
+- 本地候选构建：`app/src/main/java/com/scto/mobileide/ui/compose/components/editor/MobileCodeEditorPage.kt`
   - `buildLocalCompletions(...)`
   - `buildCxxCompletionItems(...)`
   - `CXX_PREPROCESSOR_ITEMS`
-- 本地候选与 LSP 候选合并：`core/editor-lsp/src/main/java/com/wuxianggujun/tinaide/core/editorlsp/CompletionProvider.kt`
+- 本地候选与 LSP 候选合并：`core/editor-lsp/src/main/java/com/scto/mobileide/core/editorlsp/CompletionProvider.kt`
   - `DefaultCompletionProvider.requestCompletion(...)`
   - `DefaultCompletionProvider.mergeCompletions(...)`
-- LSP 补全请求：`app/src/main/java/com/wuxianggujun/tinaide/ui/compose/state/editor/LspEditorManager.kt`
+- LSP 补全请求：`app/src/main/java/com/scto/mobileide/ui/compose/state/editor/LspEditorManager.kt`
   - `requestCompletion(...)`
 
 ---
 
-## 5. TinaIDE 里 clangd 启动与补全请求的链路（简图）
+## 5. MobileIDE 里 clangd 启动与补全请求的链路（简图）
 
 clangd 启动（本地模式）：
 
@@ -111,7 +111,7 @@ clangd 启动（本地模式）：
 
 补全请求：
 
-`EditorState.requestCompletion()` → `DefaultCompletionProvider.requestCompletion()` → `TinaCodeEditorPage.buildLocalCompletions(...)` 与 `LspEditorManager.requestCompletion(...)` 并发 → `clangd` 返回 items → `DefaultCompletionProvider.mergeCompletions(...)` → 补全弹窗更新。
+`EditorState.requestCompletion()` → `DefaultCompletionProvider.requestCompletion()` → `MobileCodeEditorPage.buildLocalCompletions(...)` 与 `LspEditorManager.requestCompletion(...)` 并发 → `clangd` 返回 items → `DefaultCompletionProvider.mergeCompletions(...)` → 补全弹窗更新。
 
 更完整的启动链路可参考 LSP 调试指南：`docs/guides/LSP-Debug-Guide.md`
 

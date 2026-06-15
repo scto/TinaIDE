@@ -1,6 +1,6 @@
 # Keystore 签名密钥信息
 
-此目录用于放置 TinaIDE 的本地 Release 签名密钥库。
+此目录用于放置 MobileIDE 的本地 Release 签名密钥库。
 
 ## 密钥库信息
 
@@ -8,14 +8,14 @@
 - **类型**: PKCS12
 - **算法**: RSA 2048-bit
 - **有效期**: 10000 天
-- **别名 (Alias)**: `tinaide`
+- **别名 (Alias)**: `mobileide`
 
 ## 证书 DN 信息
 
 | 字段 | 值 |
 |------|-----|
-| CN (Common Name) | TinaIDE |
-| OU (Organization Unit) | Tina |
+| CN (Common Name) | MobileIDE |
+| OU (Organization Unit) | Mobile |
 | O (Organization) | WuXiangGujun |
 | L (Locality) | Nanchang |
 | ST (State) | Jiangxi |
@@ -35,7 +35,7 @@ keytool -genkeypair -v \
   -keyalg RSA \
   -keysize 2048 \
   -validity 10000 \
-  -alias tinaide \
-  -dname "CN=TinaIDE, OU=Tina, O=WuXiangGujun, L=Nanchang, ST=Jiangxi, C=CN"
+  -alias mobileide \
+  -dname "CN=MobileIDE, OU=Mobile, O=WuXiangGujun, L=Nanchang, ST=Jiangxi, C=CN"
 ```
 

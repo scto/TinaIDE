@@ -2,7 +2,7 @@
 
 > 更新日期：2026-04-28
 
-本文记录 TinaIDE 当前 Linux rootfs 管理入口。当前实现已经收敛到
+本文记录 MobileIDE 当前 Linux rootfs 管理入口。当前实现已经收敛到
 :core:linux-distro + :core:proot，不再保留旧脚本模块、灰度开关或兼容分支。
 
 ## 当前结论

@@ -1,12 +1,12 @@
 #!/bin/bash -e
 
-# TinaIDE Rsync Builder Script
+# MobileIDE Rsync Builder Script
 # 编译支持 16KB 页面对齐的 Android rsync
 
 set -e
 
 echo "=========================================="
-echo "TinaIDE Rsync Builder (16KB Alignment)"
+echo "MobileIDE Rsync Builder (16KB Alignment)"
 echo "=========================================="
 echo ""
 

@@ -1,4 +1,4 @@
-# TinaIDE 测试文档
+# MobileIDE 测试文档
 
 > 更新日期：2026-05-31
 
@@ -9,11 +9,11 @@
 编辑器 popup 的共享回归建议固定跑下面两组命令：
 
 ```bash
-./gradlew :core:editor-view:testDebugUnitTest --tests "com.wuxianggujun.tinaide.core.editorview.EditorPopupComposeSmokeTest" --tests "com.wuxianggujun.tinaide.core.editorview.PopupOverlaySharedAnchorIntegrationTest" --tests "com.wuxianggujun.tinaide.core.editorview.EditorOverlaysIntegrationTest"
+./gradlew :core:editor-view:testDebugUnitTest --tests "com.scto.mobileide.core.editorview.EditorPopupComposeSmokeTest" --tests "com.scto.mobileide.core.editorview.PopupOverlaySharedAnchorIntegrationTest" --tests "com.scto.mobileide.core.editorview.EditorOverlaysIntegrationTest"
 ```
 
 ```bash
-./gradlew :core:editor-view:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.wuxianggujun.tinaide.core.editorview.EditorCompletionPopupInstrumentationTest,com.wuxianggujun.tinaide.core.editorview.EditorSharedPopupInstrumentationTest
+./gradlew :core:editor-view:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.scto.mobileide.core.editorview.EditorCompletionPopupInstrumentationTest,com.scto.mobileide.core.editorview.EditorSharedPopupInstrumentationTest
 ```
 
 其中：

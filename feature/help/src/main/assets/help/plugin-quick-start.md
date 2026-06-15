@@ -1,6 +1,6 @@
 # 插件开发快速开始
 
-这篇教程面向想给 TinaIDE 写插件的人。目标不是先解释所有字段，而是带你走通当前 IDE 里最短的闭环：创建插件项目、运行热安装、打包 `.tinaplug`、再用从文件安装做预检。
+这篇教程面向想给 MobileIDE 写插件的人。目标不是先解释所有字段，而是带你走通当前 IDE 里最短的闭环：创建插件项目、运行热安装、打包 `.mobileplug`、再用从文件安装做预检。
 
 ## 你会得到什么
 
@@ -8,7 +8,7 @@
 
 - 项目根目录包含 `manifest.json`
 - 需要脚本能力时会有 `main.lua` 或对应入口文件
-- 打包后得到 `.tinaplug`
+- 打包后得到 `.mobileplug`
 - 安装前会经过同一套插件诊断规则预检
 
 ## 1. 创建插件项目
@@ -24,12 +24,12 @@
 如果插件模板插件已经安装并启用，你会在模板列表里看到带 **插件** 标识的模板。
 
 如果这里提示没有插件项目模板，先到插件市场安装并启用
-`TinaIDE Plugin Starters`，然后重新打开本教程入口继续。
+`MobileIDE Plugin Starters`，然后重新打开本教程入口继续。
 
 选择插件模板后，向导会提示：
 
 - 创建后点击 **运行**：校验 + 打包 + 热安装
-- 点击 **打包**：生成 `.tinaplug`
+- 点击 **打包**：生成 `.mobileplug`
 
 插件模板通常是混合语言项目，所以向导会隐藏 C++ 标准这类无关配置。
 
@@ -56,7 +56,7 @@
 对于插件项目，运行不是启动一个普通程序，而是执行：
 
 1. 校验当前插件目录
-2. 打包 `.tinaplug`
+2. 打包 `.mobileplug`
 3. 调用插件管理器热安装
 4. 刷新已安装插件状态
 
@@ -66,7 +66,7 @@
 
 如果你只想生成安装包，点击 **打包**。
 
-打包会先校验插件，再生成 `.tinaplug`。
+打包会先校验插件，再生成 `.mobileplug`。
 
 最终插件包只应该包含运行时需要的文件，例如：
 
@@ -83,7 +83,7 @@
 
 ## 5. 从文件安装前预检
 
-到 **设置 → 插件 → 从文件安装插件** 选择 `.tinaplug`。
+到 **设置 → 插件 → 从文件安装插件** 选择 `.mobileplug`。
 
 IDE 会先解包并检查插件：
 
@@ -113,7 +113,7 @@ IDE 会先解包并检查插件：
 
 ### 没有插件项目模板？
 
-先到插件市场安装并启用 `TinaIDE Plugin Starters`，再重新打开本教程入口。
+先到插件市场安装并启用 `MobileIDE Plugin Starters`，再重新打开本教程入口。
 如果已经安装但仍未显示，到 **设置 → 插件** 检查：
 
 - 是否已经安装
@@ -122,29 +122,29 @@ IDE 会先解包并检查插件：
 
 正常情况下，插件入口至少应该显示：
 
-- `Tina Config Plugin`
-- `Tina Script Command Plugin (Beta)`
-- `Tina Script Plugin (Beta)`
-- `Tina LSP Plugin`
+- `Mobile Config Plugin`
+- `Mobile Script Command Plugin (Beta)`
+- `Mobile Script Plugin (Beta)`
+- `Mobile LSP Plugin`
 
 ### 点击运行后没有热安装？
 
 插件项目点击 **运行** 应该执行：
 
 1. 校验当前插件目录
-2. 打包 `.tinaplug`
+2. 打包 `.mobileplug`
 3. 热安装到当前 IDE
 4. 打开构建日志
 
 如果看起来像普通 C/C++ 运行，先检查项目根目录是否有合法 `manifest.json`。
 它至少需要 `id`、`name`、`version`、`type`。
 
-### `.tinaplug` 生成在哪里？
+### `.mobileplug` 生成在哪里？
 
 点击 **打包** 后，输出路径通常是：
 
 ```text
-dist/<manifest.id>-<manifest.version>.tinaplug
+dist/<manifest.id>-<manifest.version>.mobileplug
 ```
 
 如果你只想分发插件，优先拿这个文件。
@@ -180,11 +180,11 @@ dist/<manifest.id>-<manifest.version>.tinaplug
 - `contributions.commands` 中声明同一个命令 ID
 - `contributions.menus` 中引用同一个命令 ID
 - `permissions` 中声明 `command.execute`
-- `main.lua` 运行时调用 `tina.commands.register(...)` 注册同一个命令 ID
+- `main.lua` 运行时调用 `mobile.commands.register(...)` 注册同一个命令 ID
 
 ### 资源找不到？
 
-检查 manifest 里的路径是否是相对路径，并且文件确实会进入最终 `.tinaplug`。
+检查 manifest 里的路径是否是相对路径，并且文件确实会进入最终 `.mobileplug`。
 
 最终插件包不包含 README、打包脚本、校验脚本和隐藏开发目录，
 所以不要在运行时依赖这些开发辅助文件。
@@ -212,7 +212,7 @@ dist/<manifest.id>-<manifest.version>.tinaplug
 1. 在插件项目里修改 `manifest.json` 和脚本 / 资源
 2. 点击 **运行**，让 IDE 校验并热安装
 3. 到 **设置 → 插件** 查看状态和日志
-4. 没问题后点击 **打包** 生成 `.tinaplug`
+4. 没问题后点击 **打包** 生成 `.mobileplug`
 5. 用 **从文件安装插件** 再做一次安装前预检
 
 ## 继续学习

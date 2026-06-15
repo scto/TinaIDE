@@ -1,11 +1,11 @@
 plugins {
-    id("tina.android.library")
+    id("mobile.android.library")
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
 }
 
 android {
-    namespace = "com.wuxianggujun.tinaide.feature.editor"
+    namespace = "com.scto.mobileide.feature.editor"
 }
 
 dependencies {

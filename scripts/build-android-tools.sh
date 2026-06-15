@@ -334,7 +334,7 @@ import sys
 path = pathlib.Path(sys.argv[1])
 text = path.read_text(encoding="utf-8")
 
-if "TinaIDE Android linker64 exec shim" in text:
+if "MobileIDE Android linker64 exec shim" in text:
     raise SystemExit(0)
 
 anchor_namespace = "namespace {\n"
@@ -343,7 +343,7 @@ if anchor_namespace not in text:
 
 helper = """
 #if defined(__ANDROID__)
-// TinaIDE Android linker64 exec shim:
+// MobileIDE Android linker64 exec shim:
 // On modern Android, direct exec of app-private binaries may fail with EACCES.
 // Wrap absolute-path subprocess commands via system linker64.
 static bool cmIsAndroidSystemPath(std::string const& path)

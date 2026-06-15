@@ -1,11 +1,11 @@
-# TinaIDE 编辑器主题自定义功能设计文档
+# MobileIDE 编辑器主题自定义功能设计文档
 
 **创建日期**: 2025-12-13
 **作者**: Claude Code
 **版本**: 1.0
 **状态**: 部分能力已落地（主题插件可用），主题编辑器 UI 方案待继续实现
 
-> 状态更新（2026-03-02）：文档中的 Sora 相关类名/结构仅用于历史参考；当前实现以 TinaEditor 主题体系为准。
+> 状态更新（2026-03-02）：文档中的 Sora 相关类名/结构仅用于历史参考；当前实现以 MobileEditor 主题体系为准。
 
 ---
 
@@ -13,7 +13,7 @@
 
 ### 1.1 功能目标
 
-为 TinaIDE 编辑器提供完整的主题自定义能力，允许用户：
+为 MobileIDE 编辑器提供完整的主题自定义能力，允许用户：
 
 1. **自定义语法高亮颜色** - 修改关键字、注释、字符串、函数名等代码元素的颜色
 2. **自定义编辑器界面颜色** - 修改背景、行号、光标、选中区域等 UI 元素的颜色
@@ -24,7 +24,7 @@
 
 #### 当前主题系统
 
-TinaIDE 当前实现使用 `core:editor-view` 内的 `EditorColorScheme` 管理编辑器 UI 与语法高亮颜色；内置主题由伴生对象提供，插件主题由 `PluginEditorThemeRegistry` 读取启用插件贡献的 `ThemeConfig` 后注入：
+MobileIDE 当前实现使用 `core:editor-view` 内的 `EditorColorScheme` 管理编辑器 UI 与语法高亮颜色；内置主题由伴生对象提供，插件主题由 `PluginEditorThemeRegistry` 读取启用插件贡献的 `ThemeConfig` 后注入：
 
 ```
 EditorColorScheme
@@ -37,13 +37,13 @@ PluginEditorThemeRegistry
 ```
 
 **关键文件**：
-- [EditorColorScheme.kt](../../core/editor-view/src/main/java/com/wuxianggujun/tinaide/core/editorview/EditorColorScheme.kt)
-- [PluginEditorThemeRegistry.kt](../../feature/editor/src/main/java/com/wuxianggujun/tinaide/editor/theme/PluginEditorThemeRegistry.kt)
-- [PluginModels.kt](../../core/plugin/src/main/java/com/wuxianggujun/tinaide/plugin/PluginModels.kt)
+- [EditorColorScheme.kt](../../core/editor-view/src/main/java/com/scto/mobileide/core/editorview/EditorColorScheme.kt)
+- [PluginEditorThemeRegistry.kt](../../feature/editor/src/main/java/com/scto/mobileide/editor/theme/PluginEditorThemeRegistry.kt)
+- [PluginModels.kt](../../core/plugin/src/main/java/com/scto/mobileide/plugin/PluginModels.kt)
 
 #### 语法高亮系统
 
-TinaIDE 使用 **Tree-sitter** 进行语法分析，通过 `.scm` 查询文件定义高亮规则：
+MobileIDE 使用 **Tree-sitter** 进行语法分析，通过 `.scm` 查询文件定义高亮规则：
 
 ```
 tree-sitter-queries/
@@ -580,9 +580,9 @@ class CustomEditorColorScheme(
 ├── 应用主题: 跟随系统 / 浅色 / 深色 / 灰色
 ├── 编辑器主题
 │   ├── [选择主题]
-│   │   ├── TinaIDE Dark (内置)
-│   │   ├── TinaIDE Light (内置)
-│   │   ├── TinaIDE Gray (内置)
+│   │   ├── MobileIDE Dark (内置)
+│   │   ├── MobileIDE Light (内置)
+│   │   ├── MobileIDE Gray (内置)
 │   │   ├── VS Code Dark+ (内置)
 │   │   ├── Monokai (内置)
 │   │   ├── 我的主题 1 (自定义)
@@ -749,7 +749,7 @@ fun CodePreview(
         };
 
         int main() {
-            std::cout << "Hello, TinaIDE!" << std::endl;
+            std::cout << "Hello, MobileIDE!" << std::endl;
             int result = factorial(5);
             return 0;
         }
@@ -793,7 +793,7 @@ fun CodePreview(
 {
   "name": "Monokai",
   "version": "1.0",
-  "author": "TinaIDE",
+  "author": "MobileIDE",
   "description": "经典 Monokai 配色方案",
   "isDark": true,
   "baseTheme": "dark",
@@ -848,7 +848,7 @@ fun CodePreview(
 ### 6.1 文件结构
 
 ```
-/data/data/com.wuxianggujun.tinaide/
+/data/data/com.scto.mobileide/
 ├── files/
 │   └── themes/
 │       ├── user_theme_1.json
@@ -859,9 +859,9 @@ fun CodePreview(
 
 /assets/
 └── builtin_themes/
-    ├── tina_dark.json
-    ├── tina_light.json
-    ├── tina_gray.json
+    ├── mobile_dark.json
+    ├── mobile_light.json
+    ├── mobile_gray.json
     ├── monokai.json
     ├── dracula.json
     └── ...

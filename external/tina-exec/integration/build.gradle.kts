@@ -1,11 +1,11 @@
 plugins {
-    id("tina.android.library")
+    id("mobile.android.library")
 }
 
 android {
-    namespace = "com.wuxianggujun.tinaide.exec.integration"
+    namespace = "com.scto.mobileide.exec.integration"
 }
 
 dependencies {
-    implementation(project(":tina-exec:runtime"))
+    implementation(project(":mobile-exec:runtime"))
 }

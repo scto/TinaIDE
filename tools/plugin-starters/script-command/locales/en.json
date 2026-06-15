@@ -1,6 +1,6 @@
 {
   "name": "{{PROJECT_NAME}}",
-  "description": "Command-focused Lua plugin starter for TinaIDE.",
+  "description": "Command-focused Lua plugin starter for MobileIDE.",
   "contributions": {
     "commands": {
       "com.example.{{PROJECT_NAME}}.toggleFileTree": {

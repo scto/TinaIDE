@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class KnownLinkerWarningFilterTest {
 
-    private static final String NOISY_WARNING = "WARNING: linker: Warning: \"/data/data/com.wuxianggujun.tinaide/files/android-sysroot/usr/lib/aarch64-linux-android/libc++_shared.so\" unused DT entry: unknown processor-specific (type 0x70000001 arg 0x0) (ignoring)\n";
+    private static final String NOISY_WARNING = "WARNING: linker: Warning: \"/data/data/com.scto.mobileide/files/android-sysroot/usr/lib/aarch64-linux-android/libc++_shared.so\" unused DT entry: unknown processor-specific (type 0x70000001 arg 0x0) (ignoring)\n";
 
     @Test
     public void filterDropsKnownLibcxxBtiWarning() {

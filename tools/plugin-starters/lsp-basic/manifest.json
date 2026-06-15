@@ -1,9 +1,9 @@
 {
-  "id": "tinaide.lsp.{{PROJECT_NAME}}",
+  "id": "mobileide.lsp.{{PROJECT_NAME}}",
   "name": "{{PROJECT_NAME}} Language Support",
   "version": "0.1.0",
   "type": "lsp",
-  "description": "Starter LSP plugin for TinaIDE.",
+  "description": "Starter LSP plugin for MobileIDE.",
   "author": {
     "name": "Your Name"
   },

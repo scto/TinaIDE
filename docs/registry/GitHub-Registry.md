@@ -1,12 +1,12 @@
-# TinaIDE GitHub Registry
+# MobileIDE GitHub Registry
 
 > 更新日期：2026-06-06
 
-TinaIDE 开源版的插件市场与依赖包市场不再从 TinaServer 读取索引。
+MobileIDE 开源版的插件市场与依赖包市场不再从 MobileServer 读取索引。
 客户端默认读取公开仓库：
 
 ```text
-https://github.com/wuxianggujun/TinaIDE-Registry
+https://github.com/scto/MobileIDE-Registry
 ```
 
 这个仓库是插件与依赖包的公开 Registry，不是 Android 主项目的源码目录。
@@ -14,7 +14,7 @@ https://github.com/wuxianggujun/TinaIDE-Registry
 
 - `plugins/index.v2.json` / `packages/index.v2.json`
 - `plugins/<plugin-id>/plugin.json`
-- `plugins/<plugin-id>/<version>/*.tinaplug`
+- `plugins/<plugin-id>/<version>/*.mobileplug`
 - `packages/<package-id>/package.json`
 - `packages/<package-id>/<version>/*`
 - `sources/plugins/**`
@@ -22,14 +22,14 @@ https://github.com/wuxianggujun/TinaIDE-Registry
 - `metadata/*.json`
 - `scripts/*.ps1`
 
-发布插件或依赖包时，需要把 `.tinaplug` / 包文件放入该仓库约定目录，或在索引里填写
+发布插件或依赖包时，需要把 `.mobileplug` / 包文件放入该仓库约定目录，或在索引里填写
 可信 CDN、对象存储、自建代理的绝对下载地址，并同步更新对应索引。
 
 客户端内置两个 Registry base，按顺序自动尝试：
 
 ```text
-https://raw.githubusercontent.com/wuxianggujun/TinaIDE-Registry/main
-https://cdn.jsdelivr.net/gh/wuxianggujun/TinaIDE-Registry@main
+https://raw.githubusercontent.com/Thomas Schmid/MobileIDE-Registry/main
+https://cdn.jsdelivr.net/gh/Thomas Schmid/MobileIDE-Registry@main
 ```
 
 默认优先走 GitHub Raw，避免 jsDelivr 缓存旧索引导致市场列表为空；
@@ -43,7 +43,7 @@ CDN、对象存储或自建代理，并在索引里填写绝对 URL。
 GitHub Raw 兜底地址：
 
 ```text
-https://raw.githubusercontent.com/wuxianggujun/TinaIDE-Registry/main
+https://raw.githubusercontent.com/Thomas Schmid/MobileIDE-Registry/main
 ```
 
 ## 目录结构
@@ -51,7 +51,7 @@ https://raw.githubusercontent.com/wuxianggujun/TinaIDE-Registry/main
 ```text
 plugins/index.v2.json
 plugins/<plugin-id>/plugin.json
-plugins/<plugin-id>/<version>/<plugin-id>.tinaplug
+plugins/<plugin-id>/<version>/<plugin-id>.mobileplug
 packages/index.v2.json
 packages/<package-id>/package.json
 packages/<package-id>/<version>/<file>.tar.xz
@@ -145,18 +145,18 @@ Android 仓库已经移除 `PluginRegistryIndex` / `PackageRegistryIndex` 生产
   "generated_at": "2026-06-06T00:00:00Z",
   "plugins": [
     {
-      "id": "tinaide.plugin.example",
-      "plugin_id": "tinaide.plugin.example",
+      "id": "mobileide.plugin.example",
+      "plugin_id": "mobileide.plugin.example",
       "name": "Example Plugin",
       "description": "Example plugin",
       "category": "tool",
       "tags": ["tool"],
       "publisher": {
-        "id": "tinaide",
-        "display_name": "TinaIDE"
+        "id": "mobileide",
+        "display_name": "MobileIDE"
       },
       "latest_version": "1.0.0",
-      "detail_url": "plugins/tinaide.plugin.example/plugin.json",
+      "detail_url": "plugins/mobileide.plugin.example/plugin.json",
       "created_at": "2026-05-21T00:00:00Z",
       "updated_at": "2026-06-06T00:00:00Z"
     }
@@ -168,15 +168,15 @@ Android 仓库已经移除 `PluginRegistryIndex` / `PackageRegistryIndex` 生产
 
 ```json
 {
-  "id": "tinaide.plugin.example",
-  "plugin_id": "tinaide.plugin.example",
+  "id": "mobileide.plugin.example",
+  "plugin_id": "mobileide.plugin.example",
   "name": "Example Plugin",
   "description": "Example plugin",
   "category": "tool",
   "tags": ["tool"],
   "publisher": {
-    "id": "tinaide",
-    "display_name": "TinaIDE"
+    "id": "mobileide",
+    "display_name": "MobileIDE"
   },
   "versions": [
     {
@@ -184,7 +184,7 @@ Android 仓库已经移除 `PluginRegistryIndex` / `PackageRegistryIndex` 生产
       "version_code": 1,
       "file_size": 1234,
       "file_hash": "sha256:<sha256>",
-      "download_url": "plugins/tinaide.plugin.example/1.0.0/tinaide.plugin.example.tinaplug",
+      "download_url": "plugins/mobileide.plugin.example/1.0.0/mobileide.plugin.example.mobileplug",
       "created_at": "2026-05-21T00:00:00Z"
     }
   ],
@@ -202,15 +202,15 @@ Android 仓库已经移除 `PluginRegistryIndex` / `PackageRegistryIndex` 生产
 {
   "plugins": [
     {
-      "id": "tinaide.plugin.example",
-      "plugin_id": "tinaide.plugin.example",
+      "id": "mobileide.plugin.example",
+      "plugin_id": "mobileide.plugin.example",
       "name": "Example Plugin",
       "description": "Example plugin",
       "category": "tool",
       "tags": ["tool"],
       "publisher": {
-        "id": "tinaide",
-        "display_name": "TinaIDE"
+        "id": "mobileide",
+        "display_name": "MobileIDE"
       },
       "versions": [
         {
@@ -218,7 +218,7 @@ Android 仓库已经移除 `PluginRegistryIndex` / `PackageRegistryIndex` 生产
           "version_code": 1,
           "file_size": 1234,
           "file_hash": "sha256:<sha256>",
-          "download_url": "plugins/tinaide.plugin.example/1.0.0/tinaide.plugin.example.tinaplug",
+          "download_url": "plugins/mobileide.plugin.example/1.0.0/mobileide.plugin.example.mobileplug",
           "created_at": "2026-05-21T00:00:00Z"
         }
       ],

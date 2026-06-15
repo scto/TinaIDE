@@ -1,12 +1,12 @@
-# TinaIDE Server
+# MobileIDE Server
 
-TinaIDE backend and admin services are no longer distributed with the open-source
+MobileIDE backend and admin services are no longer distributed with the open-source
 Android project.
 
 The private backend repository is:
 
 ```text
-https://github.com/wuxianggujun/TinaIDE-Server
+https://github.com/scto/MobileIDE-Server
 ```
 
 This public repository only keeps the Android client, local IDE features, plugin

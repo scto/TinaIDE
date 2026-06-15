@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Build & package TinaIDE Android-native toolchain (arm64-v8a by default).
+# Build & package MobileIDE Android-native toolchain (arm64-v8a by default).
 # Runs inside docker/toolchain-builder container.
 
 usage() {
@@ -23,7 +23,7 @@ Common env flags:
   APPLY_LLVM_ANDROID_EXEC_WRAP_PATCH=0|1  # wrap LLVM internal exec via linker64
   APPLY_CMAKE_ANDROID_EXEC_PATCH=0|1
   PACKAGE_VARIANT=patched
-  ANDROID_TOOLS_ROOT=/tmp/tina-toolchain/android-tools
+  ANDROID_TOOLS_ROOT=/tmp/mobile-toolchain/android-tools
   NINJA_TARGETS="clang lld"
   SKIP_STAGE_AND_PACKAGE=0|1
   SYSROOT_API_LEVELS=21,23,28
@@ -71,7 +71,7 @@ PACKAGE_BASE="${PACKAGE_BASE:-1}"       # 1=emit base layer (no cmake/ninja/make
 PACKAGE_TOOLS="${PACKAGE_TOOLS:-1}"     # 1=emit tools layer (cmake/ninja/make + share/cmake-*)
 
 WORKSPACE="${WORKSPACE:-/workspace}"
-ROOT="${ROOT:-${WORKSPACE}/build/tina-toolchain}"
+ROOT="${ROOT:-${WORKSPACE}/build/mobile-toolchain}"
 SRC_ROOT="${ROOT}/src"
 BUILD_ROOT="${ROOT}/build"
 CCACHE_DIR="${CCACHE_DIR:-${ROOT}/.ccache}"
@@ -226,30 +226,30 @@ apply_llvm_patch_if_needed() {
 
   # 先判断“能否完整正向应用”。不要直接调用 patch --forward，
   # 否则在部分 hunk 失败时可能污染缓存源码。
-  if command -v git >/dev/null 2>&1 && (cd "${llvm_src}" && git apply --check "${patch_file}") >/tmp/tinaide_llvm_patch.log 2>&1; then
+  if command -v git >/dev/null 2>&1 && (cd "${llvm_src}" && git apply --check "${patch_file}") >/tmp/mobileide_llvm_patch.log 2>&1; then
     (cd "${llvm_src}" && git apply "${patch_file}")
     log "${label} applied by git apply."
     return
   fi
 
   # 再判断是否已经完整应用。
-  if command -v git >/dev/null 2>&1 && (cd "${llvm_src}" && git apply --reverse --check "${patch_file}") >/tmp/tinaide_llvm_patch.log 2>&1; then
+  if command -v git >/dev/null 2>&1 && (cd "${llvm_src}" && git apply --reverse --check "${patch_file}") >/tmp/mobileide_llvm_patch.log 2>&1; then
     log "${label} already applied, skipping."
     return
   fi
 
-  if patch -d "${llvm_src}" -p1 --forward --dry-run -i "${patch_file}" >/tmp/tinaide_llvm_patch.log 2>&1; then
-    patch -d "${llvm_src}" -p1 --forward --batch -i "${patch_file}" >/tmp/tinaide_llvm_patch.log 2>&1
+  if patch -d "${llvm_src}" -p1 --forward --dry-run -i "${patch_file}" >/tmp/mobileide_llvm_patch.log 2>&1; then
+    patch -d "${llvm_src}" -p1 --forward --batch -i "${patch_file}" >/tmp/mobileide_llvm_patch.log 2>&1
     log "${label} applied."
     return
   fi
 
-  if patch -d "${llvm_src}" -p1 --reverse --dry-run -i "${patch_file}" >/tmp/tinaide_llvm_patch.log 2>&1; then
+  if patch -d "${llvm_src}" -p1 --reverse --dry-run -i "${patch_file}" >/tmp/mobileide_llvm_patch.log 2>&1; then
     log "${label} already applied, skipping."
     return
   fi
 
-  cat /tmp/tinaide_llvm_patch.log >&2 || true
+  cat /tmp/mobileide_llvm_patch.log >&2 || true
   die "Failed to apply ${label}."
 }
 
@@ -696,7 +696,7 @@ fi
 
 log "== Write VERSION =="
 cat > "${STAGING_ROOT}/toolchain/VERSION" <<EOF
-TinaIDE Tina Toolchain
+MobileIDE Mobile Toolchain
 Toolchain Version: ${TOOLCHAIN_VERSION}
 Package Variant: ${PACKAGE_VARIANT:-default}
 LLVM Version: ${LLVM_VERSION}
@@ -709,9 +709,9 @@ package_variant_suffix=""
 if [[ -n "${PACKAGE_VARIANT}" ]]; then
   package_variant_suffix="-${PACKAGE_VARIANT}"
 fi
-pkg_root="tinaide-toolchain-${ARCH}-v${TOOLCHAIN_VERSION}${package_variant_suffix}"
-pkg_base="tinaide-toolchain-base-${ARCH}-v${TOOLCHAIN_VERSION}${package_variant_suffix}"
-pkg_tools="tinaide-toolchain-tools-${ARCH}-v${TOOLCHAIN_VERSION}${package_variant_suffix}"
+pkg_root="mobileide-toolchain-${ARCH}-v${TOOLCHAIN_VERSION}${package_variant_suffix}"
+pkg_base="mobileide-toolchain-base-${ARCH}-v${TOOLCHAIN_VERSION}${package_variant_suffix}"
+pkg_tools="mobileide-toolchain-tools-${ARCH}-v${TOOLCHAIN_VERSION}${package_variant_suffix}"
 legacy_release_dir="${ROOT}/legacy-release"
 
 (
@@ -719,7 +719,7 @@ legacy_release_dir="${ROOT}/legacy-release"
   if [[ "${PRESERVE_LEGACY_RELEASE}" != "0" ]]; then
     mkdir -p "${legacy_release_dir}"
     shopt -s nullglob
-    for f in tinaide-toolchain-*.tar.zst tinaide-toolchain-*.tar.xz tinaide-toolchain-*.sha256; do
+    for f in mobileide-toolchain-*.tar.zst mobileide-toolchain-*.tar.xz mobileide-toolchain-*.sha256; do
       case "${f}" in
         "${pkg_root}.tar.zst"|"${pkg_root}.tar.xz"|"${pkg_root}.sha256"|\
         "${pkg_base}.tar.zst"|"${pkg_base}.tar.xz"|\

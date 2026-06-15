@@ -31,5 +31,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "tina-build-logic"
+rootProject.name = "mobile-build-logic"
 include(":convention")

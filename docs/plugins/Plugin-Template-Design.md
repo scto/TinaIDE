@@ -1,7 +1,7 @@
 # 插件模板插件设计方案
 
 > 文档更新：2026-04-26
-> 目标：为 TinaIDE 设计一套可直接交付给用户的“插件开发脚手架插件”，降低插件开发门槛，并严格贴合当前宿主已落地能力。
+> 目标：为 MobileIDE 设计一套可直接交付给用户的“插件开发脚手架插件”，降低插件开发门槛，并严格贴合当前宿主已落地能力。
 
 ---
 
@@ -54,26 +54,26 @@
 
 建议名称：
 
-- 显示名：`TinaIDE Plugin Starters`
-- 插件 ID：`tinaide.plugin.starters`
+- 显示名：`MobileIDE Plugin Starters`
+- 插件 ID：`mobileide.plugin.starters`
 
 ### 3.2 用户体验路径
 
 推荐的完整路径：
 
-1. 用户安装并启用 `TinaIDE Plugin Starters`
+1. 用户安装并启用 `MobileIDE Plugin Starters`
 2. 从插件教程或设置页点击“创建插件项目”
 3. 进入“新建插件项目”语境，只看到 4 个插件模板
 4. 选择一个模板后生成插件工程目录
 5. 修改 `manifest.json` 与示例资源
 6. 点击 IDE 顶部“运行”
-7. IDE 自动完成校验、打包，并热安装到当前 TinaIDE
+7. IDE 自动完成校验、打包，并热安装到当前 MobileIDE
 
 如果用户从项目页右下角 **+** 进入，则仍是通用新建项目入口；
 这时需要在模板列表里手动选择带“插件”标识的模板。
 
 模板里仍然保留 `validate.ps1` / `validate.sh`、`pack.ps1` / `pack.sh`。
-它们用于离线打包、CI 校验和把 `.tinaplug` 分发给其他用户；IDE 内开发时，
+它们用于离线打包、CI 校验和把 `.mobileplug` 分发给其他用户；IDE 内开发时，
 “运行”按钮就是最短闭环。
 
 安装后默认 **不需要重启 IDE**。插件管理器会刷新安装态和启用态；脚本、LSP、
@@ -89,59 +89,59 @@
 推荐目录：
 
 ```text
-tinaide.plugin.starters/
+mobileide.plugin.starters/
 ├── manifest.json
 ├── README.md
 └── templates/
-    ├── tina-config-plugin.zip
-    ├── tina-script-command-plugin.zip
-    ├── tina-script-plugin.zip
-    └── tina-lsp-plugin.zip
+    ├── mobile-config-plugin.zip
+    ├── mobile-script-command-plugin.zip
+    ├── mobile-script-plugin.zip
+    └── mobile-lsp-plugin.zip
 ```
 
 推荐的 `manifest.json`：
 
 ```json
 {
-  "id": "tinaide.plugin.starters",
-  "name": "TinaIDE Plugin Starters",
+  "id": "mobileide.plugin.starters",
+  "name": "MobileIDE Plugin Starters",
   "version": "1.0.0",
   "type": "config",
-  "description": "Starter templates for TinaIDE plugin development.",
+  "description": "Starter templates for MobileIDE plugin development.",
   "author": {
-    "name": "TinaIDE Team"
+    "name": "MobileIDE Team"
   },
   "contributions": {
     "projectTemplates": [
       {
         "id": "config-basic",
-        "name": "Tina Config Plugin",
+        "name": "Mobile Config Plugin",
         "description": "Theme/snippet/menu/file-icon plugin starter.",
-        "templatePath": "templates/tina-config-plugin.zip",
+        "templatePath": "templates/mobile-config-plugin.zip",
         "buildSystem": "plugin",
         "primaryLanguage": "MIXED"
       },
       {
         "id": "script-command",
-        "name": "Tina Script Command Plugin (Beta)",
+        "name": "Mobile Script Command Plugin (Beta)",
         "description": "Lua command plugin starter with editor actions and menus.",
-        "templatePath": "templates/tina-script-command-plugin.zip",
+        "templatePath": "templates/mobile-script-command-plugin.zip",
         "buildSystem": "plugin",
         "primaryLanguage": "MIXED"
       },
       {
         "id": "script-basic",
-        "name": "Tina Script Plugin (Beta)",
+        "name": "Mobile Script Plugin (Beta)",
         "description": "Lua automation and event plugin starter.",
-        "templatePath": "templates/tina-script-plugin.zip",
+        "templatePath": "templates/mobile-script-plugin.zip",
         "buildSystem": "plugin",
         "primaryLanguage": "MIXED"
       },
       {
         "id": "lsp-basic",
-        "name": "Tina LSP Plugin",
+        "name": "Mobile LSP Plugin",
         "description": "Language server plugin starter.",
-        "templatePath": "templates/tina-lsp-plugin.zip",
+        "templatePath": "templates/mobile-lsp-plugin.zip",
         "buildSystem": "plugin",
         "primaryLanguage": "MIXED"
       }
@@ -162,7 +162,7 @@ CMake/Make 工程。所以 `projectTemplates.buildSystem` 应声明为：
 
 在这个构建系统下：
 
-- **构建** = 校验 + 打包 `.tinaplug`
+- **构建** = 校验 + 打包 `.mobileplug`
 - **运行** = 校验 + 打包 + 热安装到当前 IDE
 - **调试** = 暂不支持，后续再接脚本日志 / LSP 调试体验
 
@@ -225,7 +225,7 @@ CMake/Make 工程。所以 `projectTemplates.buildSystem` 应声明为：
   "name": "{{PROJECT_NAME}}",
   "version": "0.1.0",
   "type": "config",
-  "description": "Starter config plugin for TinaIDE.",
+  "description": "Starter config plugin for MobileIDE.",
   "author": {
     "name": "Your Name"
   },
@@ -262,7 +262,7 @@ CMake/Make 工程。所以 `projectTemplates.buildSystem` 应声明为：
       {
         "icon": "icons/starter-file.svg",
         "extensions": [
-          "tinaplugin"
+          "mobileplugin"
         ],
         "priority": 10
       }
@@ -323,7 +323,7 @@ LSP 插件那样清晰的公开加载入口。
   "name": "{{PROJECT_NAME}}",
   "version": "0.1.0",
   "type": "script",
-  "description": "Command-focused Lua plugin starter for TinaIDE.",
+  "description": "Command-focused Lua plugin starter for MobileIDE.",
   "author": {
     "name": "Your Name"
   },
@@ -381,43 +381,43 @@ local function comment_prefix_for(language_id)
 end
 
 function on_toggle_file_tree()
-  local ok, err = tina.commands.execute("view.toggleFileTree")
+  local ok, err = mobile.commands.execute("view.toggleFileTree")
   if not ok and err ~= nil then
-    tina.log.warn("Toggle file tree failed: " .. tostring(err))
+    mobile.log.warn("Toggle file tree failed: " .. tostring(err))
   end
 end
 
 function on_insert_header()
-  local editor = tina.editor.getActiveEditor()
+  local editor = mobile.editor.getActiveEditor()
   if editor == nil then
-    tina.log.warn("No active editor")
+    mobile.log.warn("No active editor")
     return
   end
 
   local prefix = comment_prefix_for(editor.languageId)
-  tina.editor.insertText(prefix .. " Generated by {{PROJECT_NAME}}\n", 0, 0)
+  mobile.editor.insertText(prefix .. " Generated by {{PROJECT_NAME}}\n", 0, 0)
 end
 
 function on_wrap_selection()
-  local selection = tina.editor.getSelection()
+  local selection = mobile.editor.getSelection()
   if selection ~= nil and selection.text ~= "" then
-    tina.editor.replaceSelection("// BEGIN\n" .. selection.text .. "\n// END")
+    mobile.editor.replaceSelection("// BEGIN\n" .. selection.text .. "\n// END")
   else
-    tina.editor.insertText("// TODO: plugin command ran here\n")
+    mobile.editor.insertText("// TODO: plugin command ran here\n")
   end
 end
 
-tina.commands.register(
+mobile.commands.register(
   "com.example.{{PROJECT_NAME}}.toggleFileTree",
   "on_toggle_file_tree",
   "Toggle File Tree"
 )
-tina.commands.register(
+mobile.commands.register(
   "com.example.{{PROJECT_NAME}}.insertHeader",
   "on_insert_header",
   "Insert Starter Header"
 )
-tina.commands.register(
+mobile.commands.register(
   "com.example.{{PROJECT_NAME}}.wrapSelection",
   "on_wrap_selection",
   "Wrap Selection"
@@ -455,7 +455,7 @@ tina.commands.register(
 
 - 如何监听宿主事件
 - 如何读取诊断快照
-- 如何使用 `tina.workspace.*`
+- 如何使用 `mobile.workspace.*`
 - 如何在自动化场景里组合命令、日志和编辑器 API
 
 ### 5.4 LSP 模板
@@ -479,11 +479,11 @@ tina.commands.register(
 
 ```json
 {
-  "id": "tinaide.lsp.{{PROJECT_NAME}}",
+  "id": "mobileide.lsp.{{PROJECT_NAME}}",
   "name": "{{PROJECT_NAME}} Language Support",
   "version": "0.1.0",
   "type": "lsp",
-  "description": "Starter LSP plugin for TinaIDE.",
+  "description": "Starter LSP plugin for MobileIDE.",
   "author": {
     "name": "Your Name"
   },
@@ -613,14 +613,14 @@ v1 不做：
 
 如果你现在要做第一版，我建议只落一个产品包：
 
-- `TinaIDE Plugin Starters`
+- `MobileIDE Plugin Starters`
 
 它内部提供四种模板：
 
-- `Tina Config Plugin`：正式
-- `Tina Script Command Plugin`：Beta
-- `Tina Script Plugin`：Beta
-- `Tina LSP Plugin`：正式
+- `Mobile Config Plugin`：正式
+- `Mobile Script Command Plugin`：Beta
+- `Mobile Script Plugin`：Beta
+- `Mobile LSP Plugin`：正式
 
 这样设计最符合你当前源码现状，也最容易在后续真正落成一个可安装插件，
 而不是停留在“文档建议”层面。

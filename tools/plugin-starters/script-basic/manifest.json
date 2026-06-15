@@ -3,7 +3,7 @@
   "name": "{{PROJECT_NAME}}",
   "version": "0.1.0",
   "type": "script",
-  "description": "Starter Lua plugin for TinaIDE.",
+  "description": "Starter Lua plugin for MobileIDE.",
   "author": {
     "name": "Your Name"
   },

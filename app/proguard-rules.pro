@@ -1,5 +1,5 @@
 # ============================================================================
-# TinaIDE ProGuard / R8 Rules
+# MobileIDE ProGuard / R8 Rules
 # ============================================================================
 # 目标：最小化 DEX 体积，只 keep 反射 / JNI / 序列化必须保留的部分
 # 原则：
@@ -34,7 +34,7 @@
 # ============================================================================
 
 # Application 入口
--keep class com.wuxianggujun.tinaide.TinaApplication { *; }
+-keep class com.scto.mobileide.MobileApplication { *; }
 
 # 四大组件 + Fragment（AndroidManifest 反射实例化）
 -keep public class * extends android.app.Activity
@@ -164,7 +164,7 @@
 # ============================================================================
 # 14. Tree-sitter（安全网 + 项目适配层）
 # ============================================================================
-# android-tree-sitter 的完整 JNI 规则由 external/tina-android-tree-sitter/consumer-rules.pro 提供
+# android-tree-sitter 的完整 JNI 规则由 external/mobile-android-tree-sitter/consumer-rules.pro 提供
 # （需在该模块 build.gradle.kts 中声明 consumerProguardFiles）。
 # grammar 绑定的 Class.forName 规则由 core:tree-sitter/consumer-rules.pro 提供。
 #
@@ -180,7 +180,7 @@
 -keep class com.itsaky.androidide.treesitter.** { *; }
 
 # 项目自有的 tree-sitter 适配层
--keep class com.wuxianggujun.tinaide.core.treesitter.** { *; }
+-keep class com.scto.mobileide.core.treesitter.** { *; }
 
 # ============================================================================
 # 15. JLatexMath（LaTeX 数学公式渲染）
@@ -200,9 +200,9 @@
 -dontwarn com.google.re2j.**
 
 # ============================================================================
-# 17. TinaFileProvider（显式 file_paths 资源）
+# 17. MobileFileProvider（显式 file_paths 资源）
 # ============================================================================
-# AndroidManifest.xml 使用 core:storage 中的 TinaFileProvider。
+# AndroidManifest.xml 使用 core:storage 中的 MobileFileProvider。
 # 该 Provider 显式绑定 R.xml.file_paths，并在生成 content:// URI 时不再依赖
 # PackageManager 返回 android.support.FILE_PROVIDER_PATHS meta-data。
 # keep 规则位于 core/storage/consumer-rules.pro，app 侧不重复维护。

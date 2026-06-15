@@ -33,7 +33,7 @@
 → 只展示插件模板
 → 创建插件项目
 → 点击运行：校验 + 打包 + 热安装
-→ 点击打包：生成 dist/<manifest.id>-<manifest.version>.tinaplug
+→ 点击打包：生成 dist/<manifest.id>-<manifest.version>.mobileplug
 → 设置 → 插件 → 从文件安装：再次预检
 ```
 
@@ -69,7 +69,7 @@
 
 - 标题显示“新建插件项目”。
 - 只展示 `ProjectBuildSystem.PLUGIN` 模板。
-- 默认优先选择 `plugin:tinaide.plugin.starters:config-basic`。
+- 默认优先选择 `plugin:mobileide.plugin.starters:config-basic`。
 - 没有插件模板时显示空状态并禁用下一步。
 
 边界：
@@ -96,7 +96,7 @@ CompileActionsHelper
 
 行为：
 
-- `BUILD`：校验并生成 `.tinaplug`。
+- `BUILD`：校验并生成 `.mobileplug`。
 - `RUN / REBUILD_RUN / TERMINAL`：校验、打包并调用 `PluginManager.install()` 热安装。
 - `DEBUG`：明确提示插件项目暂不支持调试。
 
@@ -110,7 +110,7 @@ CompileActionsHelper
 - 从文件安装流程继续使用插件安装前预检。
 - 应用内 FAQ 引导用户按诊断类别排查。
 
-### 3.5 `TinaIDE Plugin Starters` 必须升版本
+### 3.5 `MobileIDE Plugin Starters` 必须升版本
 
 决策：starter 插件内容变化时，必须提升 `manifest.json` 版本。
 
@@ -118,20 +118,20 @@ CompileActionsHelper
 
 本轮版本：
 
-- `tinaide.plugin.starters`：`1.0.0` → `1.0.1`
+- `mobileide.plugin.starters`：`1.0.0` → `1.0.1`
 
 ### 3.6 源模板和 Registry zip 必须同步
 
-决策：修改 `tools/plugin-starters/**` 后，必须重新生成 starter zip，并同步到 TinaIDE Registry 的 `sources/plugin-starters/**` 或对应发布目录。
+决策：修改 `tools/plugin-starters/**` 后，必须重新生成 starter zip，并同步到 MobileIDE Registry 的 `sources/plugin-starters/**` 或对应发布目录。
 
 原因：用户新建插件项目时拿到的是已安装插件里的 zip，不是 Android 仓库中的源目录。
 
 本轮同步的模板包：
 
-- `tina-config-plugin.zip`
-- `tina-script-command-plugin.zip`
-- `tina-script-plugin.zip`
-- `tina-lsp-plugin.zip`
+- `mobile-config-plugin.zip`
+- `mobile-script-command-plugin.zip`
+- `mobile-script-plugin.zip`
+- `mobile-lsp-plugin.zip`
 
 ---
 
@@ -149,12 +149,12 @@ CompileActionsHelper
 
 主要文件：
 
-- `app/src/main/java/com/wuxianggujun/tinaide/settings/SettingsActivity.kt`
-- `app/src/main/java/com/wuxianggujun/tinaide/ui/compose/screens/main/tutorial/TutorialScreen.kt`
-- `feature/wizard/src/main/java/com/wuxianggujun/tinaide/ui/wizard/NewProjectWizardActivity.kt`
-- `feature/wizard/src/main/java/com/wuxianggujun/tinaide/ui/wizard/NewProjectWizardSupport.kt`
-- `feature/wizard/src/main/java/com/wuxianggujun/tinaide/ui/wizard/NewProjectWizardScreen.kt`
-- `feature/wizard/src/main/java/com/wuxianggujun/tinaide/ui/wizard/NewProjectWizardViewModel.kt`
+- `app/src/main/java/com/scto/mobileide/settings/SettingsActivity.kt`
+- `app/src/main/java/com/scto/mobileide/ui/compose/screens/main/tutorial/TutorialScreen.kt`
+- `feature/wizard/src/main/java/com/scto/mobileide/ui/wizard/NewProjectWizardActivity.kt`
+- `feature/wizard/src/main/java/com/scto/mobileide/ui/wizard/NewProjectWizardSupport.kt`
+- `feature/wizard/src/main/java/com/scto/mobileide/ui/wizard/NewProjectWizardScreen.kt`
+- `feature/wizard/src/main/java/com/scto/mobileide/ui/wizard/NewProjectWizardViewModel.kt`
 
 ### 4.2 插件运行 / 打包链路
 
@@ -167,10 +167,10 @@ CompileActionsHelper
 
 主要文件：
 
-- `core/compile/src/main/java/com/wuxianggujun/tinaide/core/compile/PluginProjectActions.kt`
-- `core/compile/src/main/java/com/wuxianggujun/tinaide/core/compile/CompileProjectUseCase.kt`
-- `app/src/main/java/com/wuxianggujun/tinaide/plugindev/AndroidPluginProjectActions.kt`
-- `app/src/main/java/com/wuxianggujun/tinaide/ui/CompileActionsHelper.kt`
+- `core/compile/src/main/java/com/scto/mobileide/core/compile/PluginProjectActions.kt`
+- `core/compile/src/main/java/com/scto/mobileide/core/compile/CompileProjectUseCase.kt`
+- `app/src/main/java/com/scto/mobileide/plugindev/AndroidPluginProjectActions.kt`
+- `app/src/main/java/com/scto/mobileide/ui/CompileActionsHelper.kt`
 
 ### 4.3 应用内教程和 FAQ
 
@@ -178,15 +178,15 @@ CompileActionsHelper
 
 - `plugin-quick-start.md` 明确教程快捷入口会打开“新建插件项目”。
 - 新增用户版“快速排错 FAQ”。
-- FAQ 覆盖入口、模板缺失、热安装、`.tinaplug` 输出、从文件安装、菜单、资源、`networkHosts`。
+- FAQ 覆盖入口、模板缺失、热安装、`.mobileplug` 输出、从文件安装、菜单、资源、`networkHosts`。
 - 教程页文章顶部也补齐“创建插件项目 / 打开插件设置”快捷操作。
 
 主要文件：
 
 - `feature/help/src/main/assets/help/plugin-quick-start.md`
-- `feature/help/src/main/java/com/wuxianggujun/tinaide/core/help/HelpQuickActionSupport.kt`
-- `feature/help/src/main/java/com/wuxianggujun/tinaide/ui/compose/screens/help/HelpScreen.kt`
-- `app/src/main/java/com/wuxianggujun/tinaide/ui/compose/screens/main/tutorial/TutorialScreen.kt`
+- `feature/help/src/main/java/com/scto/mobileide/core/help/HelpQuickActionSupport.kt`
+- `feature/help/src/main/java/com/scto/mobileide/ui/compose/screens/help/HelpScreen.kt`
+- `app/src/main/java/com/scto/mobileide/ui/compose/screens/main/tutorial/TutorialScreen.kt`
 
 ### 4.4 开发者文档
 
@@ -226,8 +226,8 @@ CompileActionsHelper
 - `tools/plugin-starters/script-basic/README.md`
 - `tools/plugin-starters/script-basic/docs/permissions.md`
 - `tools/plugin-starters/lsp-basic/README.md`
-- `tools/plugin-starters/dist/tinaide.plugin.starters/templates/*.zip`
-- TinaIDE Registry 中的 `sources/plugin-starters/**`
+- `tools/plugin-starters/dist/mobileide.plugin.starters/templates/*.zip`
+- MobileIDE Registry 中的 `sources/plugin-starters/**`
 
 ---
 
@@ -248,12 +248,12 @@ CompileActionsHelper
 
 相关测试文件：
 
-- `feature/wizard/src/test/java/com/wuxianggujun/tinaide/ui/wizard/NewProjectWizardActivityIntentTest.kt`
-- `feature/wizard/src/test/java/com/wuxianggujun/tinaide/ui/wizard/NewProjectWizardSupportTest.kt`
-- `core/compile/src/test/java/com/wuxianggujun/tinaide/core/compile/CompileProjectUseCasePluginProjectTest.kt`
-- `app/src/test/java/com/wuxianggujun/tinaide/plugindev/AndroidPluginProjectActionsTest.kt`
-- `app/src/test/java/com/wuxianggujun/tinaide/ui/CompileActionsHelperTest.kt`
-- `feature/help/src/test/java/com/wuxianggujun/tinaide/core/help/HelpRepositoryTest.kt`
+- `feature/wizard/src/test/java/com/scto/mobileide/ui/wizard/NewProjectWizardActivityIntentTest.kt`
+- `feature/wizard/src/test/java/com/scto/mobileide/ui/wizard/NewProjectWizardSupportTest.kt`
+- `core/compile/src/test/java/com/scto/mobileide/core/compile/CompileProjectUseCasePluginProjectTest.kt`
+- `app/src/test/java/com/scto/mobileide/plugindev/AndroidPluginProjectActionsTest.kt`
+- `app/src/test/java/com/scto/mobileide/ui/CompileActionsHelperTest.kt`
+- `feature/help/src/test/java/com/scto/mobileide/core/help/HelpRepositoryTest.kt`
 
 ---
 
@@ -296,12 +296,12 @@ CompileActionsHelper
 必须同步检查：
 
 1. 源模板目录：`tools/plugin-starters/<template>/`
-2. 发布模板 zip：`tools/plugin-starters/dist/tinaide.plugin.starters/templates/*.zip` 或 Registry 对应目录
-3. starter 插件版本：Registry 中 `tinaide.plugin.starters` 的 `manifest.json`
+2. 发布模板 zip：`tools/plugin-starters/dist/mobileide.plugin.starters/templates/*.zip` 或 Registry 对应目录
+3. starter 插件版本：Registry 中 `mobileide.plugin.starters` 的 `manifest.json`
 4. 对应 README / permissions 文档
 5. `Plugin-Tutorial-Acceptance-Checklist.md` 中的模板验收项
 
-如果模板 zip 内容变化，通常需要提升 `tinaide.plugin.starters` 版本，避免同版本跳过覆盖安装。
+如果模板 zip 内容变化，通常需要提升 `mobileide.plugin.starters` 版本，避免同版本跳过覆盖安装。
 
 ### 7.3 修改插件运行链路时
 
@@ -354,4 +354,4 @@ CompileActionsHelper
 4. **P2：模板字段可视化说明**
    - 后续可把 `manifest.json` 常见字段做成轻量说明卡。
 5. **P2：脚本 API 示例矩阵**
-   - 按 `tina.editor`、`tina.commands`、`tina.workspace` 分组维护最小示例。
+   - 按 `mobile.editor`、`mobile.commands`、`mobile.workspace` 分组维护最小示例。

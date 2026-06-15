@@ -2,7 +2,7 @@
 
 ## 现象
 
-在 Android 9 / x86_64 模拟器上，TinaIDE 内部构建 CMake 项目时，CMake configure 阶段可能失败：
+在 Android 9 / x86_64 模拟器上，MobileIDE 内部构建 CMake 项目时，CMake configure 阶段可能失败：
 
 ```text
 The detected version of Ninja (This is /system/bin/linker64, the helper

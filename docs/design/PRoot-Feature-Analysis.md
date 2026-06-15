@@ -8,7 +8,7 @@
 ## 当前定位
 
 - PRoot 只提供可选 Linux shell、guest 命令执行和少量插件/调试扩展能力。
-- 默认编译与运行链路走 Android sysroot 与 native tina-toolchain，不依赖 PRoot。
+- 默认编译与运行链路走 Android sysroot 与 native mobile-toolchain，不依赖 PRoot。
 - Linux rootfs 安装统一走 :core:linux-distro 的官方 manifest 与 SelfHostedLinuxDistroRuntime。
 - 设置页和工作区安装页只暴露自研 Linux 发行版管理器，不再提供旧镜像源或旧 rootfs 导入入口。
 

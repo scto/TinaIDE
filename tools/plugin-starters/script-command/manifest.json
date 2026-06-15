@@ -3,7 +3,7 @@
   "name": "{{PROJECT_NAME}}",
   "version": "0.1.0",
   "type": "script",
-  "description": "Command-focused Lua plugin starter for TinaIDE.",
+  "description": "Command-focused Lua plugin starter for MobileIDE.",
   "author": {
     "name": "Your Name"
   },

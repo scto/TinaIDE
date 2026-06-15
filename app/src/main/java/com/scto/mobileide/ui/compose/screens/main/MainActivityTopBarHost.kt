@@ -1,0 +1,208 @@
+package com.scto.mobileide.ui.compose.screens.main
+
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.scto.mobileide.core.commands.HostCommandExecutor
+import com.scto.mobileide.ui.DebugViewModel
+import com.scto.mobileide.ui.MainActivityActionsDelegate
+import com.scto.mobileide.ui.MainActivityCompileDelegate
+import com.scto.mobileide.ui.MainActivityNavigationDelegate
+import com.scto.mobileide.ui.compose.components.DebugStatus
+import com.scto.mobileide.ui.compose.components.SwipeableDrawerState
+import com.scto.mobileide.ui.compose.state.DialogState
+import com.scto.mobileide.ui.compose.state.editor.EditorContainerState
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun MainActivityTopBarHost(
+    isCompiling: Boolean,
+    isDirty: Boolean,
+    isDebugActive: Boolean,
+    debugStatus: DebugStatus,
+    buildUiState: MainActivityBuildUiState,
+    drawerState: SwipeableDrawerState,
+    editorContainerState: EditorContainerState,
+    dialogState: DialogState,
+    compileDelegate: MainActivityCompileDelegate,
+    actionsDelegate: MainActivityActionsDelegate,
+    navigationDelegate: MainActivityNavigationDelegate,
+    hostCommandExecutor: HostCommandExecutor?,
+    debugViewModel: DebugViewModel,
+    showCommandPalette: Boolean,
+    onOpenCommandPalette: () -> Unit,
+    onDismissCommandPalette: () -> Unit,
+    callbacks: MainActivityScreenCallbacks,
+) {
+    val commandStore = rememberMainActivityCommandPreferenceStore()
+    val pinnedCommandIds by commandStore.pinnedCommandIdsFlow.collectAsStateWithLifecycle()
+    val recentCommandIds by commandStore.recentCommandIdsFlow.collectAsStateWithLifecycle()
+    val canPackageApk = resolveCanPackageApk(buildUiState)
+    val activeFile = editorContainerState.getActiveFileOrNull()
+    val isBasicLspNavigationAvailable = activeFile?.let(editorContainerState::supportsBasicLspNavigation) == true
+    val isAdvancedLspNavigationAvailable = activeFile?.let(editorContainerState::supportsAdvancedLspNavigation) == true
+    val isCallHierarchyIncomingAvailable = editorContainerState.supportsActiveCallHierarchyIncoming()
+    val isLspRefactorAvailable = activeFile?.let(editorContainerState::supportsLspRefactorActions) == true
+    val isHeaderSourceSwitchAvailable = activeFile?.let(editorContainerState::supportsHeaderSourceSwitch) == true
+    val canNavigateBack = editorContainerState.canNavigateBack()
+    val canNavigateForward = editorContainerState.canNavigateForward()
+    val canMoveTabToSecondaryPane = editorContainerState.canMoveActiveTabToSecondaryPane()
+    val canCopyTabToSecondaryPane = editorContainerState.canCopyActiveTabToSecondaryPane()
+
+    val topBarCallbacks = rememberMainActivityTopBarCallbacks(
+        drawerState = drawerState,
+        editorContainerState = editorContainerState,
+        dialogState = dialogState,
+        compileDelegate = compileDelegate,
+        actionsDelegate = actionsDelegate,
+        navigationDelegate = navigationDelegate,
+        screenCallbacks = callbacks,
+        onPackageApk = buildUiState::openApkPackageDialog,
+        onOpenCommandPalette = onOpenCommandPalette,
+    )
+    val commandPaletteCommands = rememberMainActivityCommands(
+        availability = MainActivityCommandAvailability(
+            hasActiveFile = activeFile != null,
+            isCompiling = isCompiling,
+            isDirty = isDirty,
+            canPackageApk = canPackageApk,
+            isBasicLspNavigationAvailable = isBasicLspNavigationAvailable,
+            isAdvancedLspNavigationAvailable = isAdvancedLspNavigationAvailable,
+            isCallHierarchyIncomingAvailable = isCallHierarchyIncomingAvailable,
+            isLspRefactorAvailable = isLspRefactorAvailable,
+            isHeaderSourceSwitchAvailable = isHeaderSourceSwitchAvailable,
+            canNavigateBack = canNavigateBack,
+            canNavigateForward = canNavigateForward,
+            isSplitEditorEnabled = editorContainerState.isSplitEditorEnabled,
+            splitEditorLayout = editorContainerState.splitEditorLayout,
+            canMoveTabToSecondaryPane = canMoveTabToSecondaryPane,
+            canCopyTabToSecondaryPane = canCopyTabToSecondaryPane,
+            currentBuildSystem = buildUiState.currentBuildSystem,
+        ),
+        activeFile = activeFile,
+        isActiveTabDirty = editorContainerState.isActiveTabDirty(),
+        callbacks = topBarCallbacks,
+        hostCommandExecutor = hostCommandExecutor,
+    )
+    val quickCommands = rememberMainActivityOverflowCommands(
+        commands = commandPaletteCommands,
+        pinnedCommandIds = pinnedCommandIds,
+    )
+    val executeCommand: (MainActivityCommand) -> Unit = remember(commandStore) {
+        { command ->
+            commandStore.recordExecuted(command.id)
+            command.execute()
+        }
+    }
+
+    MainActivityTopBar(
+        isCompiling = isCompiling,
+        isDirty = isDirty,
+        isDebugActive = isDebugActive,
+        debugStatus = debugStatus,
+        runConfigManager = buildUiState.runConfigManager,
+        onRunConfigManagerChange = { updated ->
+            buildUiState.updateRunConfigManager(updated)
+            callbacks.onPersistRunConfigManager(updated)
+        },
+        onEditConfig = buildUiState::startEditingConfig,
+        onShowRunConfigDialog = buildUiState::openRunConfigDialog,
+        callbacks = topBarCallbacks,
+        debugViewModel = debugViewModel,
+        quickCommands = quickCommands,
+        onExecuteCommand = executeCommand,
+    )
+
+    if (showCommandPalette) {
+        MainActivityCommandPalette(
+            commands = commandPaletteCommands,
+            pinnedCommandIds = pinnedCommandIds,
+            recentCommandIds = recentCommandIds,
+            onTogglePinned = { command -> commandStore.togglePinned(command.id) },
+            onExecuteCommand = executeCommand,
+            onDismissRequest = onDismissCommandPalette
+        )
+    }
+}
+
+@Composable
+private fun rememberMainActivityTopBarCallbacks(
+    drawerState: SwipeableDrawerState,
+    editorContainerState: EditorContainerState,
+    dialogState: DialogState,
+    compileDelegate: MainActivityCompileDelegate,
+    actionsDelegate: MainActivityActionsDelegate,
+    navigationDelegate: MainActivityNavigationDelegate,
+    screenCallbacks: MainActivityScreenCallbacks,
+    onPackageApk: () -> Unit,
+    onOpenCommandPalette: () -> Unit,
+): TopBarCallbacks = remember(
+    drawerState,
+    editorContainerState,
+    dialogState,
+    compileDelegate,
+    actionsDelegate,
+    navigationDelegate,
+    screenCallbacks,
+    onPackageApk,
+    onOpenCommandPalette,
+) {
+    TopBarCallbacks(
+        onOpenDrawer = { drawerState.open() },
+        onOpenCommandPalette = onOpenCommandPalette,
+        onBuild = { compileDelegate.onBuildProject() },
+        onCompile = { compileDelegate.onCompileProject() },
+        onRebuildAndRun = { compileDelegate.onRebuildAndRunProject() },
+        onCompileInTerminal = { compileDelegate.onCompileInTerminal() },
+        onDebug = { compileDelegate.onDebugProject() },
+        onSave = { actionsDelegate.saveCurrentFile(editorContainerState) },
+        onSaveAll = { actionsDelegate.saveAllFiles(editorContainerState) },
+        onFormatCode = { actionsDelegate.formatCode(editorContainerState) },
+        onNavigateBack = { editorContainerState.navigateBack() },
+        onNavigateForward = { editorContainerState.navigateForward() },
+        onPeekDefinition = { editorContainerState.requestActiveLspNavigation("peekDefinition") },
+        onGotoDefinition = { editorContainerState.requestActiveLspNavigation("definition") },
+        onFindReferences = { editorContainerState.requestActiveLspNavigation("references") },
+        onGotoTypeDefinition = { editorContainerState.requestActiveLspNavigation("typeDefinition") },
+        onGotoImplementation = { editorContainerState.requestActiveLspNavigation("implementation") },
+        onCallHierarchyIncoming = { editorContainerState.requestActiveLspNavigation("callHierarchyIncoming") },
+        onCodeActions = { editorContainerState.requestActiveLspCodeActions() },
+        onRenameSymbol = { editorContainerState.requestActiveLspRename() },
+        onSwitchHeaderSource = { editorContainerState.requestActiveLspNavigation("switchHeaderSource") },
+        onToggleSplitEditor = { editorContainerState.toggleSplitEditor() },
+        onSetSplitEditorLayout = { layout -> editorContainerState.updateSplitEditorLayout(layout) },
+        onMoveTabToSecondaryPane = { editorContainerState.moveActiveTabToSecondaryPane() },
+        onCopyTabToSecondaryPane = { editorContainerState.copyActiveTabToSecondaryPane() },
+        onGotoLine = {
+            when (editorContainerState.getActiveEditableEditorCommandAvailability()) {
+                EditorContainerState.ActiveEditorCommandResult.SUCCESS -> {
+                    dialogState.openGotoLineDialog()
+                }
+
+                EditorContainerState.ActiveEditorCommandResult.NO_OPEN_FILE -> {
+                    screenCallbacks.onNoOpenFile()
+                }
+
+                EditorContainerState.ActiveEditorCommandResult.UNSUPPORTED_EDITOR -> {
+                    screenCallbacks.onUnsupportedEditor()
+                }
+            }
+        },
+        onOpenExplorer = { drawerState.open() },
+        onOpenGlobalSearch = { navigationDelegate.openGlobalSearch() },
+        onOpenBookmarks = screenCallbacks.onOpenBookmarks,
+        onToggleBookmark = { actionsDelegate.toggleBookmark(editorContainerState) },
+        onPrevBookmark = { actionsDelegate.goToPreviousBookmark(editorContainerState) },
+        onNextBookmark = { actionsDelegate.goToNextBookmark(editorContainerState) },
+        onOpenTerminal = screenCallbacks.onOpenTerminal,
+        onOpenSettings = screenCallbacks.onOpenSettings,
+        onExitWorkspace = { dialogState.openCloseProjectDialog() },
+        onPackageApk = onPackageApk,
+        onCmakeOpenArtifactsDir = { compileDelegate.onCmakeOpenArtifactsDir() },
+        onCmakeReconfigure = { compileDelegate.onCmakeReconfigure() },
+        onCmakeCleanAndReconfigure = { compileDelegate.onCmakeCleanAndReconfigure() },
+        onCmakeClearBuildDir = { compileDelegate.onCmakeClearBuildDir() },
+    )
+}

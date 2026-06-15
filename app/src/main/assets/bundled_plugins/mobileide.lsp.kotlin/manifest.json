@@ -1,0 +1,58 @@
+{
+  "id": "mobileide.lsp.kotlin",
+  "name": "Kotlin Language Support",
+  "version": "1.0.0",
+  "type": "lsp",
+  "author": {
+    "name": "MobileIDE"
+  },
+  "description": "Provides Kotlin and Jetpack Compose language intelligence utilizing kotlin-language-server and OpenJDK 17.",
+  "contributions": {
+    "languageServers": [
+      {
+        "id": "kotlin-language-server",
+        "name": "Kotlin Language Server",
+        "languages": ["kotlin"],
+        "fileExtensions": ["kt", "kts"],
+        "runtime": {
+          "type": "jvm",
+          "minVersion": "17"
+        },
+        "server": {
+          "type": "stdio",
+          "command": "kotlin-language-server"
+        }
+      }
+    ],
+    "toolchains": [
+      {
+        "id": "openjdk-17",
+        "name": "OpenJDK 17",
+        "type": "system",
+        "packagesByManager": {
+          "apk": ["openjdk17"],
+          "apt": ["openjdk-17-jdk-headless"]
+        },
+        "verifyCommand": "java -version",
+        "verifyPattern": "17\\."
+      },
+      {
+        "id": "nodejs",
+        "name": "Node.js & npm",
+        "type": "system",
+        "packagesByManager": {
+          "apk": ["nodejs", "npm"],
+          "apt": ["nodejs", "npm"]
+        },
+        "verifyCommand": "npm --version"
+      },
+      {
+        "id": "kotlin-language-server",
+        "name": "Kotlin Language Server NPM Package",
+        "type": "npm",
+        "packages": ["kotlin-language-server"],
+        "verifyCommand": "kotlin-language-server --version"
+      }
+    ]
+  }
+}

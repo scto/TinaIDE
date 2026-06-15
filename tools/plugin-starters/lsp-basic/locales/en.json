@@ -1,6 +1,6 @@
 {
   "name": "{{PROJECT_NAME}} Language Support",
-  "description": "Starter LSP plugin for TinaIDE.",
+  "description": "Starter LSP plugin for MobileIDE.",
   "contributions": {
     "languageServers": {
       "{{PROJECT_NAME}}-server": {

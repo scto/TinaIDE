@@ -1,5 +1,5 @@
 /*
- * CMake Parser Module for TinaIDE
+ * CMake Parser Module for MobileIDE
  * 用于解析 CMakeLists.txt 文件，支持语法高亮和代码补全
  *
  * 参考实现: https://github.com/rust-utility/cmake-parser
@@ -7,11 +7,11 @@
  */
 
 plugins {
-    id("tina.android.library")
+    id("mobile.android.library")
 }
 
 android {
-    namespace = "com.wuxianggujun.tinaide.cmake"
+    namespace = "com.scto.mobileide.cmake"
 }
 
 dependencies {

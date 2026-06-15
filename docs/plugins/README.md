@@ -65,7 +65,7 @@
 
 ### 2. 选择模板并创建工程
 
-`TinaIDE Plugin Starters` 需要先从插件市场 / Registry 安装并启用。当前提供：
+`MobileIDE Plugin Starters` 需要先从插件市场 / Registry 安装并启用。当前提供：
 
 - `config-basic`：配置型插件，适合主题、片段、菜单等声明式扩展
 - `script-command`：脚本命令插件，适合先验证菜单命令闭环
@@ -82,7 +82,7 @@
 ```json
 {
   "id": "com.example.my-plugin",
-  "name": "My TinaIDE Plugin",
+  "name": "My MobileIDE Plugin",
   "version": "1.0.0",
   "type": "config",
   "configuration": {
@@ -120,7 +120,7 @@
 - `type = "string"` 且声明 `enum`：详情页渲染为单选项。
 
 配置 key 必须匹配 `^[A-Za-z0-9][A-Za-z0-9._-]*$`。宿主会按插件 ID 隔离保存配置；
-脚本 / hybrid 插件可通过 `tina.config.get/set/reset` 读取和更新自己声明过的配置项，并可监听
+脚本 / hybrid 插件可通过 `mobile.config.get/set/reset` 读取和更新自己声明过的配置项，并可监听
 `config.changed` 响应自身配置变化。
 
 ### 4. 运行热安装
@@ -128,10 +128,10 @@
 在插件项目中点击 `运行`：
 
 - 校验 `manifest.json` 和资源路径
-- 打包生成 `dist/<id>-<version>.tinaplug`
-- 热安装到当前 TinaIDE
+- 打包生成 `dist/<id>-<version>.mobileplug`
+- 热安装到当前 MobileIDE
 
-点击 `构建` 时只生成 `.tinaplug`，不执行热安装。
+点击 `构建` 时只生成 `.mobileplug`，不执行热安装。
 
 ### 5. 手工兜底结构
 
@@ -252,7 +252,7 @@ my-plugin/
 宿主启动时会自动将 assets 内的“内置插件”安装到 `filesDir/plugins`，支持两种放置方式（二选一）：
 
 - 目录形式：`app/src/main/assets/bundled_plugins/<pluginId>/manifest.json`
-- 压缩包形式：`app/src/main/assets/bundled_plugins/<any>.tinaplug`（zip 内容根目录必须包含 `manifest.json`）
+- 压缩包形式：`app/src/main/assets/bundled_plugins/<any>.mobileplug`（zip 内容根目录必须包含 `manifest.json`）
 
 也支持使用 `app/src/main/assets/plugins` 作为目录别名（结构同上）。
 
@@ -289,7 +289,7 @@ manifest 键：
 当前支持绑定两类命令：
 
 - 宿主内置命令
-- 当前插件通过 `tina.commands.register()` 注册的命令
+- 当前插件通过 `mobile.commands.register()` 注册的命令
 
 常见宿主命令用法：
 
@@ -350,13 +350,13 @@ manifest 键：
 
 ## 插件包格式
 
-- 文件扩展名：`.tinaplug`（本质是 `.zip`）
+- 文件扩展名：`.mobileplug`（本质是 `.zip`）
 - 根目录必须包含：`manifest.json`
 
 目录示例：
 
 ```
-my-plugin.tinaplug
+my-plugin.mobileplug
 ├── manifest.json
 └── themes/
     └── my-theme.json
@@ -382,7 +382,7 @@ my-plugin.tinaplug
 
 颜色值支持：`#RRGGBB` / `#AARRGGBB` / `0xAARRGGBB`。
 
-补充：`colors` 也支持 TinaEditor 的“分组 key”（更易扩展，推荐新主题优先使用），例如：
+补充：`colors` 也支持 MobileEditor 的“分组 key”（更易扩展，推荐新主题优先使用），例如：
 
 - `editor.background` / `editor.foreground` / `editor.selection` / `editor.cursor` / `editor.cursorLine`
 - `editor.lineNumber` / `editor.lineNumberActive`
@@ -407,7 +407,7 @@ my-plugin.tinaplug
 
 颜色值支持：`#RRGGBB` / `#AARRGGBB` / `0xAARRGGBB`。
 
-也支持 TinaEditor 的“分组 key”（推荐）：见上方示例列表。
+也支持 MobileEditor 的“分组 key”（推荐）：见上方示例列表。
 
 ### 分类参考（常用项）
 
@@ -778,24 +778,24 @@ my-plugin.tinaplug
 
 ## 当前内置插件（assets）
 
-公开发布事实源已经迁移到 TinaIDE Registry：
+公开发布事实源已经迁移到 MobileIDE Registry：
 
 ```text
-https://github.com/wuxianggujun/TinaIDE-Registry
+https://github.com/scto/MobileIDE-Registry
 ```
 
 Registry 中的 `sources/plugins/**`、`plugins/index.v2.json` 和详情文件负责当前客户端市场分发；
 v1 兼容索引默认不再生成，只服务旧客户端。主仓库当前随 APK 分发的内置插件位于
 `app/src/main/assets/bundled_plugins/`，用于首次启动的兜底自动安装：
 
-- `tinaide.project.templates`：基础项目模板
-- `tinaide.cpp.snippets`：内置 C/C++ 代码片段
+- `mobileide.project.templates`：基础项目模板
+- `mobileide.cpp.snippets`：内置 C/C++ 代码片段
 
 应用启动时会自动把 `assets/bundled_plugins/*` 安装到 `filesDir/plugins/`（若已安装同版本则跳过）。
 
 更新内置插件的方式：
 
-- 市场发布：在 `TinaIDE-Registry` 更新 `sources/plugins/**` 或包文件，运行
+- 市场发布：在 `MobileIDE-Registry` 更新 `sources/plugins/**` 或包文件，运行
   `scripts/build-registry.ps1`，提交生成的 v2 轻量索引和详情文件；如仍支持旧客户端，
   显式运行 `scripts/build-registry.ps1 -IncludeLegacyV1` 后再提交 v1 兼容索引。
 - 修改 `app/src/main/assets/bundled_plugins/<pluginId>/manifest.json` 的 `version`（例如 `1.0.1`）

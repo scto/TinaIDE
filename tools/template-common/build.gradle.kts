@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.tinaide.template.common"
+    namespace = "com.mobileide.template.common"
     compileSdk = 36
 
     defaultConfig {

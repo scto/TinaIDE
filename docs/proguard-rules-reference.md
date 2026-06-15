@@ -1,6 +1,6 @@
-# TinaIDE ProGuard/R8 混淆规则参考文档
+# MobileIDE ProGuard/R8 混淆规则参考文档
 
-> 最后更新：2026-04-30 | 维护者：TinaIDE Team
+> 最后更新：2026-04-30 | 维护者：MobileIDE Team
 
 ## 1. 概述
 
@@ -37,7 +37,7 @@ R8 对代码执行三项操作：
 ┌─────────────────────┐
 │  各模块 consumer-    │ ← 由 convention plugin 自动注册：
 │  rules.pro           │   consumerProguardFiles("consumer-rules.pro")
-└─────────┬───────────┘   位于 build-logic/TinaAndroidLibraryPlugin.kt:23
+└─────────┬───────────┘   位于 build-logic/MobileAndroidLibraryPlugin.kt:23
           │
           ▼
 ┌─────────────────────┐
@@ -46,11 +46,11 @@ R8 对代码执行三项操作：
 └─────────────────────┘
 ```
 
-**Convention Plugin** (`TinaAndroidLibraryPlugin`) 在每个 library 模块自动声明 `consumerProguardFiles("consumer-rules.pro")`，因此只需在模块根目录放置 `consumer-rules.pro` 即可自动合并到最终规则。
+**Convention Plugin** (`MobileAndroidLibraryPlugin`) 在每个 library 模块自动声明 `consumerProguardFiles("consumer-rules.pro")`，因此只需在模块根目录放置 `consumer-rules.pro` 即可自动合并到最终规则。
 
 **原则**：哪个模块引入依赖，就在那个模块的 `consumer-rules.pro` 写对应规则。
 
-> **Composite Build 注意事项**：通过 `includeBuild()` 引入的外部项目（如 `external/tina-android-tree-sitter`）不受主项目 Convention Plugin 管理。其 `consumer-rules.pro` **必须在自身的 `build.gradle.kts` 中显式声明** `consumerProguardFiles("consumer-rules.pro")`，否则规则文件虽存在但不会被 AGP 合并到最终 R8 配置中。建议在 `app/proguard-rules.pro` 为这类模块添加安全网规则。
+> **Composite Build 注意事项**：通过 `includeBuild()` 引入的外部项目（如 `external/mobile-android-tree-sitter`）不受主项目 Convention Plugin 管理。其 `consumer-rules.pro` **必须在自身的 `build.gradle.kts` 中显式声明** `consumerProguardFiles("consumer-rules.pro")`，否则规则文件虽存在但不会被 AGP 合并到最终 R8 配置中。建议在 `app/proguard-rules.pro` 为这类模块添加安全网规则。
 
 ---
 
@@ -85,7 +85,7 @@ R8 对代码执行三项操作：
 
 | 模块 | 有效规则 | 保护对象 |
 |------|----------|----------|
-| `external/tina-android-tree-sitter` | 完整的 JNI 字段/方法/工厂类保留 | TSNode/TSParser/TSTree 等 JNI 字段名 |
+| `external/mobile-android-tree-sitter` | 完整的 JNI 字段/方法/工厂类保留 | TSNode/TSParser/TSTree 等 JNI 字段名 |
 | `external/xcrash` | `NativeHandler` native 方法 + 回调 | JNI 崩溃回调 |
 | `external/termux-terminal` | 空（上游模板） | — |
 
@@ -251,7 +251,7 @@ rg -n "com.example.library|关键反射模型" app/build/outputs/mapping/arm64Re
 
 > 对 apksig 这类“运行时注解 + 字段反射”库，必须额外确认 `usage.txt` 中没有删除 `com.android.apksig.internal.asn1.**`、`@Asn1Class` 模型类或 `@Asn1Field` 字段；仅看到 `mapping.txt` 中类还存在并不代表字段注解链完整。
 
-> 对本项目文件分享入口，使用 `core:storage` 的 `TinaFileProvider` 统一生成 `content://` URI。它显式绑定 `R.xml.file_paths`，并在生成 URI 时不依赖 PackageManager 返回 `android.support.FILE_PROVIDER_PATHS` meta-data；新增/调整 Provider 时必须同步检查 `consumer-rules.pro` 与 Release APK Manifest。
+> 对本项目文件分享入口，使用 `core:storage` 的 `MobileFileProvider` 统一生成 `content://` URI。它显式绑定 `R.xml.file_paths`，并在生成 URI 时不依赖 PackageManager 返回 `android.support.FILE_PROVIDER_PATHS` meta-data；新增/调整 Provider 时必须同步检查 `consumer-rules.pro` 与 Release APK Manifest。
 
 ---
 
@@ -261,13 +261,13 @@ rg -n "com.example.library|关键反射模型" app/build/outputs/mapping/arm64Re
 |------|------|------|------|
 | 2026-03-07 | `ClassCastException` in LspClientSession.connect | lsp4j 响应模型类（`InitializeResult`、`ServerCapabilities` 等）被 R8 删除。`-keepclassmembers` 只保留字段名不阻止类删除；仅通过 Gson 反射实例化的类被 R8 判定为死代码 | `core:lsp/consumer-rules.pro` 从 `-keepclassmembers` 改为 `-keep class org.eclipse.lsp4j.** { <fields>; }` 阻止类删除 |
 | 2026-03-07 | `ClassNotFoundException: MessageBufferU` | msgpack `MessageBuffer.<clinit>` 通过 `Class.forName()` 加载 `MessageBufferU`，R8 将其当死代码删除 | `core:network/consumer-rules.pro` 添加 `-keep class org.msgpack.core.buffer.** { *; }` |
-| 2026-03-07 | Tree-sitter `TSParser$Native.newParser()` JNI 解析失败 | Tree-sitter JNI 字段名被混淆 | 添加 `external/tina-android-tree-sitter/consumer-rules.pro`（完整 JNI 规则）|
+| 2026-03-07 | Tree-sitter `TSParser$Native.newParser()` JNI 解析失败 | Tree-sitter JNI 字段名被混淆 | 添加 `external/mobile-android-tree-sitter/consumer-rules.pro`（完整 JNI 规则）|
 | 2026-03-24 | `R8: Missing class com.google.re2j.Matcher/Pattern` | Jsoup 1.22.1 引用了可选的 `re2j` 正则实现；Android app 未打入该依赖，release 混淆阶段触发缺失类检查 | `app/proguard-rules.pro` 添加 `-dontwarn com.google.re2j.**` |
 | 2026-03-07 | `UnsatisfiedLinkError: TSParser$Native.newParser()` native library 未加载 | external 模块 `build.gradle.kts` 缺少 `consumerProguardFiles` 声明，consumer-rules.pro 从未被 AGP 合并；R8 将 `TreeSitter` 类（含 `System.loadLibrary` 调用）标记为 `REMOVED`，native library 永远不会被加载 | 1) 在 `external/.../build.gradle.kts` 添加 `consumerProguardFiles("consumer-rules.pro")`；2) 在 `app/proguard-rules.pro` 添加安全网 `-keep class com.itsaky.androidide.treesitter.** { *; }` |
 | 2026-04-19 | 预防性补齐：`core:apk-builder` 引入 BouncyCastle 后 `consumer-rules.pro` 仍为空 | 新模块 `core:apk-builder`（2026-04 commit `8837f2d9b` 起活跃）通过 `JcaX509v3CertificateBuilder` / `JcaContentSignerBuilder("SHA256withRSA")` 生成/签名 p12 keystore。BC 在 `build(privateKey)` 内部按算法字符串 SPI/反射加载实现类，release 下易出 `NoSuchAlgorithmException` | 在 `core:apk-builder/consumer-rules.pro` 精确 keep BC 的 `jcajce/jce/cert/operator` 子包 + `-dontwarn javax.naming.**`；ARSCLib 仅保留 `-dontwarn` 安全网 |
 | 2026-04-30 | Release 打包 APK 签名失败：`SubjectPublicKeyInfo is not annotated with Asn1Class` | `apksig` 的 `Asn1BerParser` 通过运行时注解和反射解析 `SubjectPublicKeyInfo` / `RSAPublicKey` 等内部模型；R8 移除类级 `@Asn1Class` 注解后，签名阶段无法识别公钥模型 | 第一版规则保留了运行时注解属性、`@Asn1Class` 模型类无参构造和字段，但后续发现仍不足以保护完整 ASN.1 字段注解链；见下一条 |
 | 2026-04-30 | Release 包内再次打包 APK 报 `NullPointerException`：反混淆后为 `Asn1BerParser.lambda$parseSequence$0` / `Collections.sort` | 第一版 apksig 规则范围太窄，只保留模型类构造和字段，没有强保留 `com.android.apksig.internal.asn1.**` 解析器/编码器和 `@Asn1Field` 字段注解反射链；R8 局部优化后排序读取到空注解 | 将 `core:apk-builder/consumer-rules.pro` 升级为完整 ASN.1 规则：保留 `RuntimeVisibleAnnotations` / `AnnotationDefault` / `Signature` / 内部类属性，强保留 `com.android.apksig.internal.asn1.** { *; }`、`@Asn1Class` 模型全部成员，并用 `@Asn1Field <fields>` 兜底 |
-| 2026-04-30 | APK Builder 打包成功后点击“安装”失败：Release 日志显示 `Missing android.support.FILE_PROVIDER_PATHS meta-data`，即使最终 APK Manifest 中存在该 meta-data，设备侧 PackageManager 仍可能返回不可加载状态 | 单纯依赖 AndroidX `FileProvider.getUriForFile()` 会在生成 URI 阶段强依赖 PackageManager 的 `FILE_PROVIDER_PATHS` meta-data；一旦设备侧读取失败，安装入口直接失败 | 在 `core:storage` 引入 `TinaFileProvider`：Manifest 指向该 Provider，Provider 构造显式绑定 `R.xml.file_paths`；`ExternalFileIntents` 手工按同一份路径规则生成 `content://` URI，不再依赖 PackageManager meta-data；`core/storage/consumer-rules.pro` 保留 Provider 类和构造路径 |
+| 2026-04-30 | APK Builder 打包成功后点击“安装”失败：Release 日志显示 `Missing android.support.FILE_PROVIDER_PATHS meta-data`，即使最终 APK Manifest 中存在该 meta-data，设备侧 PackageManager 仍可能返回不可加载状态 | 单纯依赖 AndroidX `FileProvider.getUriForFile()` 会在生成 URI 阶段强依赖 PackageManager 的 `FILE_PROVIDER_PATHS` meta-data；一旦设备侧读取失败，安装入口直接失败 | 在 `core:storage` 引入 `MobileFileProvider`：Manifest 指向该 Provider，Provider 构造显式绑定 `R.xml.file_paths`；`ExternalFileIntents` 手工按同一份路径规则生成 `content://` URI，不再依赖 PackageManager meta-data；`core/storage/consumer-rules.pro` 保留 Provider 类和构造路径 |
 
 ---
 

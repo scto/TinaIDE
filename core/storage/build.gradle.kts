@@ -1,11 +1,11 @@
 plugins {
-    id("tina.android.library")
+    id("mobile.android.library")
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
 }
 
 android {
-    namespace = "com.wuxianggujun.tinaide.core.storage"
+    namespace = "com.scto.mobileide.core.storage"
     buildFeatures {
         compose = true
     }

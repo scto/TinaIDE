@@ -1,6 +1,6 @@
 # Clang-Format 配置文件
 
-此目录包含 TinaIDE 内置的 clang-format 格式化风格配置文件。
+此目录包含 MobileIDE 内置的 clang-format 格式化风格配置文件。
 
 ## 可用风格
 
@@ -18,7 +18,7 @@
 
 ### 1. 使用内置风格
 
-在 TinaIDE 设置中选择默认格式化风格，当项目中没有 `.clang-format` 文件时，将使用所选风格进行格式化。
+在 MobileIDE 设置中选择默认格式化风格，当项目中没有 `.clang-format` 文件时，将使用所选风格进行格式化。
 
 ### 2. 自定义项目风格
 

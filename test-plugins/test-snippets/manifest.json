@@ -1,10 +1,10 @@
 {
-  "id": "com.tinaide.test.snippets",
+  "id": "com.mobileide.test.snippets",
   "name": "Test Code Snippets",
   "version": "1.0.1",
   "description": "A test code snippets plugin with common programming patterns",
   "author": {
-    "name": "TinaIDE Test"
+    "name": "MobileIDE Test"
   },
   "type": "config",
   "minAppVersion": "1.0.0",

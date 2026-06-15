@@ -1,8 +1,8 @@
 # LSP 概述
 
-LSP（Language Server Protocol）是 TinaIDE 当前代码智能能力的核心基础。对 C / C++ 开发来说，它决定了补全、诊断、跳转和很多“像 IDE 一样”的体验。
+LSP（Language Server Protocol）是 MobileIDE 当前代码智能能力的核心基础。对 C / C++ 开发来说，它决定了补全、诊断、跳转和很多“像 IDE 一样”的体验。
 
-## LSP 在 TinaIDE 里负责什么
+## LSP 在 MobileIDE 里负责什么
 
 基于当前实现，语言服务器相关能力主要包括：
 
@@ -83,7 +83,7 @@ clangd 想正确理解工程，必须知道真实编译参数。
 
 ## 推荐理解方式
 
-你可以把 TinaIDE 里的 LSP 理解为：
+你可以把 MobileIDE 里的 LSP 理解为：
 
 ```text
 编辑器输入
@@ -114,7 +114,7 @@ clangd 想正确理解工程，必须知道真实编译参数。
 
 ### “LSP 只是补全”
 
-不对。当前 TinaIDE 里的 LSP 还同时承担诊断、跳转、引用、重命名、签名帮助等多项能力。
+不对。当前 MobileIDE 里的 LSP 还同时承担诊断、跳转、引用、重命名、签名帮助等多项能力。
 
 ## 下一步
 

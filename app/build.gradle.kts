@@ -1,4 +1,4 @@
-import com.wuxianggujun.tinaide.buildlogic.TinaAppAbiAggregationExtension
+import com.scto.mobileide.buildlogic.MobileAppAbiAggregationExtension
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -8,12 +8,12 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
     id("kotlin-parcelize")
-    id("tina.android.app.versioning")
-    id("tina.android.app.abi-aggregation")
-    id("tina.android.app.guardrails")
-    id("tina.android.app.toolchain.assets")
-    id("tina.android.app.treesitter")
-    id("tina.android.app.mapping")
+    id("mobile.android.app.versioning")
+    id("mobile.android.app.abi-aggregation")
+    id("mobile.android.app.guardrails")
+    id("mobile.android.app.toolchain.assets")
+    id("mobile.android.app.treesitter")
+    id("mobile.android.app.mapping")
 }
 
 // Load release signing config from keystore.properties if present
@@ -22,13 +22,13 @@ val keystoreProps = Properties()
 if (keystorePropsFile.exists()) {
     keystoreProps.load(keystorePropsFile.inputStream())
 }
-// `appVersionCode` / `appVersionName` 由 `tina.android.app.versioning` 插件
+// `appVersionCode` / `appVersionName` 由 `mobile.android.app.versioning` 插件
 // 写入 Android defaultConfig；版本相关消费方通过插件扩展访问。
 val abiAggregation =
-    extensions.getByType(TinaAppAbiAggregationExtension::class.java)
+    extensions.getByType(MobileAppAbiAggregationExtension::class.java)
 val localDevAbi = abiAggregation.localDevAbi
 val buildAllAbiRequested = abiAggregation.buildAllAbiRequested
-val buildProotFromSource = providers.gradleProperty("tina.buildProotFromSource")
+val buildProotFromSource = providers.gradleProperty("mobile.buildProotFromSource")
     .map { value ->
         value.equals("true", ignoreCase = true) ||
             value == "1" ||
@@ -36,15 +36,15 @@ val buildProotFromSource = providers.gradleProperty("tina.buildProotFromSource")
             value.equals("on", ignoreCase = true)
     }
     .getOrElse(true)
-// `tina.releaseMapping.enabled` / `tina.releaseMapping.serverUrl` 由
-// `tina.android.app.mapping` 插件消费（见 build-logic/convention）。
+// `mobile.releaseMapping.enabled` / `mobile.releaseMapping.serverUrl` 由
+// `mobile.android.app.mapping` 插件消费（见 build-logic/convention）。
 
 android {
-    namespace = "com.wuxianggujun.tinaide"
+    namespace = "com.scto.mobileide"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.wuxianggujun.tinaide"
+        applicationId = "com.scto.mobileide"
         minSdk = 28
         targetSdk = 36
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -66,7 +66,7 @@ android {
                 cppFlags += listOf("-std=c++17", "-fexceptions", "-frtti")
                 arguments += listOf(
                     "-DANDROID_STL=c++_shared",
-                    "-DTINA_BUILD_PROOT_FROM_SOURCE=${if (buildProotFromSource) "ON" else "OFF"}"
+                    "-DMOBILE_BUILD_PROOT_FROM_SOURCE=${if (buildProotFromSource) "ON" else "OFF"}"
                 )
                 // 注意：当启用 ABI splits 时，不要在这里设置 abiFilters，否则会冲突
                 // Gradle 会根据 splits.abi 配置自动构建对应的 ABI
@@ -265,17 +265,17 @@ androidComponents {
 // - sysroot: app/src/arm64/assets/android-sysroot/、app/src/x86_64/assets/android-sysroot/
 // - proot:   app/src/<abiFlavor>/assets/proot/<abi>/（debug 的 rootfs.tar.gz 在 app/src/<abiFlavor>Debug/assets/）
 
-// 本地默认只启用一个 ABI 变体（默认 arm64，可用 -Ptina.devAbi=x86_64 切换）。
-// 显式运行 assembleReleaseAllAbi / assembleDebugAllAbi，或传 -Ptina.allAbi=true 时恢复全部 ABI。
-// ABI 聚合任务与 CMake native 挂接已由 `tina.android.app.abi-aggregation`
+// 本地默认只启用一个 ABI 变体（默认 arm64，可用 -Pmobile.devAbi=x86_64 切换）。
+// 显式运行 assembleReleaseAllAbi / assembleDebugAllAbi，或传 -Pmobile.allAbi=true 时恢复全部 ABI。
+// ABI 聚合任务与 CMake native 挂接已由 `mobile.android.app.abi-aggregation`
 // 插件统一注册（见 build-logic/convention）。
 
-// `verifyTinaToolchainAssets` 任务与相关挂接逻辑已由
-// `tina.android.app.toolchain.assets` 插件注册（见 build-logic/convention）。
+// `verifyMobileToolchainAssets` 任务与相关挂接逻辑已由
+// `mobile.android.app.toolchain.assets` 插件注册（见 build-logic/convention）。
 
 // Tree-sitter 查询同步（syncTreeSitterQueries）、语言注册表生成
 // （generateTreeSitterLanguageRegistry）与 main 源集注入均由
-// `tina.android.app.treesitter` 插件提供（见 build-logic/convention）。
+// `mobile.android.app.treesitter` 插件提供（见 build-logic/convention）。
 
 dependencies {
     implementation(libs.androidx.core.ktx)
@@ -429,11 +429,11 @@ kotlin {
 }
 
 // `backupMappingFiles` / `uploadMappingFiles` 两个任务及其 release
-// `finalizedBy` 挂接逻辑已由 `tina.android.app.mapping` 插件统一注册
+// `finalizedBy` 挂接逻辑已由 `mobile.android.app.mapping` 插件统一注册
 // （见 build-logic/convention）。可通过以下 gradle 属性控制：
-// - `tina.releaseMapping.enabled`（默认 true）
-// - `tina.releaseMapping.backupEnabled`（默认 true）
-// - `tina.releaseMapping.uploadEnabled`（默认 false）
-// - `tina.releaseMapping.serverUrl`（显式启用上传时使用）
+// - `mobile.releaseMapping.enabled`（默认 true）
+// - `mobile.releaseMapping.backupEnabled`（默认 true）
+// - `mobile.releaseMapping.uploadEnabled`（默认 false）
+// - `mobile.releaseMapping.serverUrl`（显式启用上传时使用）
 // `checkNoAndroidUtilLog` 守卫任务与 `preBuild` 挂接已由
-// `tina.android.app.guardrails` 插件统一注册（见 build-logic/convention）。
+// `mobile.android.app.guardrails` 插件统一注册（见 build-logic/convention）。

@@ -1,0 +1,25 @@
+{
+  "id": "mobileide.cpp.snippets",
+  "name": "MobileIDE Built-in C/C++ Snippets",
+  "version": "1.0.1",
+  "apiVersion": 1,
+  "description": "Offline C and C++ code snippets for MobileIDE.",
+  "type": "config",
+  "author": {
+    "name": "MobileIDE"
+  },
+  "locales": {
+    "default": "en",
+    "files": {
+      "en": "locales/en.json",
+      "zh-CN": "locales/zh-CN.json",
+      "zh": "locales/zh-CN.json"
+    }
+  },
+  "contributions": {
+    "snippets": [
+      "snippets/cpp.json",
+      "snippets/c.json"
+    ]
+  }
+}

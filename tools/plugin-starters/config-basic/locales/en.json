@@ -1,6 +1,6 @@
 {
   "name": "{{PROJECT_NAME}}",
-  "description": "Starter config plugin for TinaIDE.",
+  "description": "Starter config plugin for MobileIDE.",
   "contributions": {
     "commands": {
       "editor.format": {

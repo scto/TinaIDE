@@ -13,7 +13,7 @@ plugins {
 }
 
 // 外部依赖模块不参与 ktlint 检查
-val externalModulePrefixes = listOf(":termux-terminal:", ":tina-exec:", ":xcrash", ":tools:")
+val externalModulePrefixes = listOf(":termux-terminal:", ":mobile-exec:", ":xcrash", ":tools:")
 
 subprojects {
     val isExternal = externalModulePrefixes.any { prefix -> path.startsWith(prefix) || path == prefix.trimEnd(':') }
@@ -67,19 +67,19 @@ tasks.register("buildApkTemplates") {
 }
 
 tasks.register<Zip>("packageTerminalApkExportPlugin") {
-    description = "Package the terminal APK export plugin as a .tinaplug archive"
+    description = "Package the terminal APK export plugin as a .mobileplug archive"
     group = "build"
 
     dependsOn(":tools:template-terminal:assembleRelease")
 
-    from("plugins/tinaide.apk-export.terminal")
+    from("plugins/mobileide.apk-export.terminal")
     from(file("tools/template-terminal/build/outputs/apk/release/template-terminal-release-unsigned.apk")) {
         into("templates")
         rename { "template-terminal.apk" }
     }
 
     destinationDirectory.set(layout.buildDirectory.dir("distributions"))
-    archiveFileName.set("tinaide.apk-export.terminal.tinaplug")
+    archiveFileName.set("mobileide.apk-export.terminal.mobileplug")
 }
 
 tasks.register("checkApkTemplatesSync") {

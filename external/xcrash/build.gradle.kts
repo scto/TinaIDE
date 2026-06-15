@@ -13,12 +13,12 @@ fun Project.parseBooleanGradleProperty(name: String, default: Boolean): Boolean 
 
 val requestedTaskNames = gradle.startParameter.taskNames
 val devAbiMapping = mapOf("arm64" to "arm64-v8a", "x86_64" to "x86_64")
-val localDevAbi = providers.gradleProperty("tina.devAbi").orNull?.trim().orEmpty().ifBlank { "arm64" }
+val localDevAbi = providers.gradleProperty("mobile.devAbi").orNull?.trim().orEmpty().ifBlank { "arm64" }
 require(localDevAbi in devAbiMapping) {
-    "Unsupported -Ptina.devAbi=$localDevAbi. Expected one of ${devAbiMapping.keys}."
+    "Unsupported -Pmobile.devAbi=$localDevAbi. Expected one of ${devAbiMapping.keys}."
 }
 val buildAllAbiRequested =
-    parseBooleanGradleProperty("tina.allAbi", default = false) ||
+    parseBooleanGradleProperty("mobile.allAbi", default = false) ||
         (System.getenv("CI")?.equals("true", ignoreCase = true) == true) ||
         requestedTaskNames.any { it.contains("AllAbi", ignoreCase = true) }
 val configuredNativeAbis =

@@ -21,7 +21,7 @@
 # JGit + Apache SSHD — 桌面 JDK API 警告抑制
 # ============================================================================
 # JGit + Apache SSHD 在 Android 上会引用部分桌面 JDK/JGSS API。
-# 这些路径在 TinaIDE 的 Android 场景不会触发，按模块粒度抑制告警。
+# 这些路径在 MobileIDE 的 Android 场景不会触发，按模块粒度抑制告警。
 -dontwarn java.lang.ProcessHandle
 -dontwarn java.lang.management.ManagementFactory
 -dontwarn javax.management.InstanceAlreadyExistsException

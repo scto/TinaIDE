@@ -1,5 +1,5 @@
 #!/bin/bash
-# TinaIDE PRoot 源码准备脚本
+# MobileIDE PRoot 源码准备脚本
 # 
 # 功能：
 # - 检查源码是否已存在（避免重复克隆）
@@ -111,10 +111,10 @@ clone_if_needed() {
 # 创建标记文件（用于增量构建）
 create_marker() {
     local dir="$1"
-    local marker="$dir/.tinaide-prepared"
+    local marker="$dir/.mobileide-prepared"
     
     cat > "$marker" << EOF
-# TinaIDE PRoot Source Marker
+# MobileIDE PRoot Source Marker
 # 此文件表示源码已准备完成
 PREPARED_AT=$(date -Iseconds)
 EOF
@@ -123,7 +123,7 @@ EOF
 
 check_marker() {
     local dir="$1"
-    local marker="$dir/.tinaide-prepared"
+    local marker="$dir/.mobileide-prepared"
     
     if [ -f "$marker" ]; then
         # 检查关键源码目录是否存在
@@ -182,7 +182,7 @@ EOF
 main() {
     echo ""
     echo "============================================"
-    log_info "TinaIDE PRoot 源码准备"
+    log_info "MobileIDE PRoot 源码准备"
     echo "============================================"
     echo "  源码目录: $SRC_DIR"
     echo "============================================"

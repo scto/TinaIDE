@@ -1,10 +1,10 @@
 plugins {
-    id("tina.android.library")
+    id("mobile.android.library")
     alias(libs.plugins.compose.compiler)
 }
 
 android {
-    namespace = "com.wuxianggujun.tinaide.core.designsystem"
+    namespace = "com.scto.mobileide.core.designsystem"
     buildFeatures {
         compose = true
     }

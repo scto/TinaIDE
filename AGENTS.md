@@ -65,7 +65,7 @@
 
 ---
 
-## 3.5 Git 子模块规则（TinaIDE 必须遵守）
+## 3.5 Git 子模块规则（MobileIDE 必须遵守）
 
 本项目包含多个 Git submodule。**任何涉及子模块指针（gitlink）变更的提交/发版，必须先提交并推送子模块仓库，再提交并推送主仓库**，否则 CI 可能在 `git submodule update --recursive` 阶段因 `not our ref <sha>` 失败。
 
@@ -77,17 +77,17 @@
 
 ---
 
-## 3.6 TinaIDE 项目快速上下文（进入项目先读）
+## 3.6 MobileIDE 项目快速上下文（进入项目先读）
 
-TinaIDE 是 Android 上的 C/C++ IDE。当前默认运行链路是 **native tina-toolchain + Android sysroot**；PRoot/Linux distro 是可选环境，不是默认编译宿主。
+MobileIDE 是 Android 上的 C/C++ IDE。当前默认运行链路是 **native mobile-toolchain + Android sysroot**；PRoot/Linux distro 是可选环境，不是默认编译宿主。
 
-**技术栈**：Kotlin、Android、Jetpack Compose、Material 3、Koin、Room、DataStore/SharedPreferences、OkHttp、Tree-sitter、clangd/LSP、Gradle/CMake、native tina-toolchain。
+**技术栈**：Kotlin、Android、Jetpack Compose、Material 3、Koin、Room、DataStore/SharedPreferences、OkHttp、Tree-sitter、clangd/LSP、Gradle/CMake、native mobile-toolchain。
 
 **关键入口**：
 
 - `MainPortalActivity`：首页/门户入口。
 - `MainActivity`：项目编辑器工作区入口。
-- `TinaApplication`：多进程初始化分流；主进程、`:toolchain`、`:crash`、用户 native runtime 不能混用初始化逻辑。
+- `MobileApplication`：多进程初始化分流；主进程、`:toolchain`、`:crash`、用户 native runtime 不能混用初始化逻辑。
 - `MainScreen`：首页 Tab 组织；项目内没有全局统一 `NavHost`。
 - `MainActivityScreenHost` / `EditorContainerState` / `LspEditorManager`：主编辑器界面、编辑器状态和 LSP 路由。
 
@@ -105,31 +105,31 @@ TinaIDE 是 Android 上的 C/C++ IDE。当前默认运行链路是 **native tina
 ```bash
 ./gradlew :app:compileArm64DebugKotlin --console=plain
 ./gradlew :app:assembleArm64Debug --console=plain
-./gradlew -Ptina.devAbi=x86_64 :app:assembleX86_64Debug --console=plain
+./gradlew -Pmobile.devAbi=x86_64 :app:assembleX86_64Debug --console=plain
 ./gradlew :app:assembleDebugAllAbi --console=plain
 ./gradlew ktlintCheck --console=plain
 ./gradlew :feature:ai:testDebugUnitTest --console=plain
-./gradlew :core:editor-view:testDebugUnitTest --tests "com.wuxianggujun.tinaide.core.editorview.EditorPopupComposeSmokeTest" --tests "com.wuxianggujun.tinaide.core.editorview.PopupOverlaySharedAnchorIntegrationTest" --tests "com.wuxianggujun.tinaide.core.editorview.EditorOverlaysIntegrationTest" --console=plain
+./gradlew :core:editor-view:testDebugUnitTest --tests "com.scto.mobileide.core.editorview.EditorPopupComposeSmokeTest" --tests "com.scto.mobileide.core.editorview.PopupOverlaySharedAnchorIntegrationTest" --tests "com.scto.mobileide.core.editorview.EditorOverlaysIntegrationTest" --console=plain
 ```
 
 后台运行测试时设置最大超时时间 60s。`connectedDebugAndroidTest` 需要设备或模拟器；`app/src/androidTest` 的 native toolchain / PRoot smoke 依赖 ABI、设备和资产准备，`assumeTrue` 跳过不等于完整验证。
 
 **项目专属 skills 路由**：
 
-- 架构/模块边界/入口/代码归属：`.agents/skills/tina-architecture-navigation/SKILL.md`
-- Gradle/ABI/CI/Release/R8/签名：`.agents/skills/tina-build-release/SKILL.md`
-- 测试选择/排障/回归验证：`.agents/skills/tina-testing-debugging/SKILL.md`
-- Compose UI/主题/设置页/用户文案：`.agents/skills/tina-compose-ui-i18n/SKILL.md`
-- AI 工具/渠道/BYOK/streaming/callbacks：`.agents/skills/tina-ai-tools/SKILL.md`
-- native toolchain/sysroot/clangd/LSP/Tree-sitter/PRoot：`.agents/skills/tina-native-lsp-runtime/SKILL.md`
-- Room/路径/权限/API key/FileProvider/日志隐私：`.agents/skills/tina-data-security-storage/SKILL.md`
-- 插件 manifest/.tinaplug/Lua/LSP 插件/marketplace/starter：`.agents/skills/tina-plugin-system/SKILL.md`
+- 架构/模块边界/入口/代码归属：`.agents/skills/mobile-architecture-navigation/SKILL.md`
+- Gradle/ABI/CI/Release/R8/签名：`.agents/skills/mobile-build-release/SKILL.md`
+- 测试选择/排障/回归验证：`.agents/skills/mobile-testing-debugging/SKILL.md`
+- Compose UI/主题/设置页/用户文案：`.agents/skills/mobile-compose-ui-i18n/SKILL.md`
+- AI 工具/渠道/BYOK/streaming/callbacks：`.agents/skills/mobile-ai-tools/SKILL.md`
+- native toolchain/sysroot/clangd/LSP/Tree-sitter/PRoot：`.agents/skills/mobile-native-lsp-runtime/SKILL.md`
+- Room/路径/权限/API key/FileProvider/日志隐私：`.agents/skills/mobile-data-security-storage/SKILL.md`
+- 插件 manifest/.mobileplug/Lua/LSP 插件/marketplace/starter：`.agents/skills/mobile-plugin-system/SKILL.md`
 
 **修改前优先复用**：
 
 - 文案与资源：`AppStrings`、`Strings`、`str()` / `strOr(context)`。
-- UI：`TinaIDETheme`、`core:designsystem`、已有 `Tina*` 组件。
-- 路径与分享：`ProjectPaths`、`ProjectLocationManager`、`PathValidator`、`TinaFileProvider`、`ExternalFileIntents`。
+- UI：`MobileIDETheme`、`core:designsystem`、已有 `Mobile*` 组件。
+- 路径与分享：`ProjectPaths`、`ProjectLocationManager`、`PathValidator`、`MobileFileProvider`、`ExternalFileIntents`。
 - 编译运行：`CompileProjectUseCase`、`RunConfigurationManager`、`ProcessManager`、native toolchain/sysroot managers。
 - LSP：`LspEditorManager`、`LspPluginManager`、`PluginLspConnectionProvider`。
 - AI 工具：`AiTool`、`ToolRegistry`、`ToolInitializer`、`ToolParameterParser`、`ToolI18n`、`ToolExecutionCoordinator`、`AiToolsIntegrationManager`。
@@ -139,17 +139,17 @@ TinaIDE 是 Android 上的 C/C++ IDE。当前默认运行链路是 **native tina
 **高风险红线**：
 
 - 不要把 PRoot 当默认 C/C++ 编译链路。
-- 不要把 Release 构建当普通只读验证；Release 可能递增 `version.properties` 并备份 R8 mapping。mapping 上传默认关闭，除非用户明确要求，不得设置 `tina.releaseMapping.uploadEnabled=true`。
+- 不要把 Release 构建当普通只读验证；Release 可能递增 `version.properties` 并备份 R8 mapping。mapping 上传默认关闭，除非用户明确要求，不得设置 `mobile.releaseMapping.uploadEnabled=true`。
 - 不要恢复或复制 `docs/workflows/receive-release.yml` 到 `.github/workflows/`；旧 `repository_dispatch` 私有仓库发布链路已废弃。
 - `README_EN.md` 存在历史口径；涉及构建、DI、工具链时以中文 README、`docs/开发指南.md`、`docs/架构概览.md`、当前代码和配置为准。
 - App 内帮助不直接读取 `docs/`；面向用户的帮助内容需同步检查 `feature/help/src/main/assets/help/*.md`。
 - API Key 只能通过 `AiChannelApiKeyStore` 进入加密存储；禁止写入 Room、普通 SharedPreferences、日志、导出配置、崩溃上报。
 - 项目、日志、缓存、配置路径优先走 `ProjectPaths`；Host/Guest 文件访问必须走白名单校验。
-- 修改 `tools/plugin-starters/**` 后必须同步检查 bundled starter zip：`app/src/main/assets/bundled_plugins/tinaide.plugin.starters/templates/*.zip`。
+- 修改 `tools/plugin-starters/**` 后必须同步检查 bundled starter zip：`app/src/main/assets/bundled_plugins/mobileide.plugin.starters/templates/*.zip`。
 
 **完成修改后的验证清单**：
 
-- 先运行与改动最贴近的模块测试；多数 `core/*`、`feature/*` 模块通过 `tina.android.library` 自动获得 JUnit、Truth、Robolectric、MockK、coroutines-test。
+- 先运行与改动最贴近的模块测试；多数 `core/*`、`feature/*` 模块通过 `mobile.android.library` 自动获得 JUnit、Truth、Robolectric、MockK、coroutines-test。
 - Kotlin/Android 改动至少运行目标模块 `compileArm64DebugKotlin` 或更小的 compile task。
 - UI 文案变更同步 `values/strings.xml` 与 `values-en/strings.xml`，并运行 i18n 检查（Windows 可用 `py tools/i18n/check_all.py`）。
 - 新增依赖或反射/JNI/序列化能力时检查 `docs/proguard-rules-reference.md` 和对应模块 `consumer-rules.pro`。
@@ -231,9 +231,9 @@ TinaIDE 是 Android 上的 C/C++ IDE。当前默认运行链路是 **native tina
 
 本项目已有国际化封装，新增/修改 UI 文案请优先使用这些入口：
 
-- `core/i18n/src/main/java/com/wuxianggujun/tinaide/core/i18n/AppStrings.kt`：全局字符串访问入口。
-- `core/i18n/src/main/java/com/wuxianggujun/tinaide/core/i18n/ResExt.kt`：`@StringRes Int.str()` / `strOr(context)` 扩展。
-- `core/i18n/src/main/java/com/wuxianggujun/tinaide/core/i18n/TextResourceAliases.kt`：`typealias Strings = R.string` 等别名。
+- `core/i18n/src/main/java/com/scto/mobileide/core/i18n/AppStrings.kt`：全局字符串访问入口。
+- `core/i18n/src/main/java/com/scto/mobileide/core/i18n/ResExt.kt`：`@StringRes Int.str()` / `strOr(context)` 扩展。
+- `core/i18n/src/main/java/com/scto/mobileide/core/i18n/TextResourceAliases.kt`：`typealias Strings = R.string` 等别名。
 
 **推荐写法**：
 
@@ -273,14 +273,14 @@ TinaIDE 是 Android 上的 C/C++ IDE。当前默认运行链路是 **native tina
 
 Gradle/AGP 构建产物默认应保留在**模块相对路径下的 `build/` 目录**。除非用户明确批准并说明原因，**禁止**把 `layout.buildDirectory` / `buildDir` 重定向到仓库外目录，尤其是：
 
-- `LOCALAPPDATA/TinaIDE/gradle-out/**`
+- `LOCALAPPDATA/MobileIDE/gradle-out/**`
 - 带时间戳或随机 session 的外置输出目录
 
 **必须遵守**：
 
 - 默认保持 Gradle 标准行为：模块产物写回各自的 `build/`。
 - 不得为了规避 Windows 文件锁，擅自引入“按 session 分目录”的外置产物方案。
-- 历史遗留的 `LOCALAPPDATA/TinaIDE/gradle-out` 不属于标准构建目录；若发现该目录，可直接删除，后续任何构建脚本或 AI 改动都不得再依赖它。
+- 历史遗留的 `LOCALAPPDATA/MobileIDE/gradle-out` 不属于标准构建目录；若发现该目录，可直接删除，后续任何构建脚本或 AI 改动都不得再依赖它。
 - 如果确实需要修改构建产物目录，必须先在变更说明中写明磁盘占用、清理策略、回滚方式，并获得用户明确确认。
 
 ---

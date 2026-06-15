@@ -1,4 +1,4 @@
-# TinaIDE 插件 API 指南
+# MobileIDE 插件 API 指南
 
 > 文档更新：2026-04-23
 > 目标：给插件开发者一份“当前真实可用”的 API 清单，避免继续踩字段存在但宿主没接完的坑。
@@ -7,7 +7,7 @@
 
 ## 1. 先看稳定边界
 
-当前建议按两层理解 TinaIDE 插件 API：
+当前建议按两层理解 MobileIDE 插件 API：
 
 - **稳定层**
   `config` 插件能力、`lsp` 插件能力、脚本插件的基础宿主 API
@@ -60,93 +60,93 @@
 
 ## 3. Script API 命名空间
 
-脚本插件统一从 `tina.*` 访问宿主 API。
+脚本插件统一从 `mobile.*` 访问宿主 API。
 
 ### 3.1 稳定可用
 
-- `tina.ui`
-- `tina.log`
-- `tina.editor`
-- `tina.diagnostics`
-- `tina.workspace`
-- `tina.fs`（历史兼容）
-- `tina.config`
-- `tina.storage`
-- `tina.db`
-- `tina.network`
-- `tina.commands`
-- `tina.events`
+- `mobile.ui`
+- `mobile.log`
+- `mobile.editor`
+- `mobile.diagnostics`
+- `mobile.workspace`
+- `mobile.fs`（历史兼容）
+- `mobile.config`
+- `mobile.storage`
+- `mobile.db`
+- `mobile.network`
+- `mobile.commands`
+- `mobile.events`
 
 ### 3.2 使用建议
 
 第一次写脚本插件时，优先只用：
 
-- `tina.ui`
-- `tina.log`
-- `tina.editor`
-- `tina.events`
-- `tina.diagnostics`
-- `tina.workspace`
+- `mobile.ui`
+- `mobile.log`
+- `mobile.editor`
+- `mobile.events`
+- `mobile.diagnostics`
+- `mobile.workspace`
 
 等第一版跑通，再逐步引入：
 
-- `tina.commands`
-- `tina.config`
-- `tina.storage`
-- `tina.db`
-- `tina.network`
+- `mobile.commands`
+- `mobile.config`
+- `mobile.storage`
+- `mobile.db`
+- `mobile.network`
 
 ---
 
 ## 4. 具体 API
 
-### 4.1 `tina.ui`
+### 4.1 `mobile.ui`
 
 用途：用户可见消息。
 
 已提供：
 
-- `tina.ui.showMessage(message)`
-- `tina.ui.showWarning(message)`
-- `tina.ui.showError(message)`
+- `mobile.ui.showMessage(message)`
+- `mobile.ui.showWarning(message)`
+- `mobile.ui.showError(message)`
 
 权限：
 
 - `ui.notification`
 
-### 4.2 `tina.log`
+### 4.2 `mobile.log`
 
 用途：插件日志。
 
 已提供：
 
-- `tina.log.debug(message)`
-- `tina.log.info(message)`
-- `tina.log.warn(message)`
-- `tina.log.error(message)`
+- `mobile.log.debug(message)`
+- `mobile.log.info(message)`
+- `mobile.log.warn(message)`
+- `mobile.log.error(message)`
 
 额外说明：
 
 - 全局 `print()` 也会转到插件日志
 
-### 4.3 `tina.editor`
+### 4.3 `mobile.editor`
 
 用途：读取或修改当前编辑器上下文。
 
 已提供：
 
-- `tina.editor.getActiveEditor()`
-- `tina.editor.getText()`
-- `tina.editor.setText(text)`
-- `tina.editor.getSelection()`
-- `tina.editor.setSelection(startLine, startColumn, endLine, endColumn)`
-- `tina.editor.insertText(text, line, column)`
-- `tina.editor.replaceSelection(text)`
-- `tina.editor.getLanguage()`
-- `tina.editor.getCursorPosition()`
-- `tina.editor.setCursorPosition(line, column)`
-- `tina.editor.getFilePath()`
-- `tina.editor.getFileName()`
+- `mobile.editor.getActiveEditor()`
+- `mobile.editor.getText()`
+- `mobile.editor.setText(text)`
+- `mobile.editor.getSelection()`
+- `mobile.editor.setSelection(startLine, startColumn, endLine, endColumn)`
+- `mobile.editor.insertText(text, line, column)`
+- `mobile.editor.replaceSelection(text)`
+- `mobile.editor.getLanguage()`
+- `mobile.editor.getCursorPosition()`
+- `mobile.editor.setCursorPosition(line, column)`
+- `mobile.editor.getFilePath()`
+- `mobile.editor.getFileName()`
 
 权限映射：
 
@@ -154,7 +154,7 @@
 - 写：`editor.write`
 - 选区：`editor.selection`
 
-`tina.editor.getActiveEditor()` 返回当前活动编辑器快照。当前稳定字段：
+`mobile.editor.getActiveEditor()` 返回当前活动编辑器快照。当前稳定字段：
 
 - `tabId`
 - `filePath`
@@ -167,16 +167,16 @@
 说明：
 
 - `insertText()` 与 `replaceSelection()` 现在会同步等待宿主编辑器结果，不再提前返回 `false`
-- 选区内容仍然通过 `tina.editor.getSelection()` 单独读取，避免和 `editor.selection` 权限边界混淆
+- 选区内容仍然通过 `mobile.editor.getSelection()` 单独读取，避免和 `editor.selection` 权限边界混淆
 
-### 4.4 `tina.diagnostics`
+### 4.4 `mobile.diagnostics`
 
 用途：读取当前诊断面板里的错误、警告、提示。
 
 已提供：
 
-- `tina.diagnostics.get()`
-- `tina.diagnostics.get(filePath)`
+- `mobile.diagnostics.get()`
+- `mobile.diagnostics.get(filePath)`
 
 返回约定：
 
@@ -189,15 +189,15 @@
 
 - `diagnostics.read`
 
-### 4.5 `tina.workspace`
+### 4.5 `mobile.workspace`
 
 用途：访问当前项目根目录内的文件。
 
 已提供：
 
-- `tina.workspace.readFile(path)`
-- `tina.workspace.writeFile(path, content)`
-- `tina.workspace.findFiles(pattern, maxResults)`
+- `mobile.workspace.readFile(path)`
+- `mobile.workspace.writeFile(path, content)`
+- `mobile.workspace.findFiles(pattern, maxResults)`
 
 返回约定：
 
@@ -217,35 +217,35 @@
 - 读：`workspace.read` 或 `file.read`
 - 写：`workspace.write` 或 `file.write`
 
-### 4.6 `tina.fs`
+### 4.6 `mobile.fs`
 
 用途：历史兼容的工作区文件 API。
 
 已提供：
 
-- `tina.fs.readFile(path)`
-- `tina.fs.writeFile(path, content)`
-- `tina.fs.exists(path)`
-- `tina.fs.isDirectory(path)`
-- `tina.fs.listDir(path)`
-- `tina.fs.mkdir(path)`
+- `mobile.fs.readFile(path)`
+- `mobile.fs.writeFile(path, content)`
+- `mobile.fs.exists(path)`
+- `mobile.fs.isDirectory(path)`
+- `mobile.fs.listDir(path)`
+- `mobile.fs.mkdir(path)`
 
 说明：
 
-- 新插件优先使用 `tina.workspace.*`
-- 老插件可以继续使用 `tina.fs.*`
+- 新插件优先使用 `mobile.workspace.*`
+- 老插件可以继续使用 `mobile.fs.*`
 - 权限仍映射到 `workspace.read` / `workspace.write` 对应的底层文件权限
 
-### 4.7 `tina.config`
+### 4.7 `mobile.config`
 
 用途：读取和更新 manifest `configuration.properties` 中声明的插件配置。
 
 已提供：
 
-- `tina.config.get(key)`
-- `tina.config.get(key, fallback)`
-- `tina.config.set(key, value)`
-- `tina.config.reset(key)`
+- `mobile.config.get(key)`
+- `mobile.config.get(key, fallback)`
+- `mobile.config.set(key, value)`
+- `mobile.config.reset(key)`
 
 说明：
 
@@ -256,45 +256,45 @@
 - 支持类型为 `boolean`、`string`、`number`。
 - 配置变化会触发 `config.changed`，该事件只发给配置所属插件，不会暴露给其他插件。
 
-### 4.8 `tina.storage`
+### 4.8 `mobile.storage`
 
 用途：插件级键值存储。
 
 已提供：
 
-- `tina.storage.get(key)`
-- `tina.storage.set(key, value)`
-- `tina.storage.remove(key)`
+- `mobile.storage.get(key)`
+- `mobile.storage.set(key, value)`
+- `mobile.storage.remove(key)`
 
 权限：
 
 - `storage.local`
 
-### 4.9 `tina.db`
+### 4.9 `mobile.db`
 
 用途：插件独立 SQLite 数据库。
 
 已提供：
 
-- `tina.db.execute(sql, params)`
-- `tina.db.query(sql, params)`
-- `tina.db.transaction(callback)`
-- `tina.db.close()`
-- `tina.db.tableExists(tableName)`
+- `mobile.db.execute(sql, params)`
+- `mobile.db.query(sql, params)`
+- `mobile.db.transaction(callback)`
+- `mobile.db.close()`
+- `mobile.db.tableExists(tableName)`
 
 权限：
 
 - `storage.database`
 
-### 4.10 `tina.network`
+### 4.10 `mobile.network`
 
 用途：网络请求。
 
 已提供：
 
-- `tina.network.fetch(url, method, body, contentType)`
-- `tina.network.get(url)`
-- `tina.network.post(url, body, contentType)`
+- `mobile.network.fetch(url, method, body, contentType)`
+- `mobile.network.get(url)`
+- `mobile.network.post(url, body, contentType)`
 
 权限：
 
@@ -306,18 +306,18 @@
 - 使用 `network.fetch` 时，目标主机必须命中白名单
 - 若要完全放开，需要更高风险权限
 
-### 4.11 `tina.commands`
+### 4.11 `mobile.commands`
 
 用途：调用宿主现有命令，或注册当前插件自己的命令回调。
 
 已提供：
 
-- `tina.commands.execute(commandId)`
-- `tina.commands.execute(commandId, relativePath)`
-- `tina.commands.execute(commandId, relativePath, isDirectory)`
-- `tina.commands.register(commandId, callbackName)`
-- `tina.commands.register(commandId, callbackName, title)`
-- `tina.commands.unregister(commandId)`
+- `mobile.commands.execute(commandId)`
+- `mobile.commands.execute(commandId, relativePath)`
+- `mobile.commands.execute(commandId, relativePath, isDirectory)`
+- `mobile.commands.register(commandId, callbackName)`
+- `mobile.commands.register(commandId, callbackName, title)`
+- `mobile.commands.unregister(commandId)`
 
 说明：
 
@@ -370,15 +370,15 @@
 - 宿主内置命令
 - 当前插件已注册的插件命令
 
-### 4.12 `tina.events`
+### 4.12 `mobile.events`
 
 用途：监听宿主事件。
 
 已提供：
 
-- `tina.events.on(eventId, callbackName)`
-- `tina.events.off(eventId)`
-- `tina.events.clear()`
+- `mobile.events.on(eventId, callbackName)`
+- `mobile.events.off(eventId)`
+- `mobile.events.clear()`
 
 当前宿主已接入的事件：
 
@@ -472,32 +472,32 @@
 ```lua
 function on_project_opened(data)
   local root_path = data and data.rootPath or "unknown"
-  tina.log.info("Project opened: " .. root_path)
-  tina.ui.showMessage("Project opened: " .. root_path)
+  mobile.log.info("Project opened: " .. root_path)
+  mobile.ui.showMessage("Project opened: " .. root_path)
 end
 
 function on_editor_saved(data)
   local file_name = data and data.fileName or "unknown"
-  tina.log.info("Editor saved: " .. file_name)
+  mobile.log.info("Editor saved: " .. file_name)
 end
 
 function on_file_created(data)
   local path = data and data.filePath or "unknown"
-  tina.log.info("File created: " .. path)
+  mobile.log.info("File created: " .. path)
 end
 
 function on_diagnostics_changed(data)
   local errors = data and data.errorCount or 0
   local warnings = data and data.warningCount or 0
-  tina.log.info("Diagnostics changed: errors=" .. errors .. ", warnings=" .. warnings)
+  mobile.log.info("Diagnostics changed: errors=" .. errors .. ", warnings=" .. warnings)
 end
 
-tina.events.on("project.opened", "on_project_opened")
-tina.events.on("editor.saved", "on_editor_saved")
-tina.events.on("file.created", "on_file_created")
-tina.events.on("diagnostics.changed", "on_diagnostics_changed")
-tina.commands.execute("view.toggleFileTree")
-tina.ui.showMessage("Plugin loaded")
+mobile.events.on("project.opened", "on_project_opened")
+mobile.events.on("editor.saved", "on_editor_saved")
+mobile.events.on("file.created", "on_file_created")
+mobile.events.on("diagnostics.changed", "on_diagnostics_changed")
+mobile.commands.execute("view.toggleFileTree")
+mobile.ui.showMessage("Plugin loaded")
 ```
 
 配套权限：

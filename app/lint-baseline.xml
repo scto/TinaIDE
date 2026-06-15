@@ -18,7 +18,7 @@
         errorLine1="apksig = &quot;8.11.1&quot;"
         errorLine2="         ~~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="32"
             column="10"/>
     </issue>
@@ -29,7 +29,7 @@
         errorLine1="androidx-exifinterface = { module = &quot;androidx.exifinterface:exifinterface&quot;, version = &quot;1.3.7&quot; }"
         errorLine2="                                                                                      ~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="118"
             column="87"/>
     </issue>
@@ -40,7 +40,7 @@
         errorLine1="androidx-test-runner = { module = &quot;androidx.test:runner&quot;, version = &quot;1.6.2&quot; }"
         errorLine2="                                                                    ~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="139"
             column="69"/>
     </issue>
@@ -51,7 +51,7 @@
         errorLine1="kotlin = &quot;2.2.20&quot;"
         errorLine2="         ~~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="3"
             column="10"/>
     </issue>
@@ -62,7 +62,7 @@
         errorLine1="kotlin = &quot;2.2.20&quot;"
         errorLine2="         ~~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="3"
             column="10"/>
     </issue>
@@ -73,7 +73,7 @@
         errorLine1="kotlin = &quot;2.2.20&quot;"
         errorLine2="         ~~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="3"
             column="10"/>
     </issue>
@@ -84,7 +84,7 @@
         errorLine1="jsoup = &quot;1.22.1&quot;"
         errorLine2="        ~~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="12"
             column="9"/>
     </issue>
@@ -95,7 +95,7 @@
         errorLine1="lsp4j = &quot;0.24.0&quot;"
         errorLine2="        ~~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="13"
             column="9"/>
     </issue>
@@ -106,7 +106,7 @@
         errorLine1="okhttp = &quot;4.12.0&quot;"
         errorLine2="         ~~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="16"
             column="10"/>
     </issue>
@@ -117,7 +117,7 @@
         errorLine1="koin = &quot;4.1.1&quot;"
         errorLine2="       ~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="17"
             column="8"/>
     </issue>
@@ -128,7 +128,7 @@
         errorLine1="coil = &quot;3.3.0&quot;"
         errorLine2="       ~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="18"
             column="8"/>
     </issue>
@@ -139,7 +139,7 @@
         errorLine1="coil = &quot;3.3.0&quot;"
         errorLine2="       ~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="18"
             column="8"/>
     </issue>
@@ -150,7 +150,7 @@
         errorLine1="coil = &quot;3.3.0&quot;"
         errorLine2="       ~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="18"
             column="8"/>
     </issue>
@@ -161,7 +161,7 @@
         errorLine1="coil = &quot;3.3.0&quot;"
         errorLine2="       ~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="18"
             column="8"/>
     </issue>
@@ -172,7 +172,7 @@
         errorLine1="zstd = &quot;1.5.5-11&quot;"
         errorLine2="       ~~~~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="20"
             column="8"/>
     </issue>
@@ -183,7 +183,7 @@
         errorLine1="msgpack = &quot;0.9.8&quot;"
         errorLine2="          ~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="22"
             column="11"/>
     </issue>
@@ -194,7 +194,7 @@
         errorLine1="truth = &quot;1.4.4&quot;"
         errorLine2="        ~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="26"
             column="9"/>
     </issue>
@@ -205,7 +205,7 @@
         errorLine1="robolectric = &quot;4.13&quot;"
         errorLine2="              ~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="27"
             column="15"/>
     </issue>
@@ -216,7 +216,7 @@
         errorLine1="mockk = &quot;1.13.13&quot;"
         errorLine2="        ~~~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="28"
             column="9"/>
     </issue>
@@ -227,7 +227,7 @@
         errorLine1="coroutinesTest = &quot;1.10.2&quot;"
         errorLine2="                 ~~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="29"
             column="18"/>
     </issue>
@@ -238,7 +238,7 @@
         errorLine1="bouncycastle = &quot;1.78.1&quot;"
         errorLine2="               ~~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="31"
             column="16"/>
     </issue>
@@ -249,7 +249,7 @@
         errorLine1="bouncycastle = &quot;1.78.1&quot;"
         errorLine2="               ~~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="31"
             column="16"/>
     </issue>
@@ -260,7 +260,7 @@
         errorLine1="kotlinx-coroutines = { module = &quot;org.jetbrains.kotlinx:kotlinx-coroutines-android&quot;, version = &quot;1.10.2&quot; }"
         errorLine2="                                                                                              ~~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="59"
             column="95"/>
     </issue>
@@ -271,7 +271,7 @@
         errorLine1="kotlinx-serialization-json = { module = &quot;org.jetbrains.kotlinx:kotlinx-serialization-json&quot;, version = &quot;1.7.3&quot; }"
         errorLine2="                                                                                                      ~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="60"
             column="103"/>
     </issue>
@@ -282,7 +282,7 @@
         errorLine1="tukaani-xz = { module = &quot;org.tukaani:xz&quot;, version = &quot;1.10&quot; }"
         errorLine2="                                                    ~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="122"
             column="53"/>
     </issue>
@@ -293,7 +293,7 @@
         errorLine1="publish = { id = &quot;com.vanniktech.maven.publish.base&quot;, version = &quot;0.34.0&quot; }"
         errorLine2="                                                                ~~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="156"
             column="65"/>
     </issue>
@@ -304,7 +304,7 @@
         errorLine1="ktlint = { id = &quot;org.jlleitschuh.gradle.ktlint&quot;, version = &quot;12.1.2&quot; }"
         errorLine2="                                                           ~~~~~~~~">
         <location
-            file="$HOME/CodeSpace/AndroidStudioProjects/TinaIDE/gradle/libs.versions.toml"
+            file="$HOME/CodeSpace/AndroidStudioProjects/MobileIDE/gradle/libs.versions.toml"
             line="157"
             column="60"/>
     </issue>

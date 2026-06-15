@@ -2,11 +2,11 @@
 
 > 更新日期：2026-04-22
 
-本目录存放 TinaIDE 的规划与跟踪文档（Roadmap）。
+本目录存放 MobileIDE 的规划与跟踪文档（Roadmap）。
 
 ## Roadmap
 
-- [TinaIDE（App/IDE）功能路线图](Feature-Roadmap.md)
+- [MobileIDE（App/IDE）功能路线图](Feature-Roadmap.md)
 
 ## 说明
 

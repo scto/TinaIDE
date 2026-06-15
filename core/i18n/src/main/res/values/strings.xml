@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">TinaIDE</string>
+  <string name="app_name">MobileIDE</string>
   <string name="menu_refresh">Refresh</string>
   <string name="menu_settings">Settings</string>
 <string name="permission_storage_title">Storage Permission Required</string>
   <string name="permission_storage_settings">Please enable "All files access" in system settings</string>
-  <string name="project_public_projects_permission_hint">If you previously saved projects in the public directory (Documents/TinaIDE), grant file-management permission first. After that, the project list will refresh automatically and you can open those projects directly.</string>
+  <string name="project_public_projects_permission_hint">If you previously saved projects in the public directory (Documents/MobileIDE), grant file-management permission first. After that, the project list will refresh automatically and you can open those projects directly.</string>
   <string name="permission_btn_grant">Grant Permission</string>
   <string name="open_file_tree">Open File Tree</string>
   <string name="empty_editor_title">No file open</string>
@@ -19,7 +19,7 @@
   <string name="error_create_project_dir">Failed to create project directory</string>
   <string name="error_template_failed">Template generation failed</string>
   <string name="success_project_created">Project created successfully</string>
-  <string name="success_plugin_project_created">Plugin project created. Run validates and hot-installs it; Package creates a .tinaplug.</string>
+  <string name="success_plugin_project_created">Plugin project created. Run validates and hot-installs it; Package creates a .mobileplug.</string>
 
   <!-- Project manager / main screen strings -->
 
@@ -65,7 +65,7 @@
   <string name="git_ssh_generate_dialog_title">Generate SSH key</string>
   <string name="git_ssh_key_name_label">Key filename</string>
   <string name="git_ssh_key_comment_label">Comment (optional)</string>
-  <string name="git_ssh_key_comment_placeholder">e.g. your@email.com</string>
+  <string name="git_ssh_key_comment_placeholder">e.g. tschmid35@gmail.com</string>
   <string name="git_ssh_generate_ok">Generated: %1$s</string>
   <string name="git_ssh_generate_failed">Generate failed</string>
 
@@ -177,7 +177,7 @@
   <string name="plugins_details_requirements_toolchain_recommended">Recommended toolchain: %1$s</string>
   <string name="plugins_details_requirements_toolchain_optional">Optional toolchain: %1$s</string>
   <string name="plugins_details_requirements_packages">Environment packages: %1$s</string>
-  <string name="plugins_details_requirements_note">TinaIDE does not install these dependencies automatically. Check the toolchain or runtime environment from the plugin instructions.</string>
+  <string name="plugins_details_requirements_note">MobileIDE does not install these dependencies automatically. Check the toolchain or runtime environment from the plugin instructions.</string>
   <string name="plugins_diagnostics_header">%1$s · %2$s</string>
   <string name="plugins_diagnostics_filter_lsp">LSP Issues</string>
   <string name="plugins_diagnostics_source_filter_chip">%1$s %2$d</string>
@@ -191,7 +191,7 @@
   <string name="plugins_preflight_diagnostics_summary">Errors %1$d · Warnings %2$d</string>
   <string name="plugins_preflight_diagnostics_group_header">%1$s · Errors %2$d · Warnings %3$d</string>
   <string name="plugins_preflight_guide_manifest">Check manifest.json basics, apiVersion, main path, networkHosts, and resource paths first.</string>
-  <string name="plugins_preflight_guide_permissions">Check that permissions / optionalPermissions use TinaIDE-supported permission IDs, and remove duplicates.</string>
+  <string name="plugins_preflight_guide_permissions">Check that permissions / optionalPermissions use MobileIDE-supported permission IDs, and remove duplicates.</string>
   <string name="plugins_preflight_guide_contributions">Check that commands, menus, fileIcons, projectTemplates, and other contributions are complete, and referenced commands/files exist.</string>
   <string name="plugins_preflight_guide_compatibility">Check whether apiVersion, minAppVersion, or plugin type matches the current IDE support range.</string>
   <string name="plugins_preflight_guide_runtime">This is a runtime issue. Check plugin logs, script entrypoints, and permission grants first.</string>
@@ -270,7 +270,7 @@
   <string name="lsp_plugin_install_deps_title">Install LSP Dependencies</string>
   <string name="lsp_plugin_repair_deps_title">Repair LSP Dependencies</string>
   <string name="lsp_plugin_install_deps_dialog_desc">"%1$s" requires the following toolchains to provide code completion:</string>
-  <string name="lsp_plugin_repair_deps_dialog_desc">"%1$s" has failed LSP dependencies. TinaIDE will re-check and install missing or failed toolchains:</string>
+  <string name="lsp_plugin_repair_deps_dialog_desc">"%1$s" has failed LSP dependencies. MobileIDE will re-check and install missing or failed toolchains:</string>
   <string name="lsp_plugin_toolchain_installed">Installed</string>
   <string name="lsp_plugin_toolchain_not_installed">Not Installed</string>
   <string name="lsp_plugin_toolchain_installing">Installing…</string>
@@ -361,7 +361,7 @@
   <string name="export_failed">Export failed: %1$s</string>
   <string name="export_share_title">Share Project</string>
   <string name="export_share_subject">Project Export: %1$s</string>
-  <string name="export_share_text">This is a project exported from TinaIDE: %1$s</string>
+  <string name="export_share_text">This is a project exported from MobileIDE: %1$s</string>
   <string name="export_empty_project">Project is empty, no files to export</string>
   <string name="export_dir_not_exist">Project directory does not exist</string>
 
@@ -498,13 +498,14 @@
   <string name="wizard_title_new_project">New Project</string>
   <string name="wizard_subtitle_new_project">Create a new C/C++ project</string>
   <string name="wizard_title_new_plugin_project">New Plugin Project</string>
-  <string name="wizard_subtitle_new_plugin_project">Choose a TinaIDE plugin template to start development</string>
+  <string name="wizard_subtitle_new_plugin_project">Choose a MobileIDE plugin template to start development</string>
   <string name="wizard_project_source_location">Storage For This Project</string>
   <string name="wizard_btn_next">Next</string>
   <string name="wizard_btn_previous">Previous</string>
   <string name="wizard_btn_create">Create Project</string>
   <string name="wizard_template_recommended">Recommended</string>
   <string name="wizard_category_native_projects">C/C++ Projects</string>
+  <string name="wizard_category_android_projects">Android / Gradle</string>
   <string name="wizard_category_plugin_projects">Plugin Projects</string>
   <string name="wizard_category_user_templates">Custom Templates</string>
   <string name="wizard_plugin_template_badge">Plugin</string>
@@ -512,14 +513,14 @@
   <string name="wizard_user_template_badge">Custom</string>
   <string name="wizard_user_template_card_hint">Loaded from the user template folder; project name placeholders are replaced during creation.</string>
   <string name="wizard_author_name">Author</string>
-  <string name="wizard_author_name_placeholder">For example, Tina</string>
+  <string name="wizard_author_name_placeholder">For example, Mobile</string>
   <string name="wizard_author_name_desc">Optional. Replaces the {{AUTHOR}} placeholder in templates.</string>
   <string name="wizard_plugin_template_config_guide_title">Plugin project next steps</string>
-  <string name="wizard_plugin_template_config_guide_body">After creation, open the project and tap Run to validate, package, and hot-install it. Tap Package to create a .tinaplug for sharing or install-from-file.</string>
+  <string name="wizard_plugin_template_config_guide_body">After creation, open the project and tap Run to validate, package, and hot-install it. Tap Package to create a .mobileplug for sharing or install-from-file.</string>
   <string name="wizard_templates_empty_title">No templates available</string>
   <string name="wizard_templates_empty_body">Install and enable the matching project template plugin from the plugin marketplace, then reopen the new project wizard.</string>
   <string name="wizard_plugin_templates_empty_title">No plugin project templates</string>
-  <string name="wizard_plugin_templates_empty_body">Install and enable TinaIDE Plugin Starters from the plugin marketplace, then reopen the plugin tutorial entry to continue.</string>
+  <string name="wizard_plugin_templates_empty_body">Install and enable MobileIDE Plugin Starters from the plugin marketplace, then reopen the plugin tutorial entry to continue.</string>
 
   <!-- Project Tags -->
   <string name="tag_public_source">Public</string>
@@ -704,16 +705,16 @@
   <string name="settings_user_templates_edit_description_label">Description</string>
   <string name="settings_user_templates_edit_description_placeholder">Describe what this template is for</string>
   <string name="settings_user_templates_edit_author_label">Author</string>
-  <string name="settings_user_templates_edit_author_placeholder">For example, TinaIDE</string>
+  <string name="settings_user_templates_edit_author_placeholder">For example, MobileIDE</string>
   <string name="settings_user_templates_variables_label">Variable defaults</string>
-  <string name="settings_user_templates_variables_placeholder">For example, AUTHOR=TinaIDE</string>
+  <string name="settings_user_templates_variables_placeholder">For example, AUTHOR=MobileIDE</string>
   <string name="settings_user_templates_variables_desc">Use one KEY=VALUE pair per line for template placeholder defaults</string>
   <string name="settings_user_templates_edit_build_system">Build system</string>
   <string name="settings_user_templates_edit_build_system_value">Build system: %1$s</string>
   <string name="settings_user_templates_edit_primary_language">Primary language</string>
   <string name="settings_user_templates_edit_primary_language_value">Primary language: %1$s</string>
   <string name="settings_user_templates_edit_ndk_template">Show as an NDK template</string>
-  <string name="settings_user_templates_preview_title">tina-template.json preview</string>
+  <string name="settings_user_templates_preview_title">mobile-template.json preview</string>
   <string name="settings_user_templates_metadata_auto_detect">Auto detect</string>
   <string name="settings_user_templates_language_c">C</string>
   <string name="settings_user_templates_language_cpp">C++</string>
@@ -742,7 +743,7 @@
   <string name="settings_user_templates_variables_error_missing_separator">Variable defaults must use KEY=VALUE format</string>
   <string name="settings_user_templates_variables_error_invalid_name">Variable names can only contain English letters, numbers, and underscores, and cannot start with a number</string>
   <string name="settings_user_templates_variables_error_empty_value">Variable default values cannot be empty</string>
-  <string name="project_source_location_public">Public Directory (Documents/TinaIDE)</string>
+  <string name="project_source_location_public">Public Directory (Documents/MobileIDE)</string>
   <string name="project_source_location_public_desc">Source files remain after uninstall, but creating projects requires file-management permission.</string>
   <string name="project_source_location_private">Private Directory (App Internal)</string>
   <string name="project_source_location_private_desc">No file permission required and builds are more reliable, but projects are removed when the app is uninstalled.</string>
@@ -1027,8 +1028,8 @@
   <string name="error_cannot_open_link">Cannot open link</string>
   <string name="settings_github">GitHub</string>
   <string name="settings_github_desc">View source code, submit issues</string>
-  <string name="about_donation_title">Support TinaIDE</string>
-  <string name="about_donation_desc">If TinaIDE helps you, scan a code to support project maintenance.</string>
+  <string name="about_donation_title">Support MobileIDE</string>
+  <string name="about_donation_desc">If MobileIDE helps you, scan a code to support project maintenance.</string>
   <string name="about_donation_wechat">WeChat</string>
   <string name="about_donation_alipay">Alipay</string>
   <string name="settings_cat_legal">Legal</string>
@@ -1477,7 +1478,7 @@
   <string name="settings_ai_prompt_refactoring">Refactoring Expert</string>
   <string name="settings_ai_prompt_documentation">Documentation Writer</string>
   <string name="settings_ai_tools">Enable Tool Calling</string>
-  <string name="settings_ai_tools_subtitle">Allow the model to call TinaIDE built-in tools (requires gateway tools/tool_calls support)</string>
+  <string name="settings_ai_tools_subtitle">Allow the model to call MobileIDE built-in tools (requires gateway tools/tool_calls support)</string>
   <string name="settings_ai_allow_dangerous_tools_auto">Allow Dangerous Tools Auto-execution</string>
   <string name="settings_ai_allow_dangerous_tools_auto_subtitle">In auto mode, allow automatic execution of dangerous tools (e.g., file deletion, system commands)</string>
   <string name="settings_ai_deep_thinking">Enable Deep Thinking</string>
@@ -1660,7 +1661,7 @@ If you need to verify lower-level source or native submodules, please also check
   <!-- EditorKeepAliveService -->
   <string name="service_editor_keep_alive_channel_name">Editor Running in Background</string>
   <string name="service_editor_keep_alive_channel_desc">Keep the editor running in the background to prevent being killed</string>
-  <string name="service_editor_keep_alive_title">TinaIDE is running</string>
+  <string name="service_editor_keep_alive_title">MobileIDE is running</string>
   <string name="service_editor_keep_alive_text">Editor is running in the background</string>
 
   <!-- Compiler / Sysroot -->
@@ -1817,7 +1818,7 @@ kept=%3$d bytes
   <string name="settings_crash_auto_upload_desc">Upload crash logs automatically on next launch (you can disable here)</string>
   <string name="settings_crash_upload_status">Latest crash upload status</string>
   <string name="settings_crash_upload_status_no_record">No crash upload status has been recorded yet.</string>
-  <string name="settings_crash_upload_status_disabled">Automatic upload is off. New TinaIDE crash logs will not be uploaded automatically.</string>
+  <string name="settings_crash_upload_status_disabled">Automatic upload is off. New MobileIDE crash logs will not be uploaded automatically.</string>
 
   <!-- Package Installation Groups -->
   <string name="package_group_installing">Installing</string>
@@ -1859,7 +1860,7 @@ kept=%3$d bytes
 
   <!-- WeChat Auth Provider Errors -->
 
-  <!-- TinaIDEException Messages -->
+  <!-- MobileIDEException Messages -->
   <string name="exception_compile_failed_at">Compile failed: %1$s:%2$d - %3$s</string>
   <string name="exception_compile_failed">Compile failed: %1$s</string>
   <string name="exception_found_errors">Found %1$d errors</string>
@@ -1979,7 +1980,7 @@ kept=%3$d bytes
   <string name="run_config_workdir_placeholder">$PROJECT_DIR$/build</string>
   <string name="run_config_sysroot_api_level_label">NDK API Level (Optional)</string>
   <string name="run_config_sysroot_api_level_placeholder">Leave empty to prefer project API (fallback 28)</string>
-  <string name="run_config_sysroot_api_level_desc">Used only for native builds (CMake/Make/Single File), range 21-35. When empty, TinaIDE first reads nativeApiLevel from project metadata, then falls back to 28.</string>
+  <string name="run_config_sysroot_api_level_desc">Used only for native builds (CMake/Make/Single File), range 21-35. When empty, MobileIDE first reads nativeApiLevel from project metadata, then falls back to 28.</string>
   <string name="run_config_sysroot_api_level_error_range">API Level must be between %1$d and %2$d</string>
   <string name="run_config_variable_hint">Variables supported, type $ to see available variables</string>
   <string name="run_config_variable_help">Variable Help</string>
@@ -2055,9 +2056,9 @@ kept=%3$d bytes
   <string name="dev_options_disable_desc">Need to reactivate in About page after disabling</string>
   <string name="dev_options_disabled">Developer options disabled</string>
 
-  <!-- Tina Components -->
-  <string name="tina_badge_recommended">Recommended</string>
-  <string name="tina_search_placeholder">Search...</string>
+  <!-- Mobile Components -->
+  <string name="mobile_badge_recommended">Recommended</string>
+  <string name="mobile_search_placeholder">Search...</string>
 
   <!-- Debug -->
   <string name="debug_session_started">Debug session started: %1$s</string>
@@ -2185,8 +2186,8 @@ kept=%3$d bytes
     <string name="plugin_error_permission_not_declared">Permission not declared in manifest: %1$s</string>
     <string name="plugin_error_permission_not_granted">Permission not granted: %1$s</string>
     <string name="plugin_error_permission_denied_generic">Permission denied</string>
-    <string name="plugin_log_permission_denied_not_declared">Permission denied for tina.%1$s.%2$s: %3$s is not declared in manifest</string>
-    <string name="plugin_log_permission_denied_not_granted">Permission denied for tina.%1$s.%2$s: %3$s is not granted</string>
+    <string name="plugin_log_permission_denied_not_declared">Permission denied for mobile.%1$s.%2$s: %3$s is not declared in manifest</string>
+    <string name="plugin_log_permission_denied_not_granted">Permission denied for mobile.%1$s.%2$s: %3$s is not granted</string>
     <string name="plugin_diagnostic_load_missing_manifest_fix">Add manifest.json at the plugin root, then reinstall or reload the plugin.</string>
   <string name="plugin_diagnostic_load_invalid_manifest_fix">Check manifest fields, declared permissions, and referenced resource paths, then reinstall or reload the plugin.</string>
   <string name="plugin_diagnostic_permissions_duplicate">Duplicate permission declarations: %1$s</string>
@@ -2198,17 +2199,17 @@ kept=%3$d bytes
   <string name="plugin_diagnostic_network_hosts_format_fix">Declare bare hosts only, for example api.example.com; do not include schemes, paths, ports, or wildcards.</string>
   <string name="plugin_diagnostic_min_app_version_invalid">minAppVersion is not comparable: %1$s</string>
   <string name="plugin_diagnostic_min_app_version_invalid_fix">Use a comparable version string such as 1.2.3 or 0.14.67-beta.</string>
-  <string name="plugin_diagnostic_min_app_version_unsupported">This plugin requires TinaIDE %1$s or later, but the current host version is %2$s</string>
-  <string name="plugin_diagnostic_min_app_version_unsupported_fix">Upgrade TinaIDE, or install a plugin version that supports the current host.</string>
+  <string name="plugin_diagnostic_min_app_version_unsupported">This plugin requires MobileIDE %1$s or later, but the current host version is %2$s</string>
+  <string name="plugin_diagnostic_min_app_version_unsupported_fix">Upgrade MobileIDE, or install a plugin version that supports the current host.</string>
   <string name="plugin_diagnostic_command_blank_id">Command ID cannot be empty (entry %1$d)</string>
   <string name="plugin_diagnostic_command_blank_title">Command title cannot be empty (entry %1$d)</string>
   <string name="plugin_diagnostic_command_duplicate_id">Duplicate command IDs: %1$s</string>
   <string name="plugin_diagnostic_command_unsupported">This host does not support the command ID, and this plugin type cannot register it at runtime: %1$s</string>
-  <string name="plugin_diagnostic_command_fix">Use a host whitelist command, or register the same command ID from a script/hybrid plugin with tina.commands.register().</string>
+  <string name="plugin_diagnostic_command_fix">Use a host whitelist command, or register the same command ID from a script/hybrid plugin with mobile.commands.register().</string>
   <string name="plugin_diagnostic_menu_blank_command">Menu item is missing command (location %1$s)</string>
   <string name="plugin_diagnostic_menu_unsupported_command">Menu item references a command the host does not support: %1$s (location %2$s)</string>
   <string name="plugin_diagnostic_menu_plugin_command_not_declared">Menu item references a plugin command that is not declared in contributions.commands: %1$s (location %2$s)</string>
-  <string name="plugin_diagnostic_menu_plugin_command_not_declared_fix">Declare the same command ID in contributions.commands and register it at runtime with tina.commands.register().</string>
+  <string name="plugin_diagnostic_menu_plugin_command_not_declared_fix">Declare the same command ID in contributions.commands and register it at runtime with mobile.commands.register().</string>
   <string name="plugin_diagnostic_command_permission_missing">Custom plugin commands were detected, but manifest does not declare command.execute: %1$s</string>
   <string name="plugin_diagnostic_command_permission_missing_fix">Add command.execute to permissions or optionalPermissions, then reload the plugin.</string>
   <string name="plugin_diagnostic_menu_unknown_when">Menu item uses a when expression that is not supported yet: %1$s (location %2$s)</string>
@@ -2227,7 +2228,7 @@ kept=%3$d bytes
   <string name="plugin_diagnostic_requirements_toolchain_recommended">recommended toolchain: %1$s</string>
   <string name="plugin_diagnostic_requirements_toolchain_optional">optional toolchain: %1$s</string>
   <string name="plugin_diagnostic_requirements_packages">environment packages: %1$s</string>
-  <string name="plugin_diagnostic_requirements_fix">Check dependencies from the plugin details or plugin docs. TinaIDE only reports them for now and does not install them automatically.</string>
+  <string name="plugin_diagnostic_requirements_fix">Check dependencies from the plugin details or plugin docs. MobileIDE only reports them for now and does not install them automatically.</string>
   <string name="plugin_diagnostic_panels_unsupported">panels is declared, but the host does not provide a panel entry point yet</string>
   <string name="plugin_diagnostic_panels_fix">Keeping the manifest declaration is fine; enable the UI entry after the host exposes panel support.</string>
   <string name="plugin_diagnostic_file_icon_blank_icon">File icon rule is missing icon (entry %1$d)</string>
@@ -2430,6 +2431,7 @@ kept=%3$d bytes
   <string name="compile_artifact_kind_shared_library">shared library</string>
   <string name="compile_artifact_kind_static_library">static library</string>
   <string name="compile_artifact_kind_plugin_package">plugin package</string>
+  <string name="compile_artifact_kind_apk">APK application</string>
   <string name="compile_artifact_kind_unknown">unknown artifact</string>
   <string name="compile_build_system">Build system: %1$s</string>
   <string name="compile_complete">=== Build complete ===</string>
@@ -2555,18 +2557,18 @@ kept=%3$d bytes
   <string name="crash_copied">Copied to clipboard</string>
   <string name="crash_copy_failed">Copy failed: %1$s</string>
   <string name="crash_hint">Crash details are shown below. Tap Copy to copy the full log.</string>
-  <string name="crash_hint_user_native">The SDL/Native/NDK program you ran crashed in an isolated process. The TinaIDE main screen should not be affected. Crash details are shown below. Tap Copy to copy the full log.</string>
-  <string name="crash_user_native_privacy_note">This is a crash log from the user project or runtime program. It will not be uploaded to TinaIDE servers. You can copy it or share it with the project author for local troubleshooting.</string>
+  <string name="crash_hint_user_native">The SDL/Native/NDK program you ran crashed in an isolated process. The MobileIDE main screen should not be affected. Crash details are shown below. Tap Copy to copy the full log.</string>
+  <string name="crash_user_native_privacy_note">This is a crash log from the user project or runtime program. It will not be uploaded to MobileIDE servers. You can copy it or share it with the project author for local troubleshooting.</string>
   <string name="crash_upload_status_title">Crash log upload status</string>
   <string name="crash_upload_status_none">No upload status has been detected yet. The app will check crash logs again after restart.</string>
   <string name="crash_upload_status_queued">Added to the background upload queue and will upload automatically when network is available.</string>
   <string name="crash_upload_status_uploading">Trying to upload the crash log.</string>
-  <string name="crash_upload_status_uploaded">Uploaded to TinaIDE servers.</string>
+  <string name="crash_upload_status_uploaded">Uploaded to MobileIDE servers.</string>
   <string name="crash_upload_status_skipped">This crash log will not be uploaded. The log is still kept locally.</string>
   <string name="crash_upload_status_retry_pending">Upload has not succeeded yet. The local log is kept and will be retried automatically.</string>
   <string name="crash_upload_status_failed">Upload failed. The log is still kept locally and can be copied or shared with developers.</string>
   <string name="crash_btn_share">Share Local Log</string>
-  <string name="crash_share_subject">TinaIDE Crash Log</string>
+  <string name="crash_share_subject">MobileIDE Crash Log</string>
   <string name="crash_share_chooser_title">Share Crash Log</string>
   <string name="crash_share_failed">Share failed: %1$s</string>
   <string name="crash_no_info">No crash information</string>
@@ -2613,8 +2615,8 @@ kept=%3$d bytes
   <string name="dev_options_editor_fling_touch_log">Editor fling logs</string>
   <string name="dev_options_editor_fling_touch_log_desc">Output fling start/end logs (axis, offset, max range)</string>
   <string name="dev_options_runtime_tools">Runtime tools</string>
-  <string name="dev_options_tina_server_url">TinaServer URL</string>
-  <string name="dev_options_tina_server_url_desc">Switch backend URL and test connectivity</string>
+  <string name="dev_options_mobile_server_url">MobileServer URL</string>
+  <string name="dev_options_mobile_server_url_desc">Switch backend URL and test connectivity</string>
   <string name="diagnostic_error">Error</string>
   <string name="diagnostic_hint">Hint</string>
   <string name="diagnostic_information">Information</string>
@@ -2627,7 +2629,7 @@ kept=%3$d bytes
   <string name="dialog_message_clear_logs">Clear all log cache? This action cannot be undone.</string>
   <string name="dialog_message_delete_log">Delete this log file?</string>
   <string name="dialog_message_install_zsh">Zsh is not installed.\n\nInstall now? (Requires network and the PRoot Linux environment)</string>
-  <string name="dialog_message_upload_logs">A TinaIDE issue diagnostic package will be generated and sent to the server. Please confirm that you want to share the following information.\n\nIncluded:\n• TinaIDE structured logs (Timber)\n• Current app-process logcat only (no global logcat)\n• App/device info, TinaIDE host crash logs, and installation diagnostics\n• Project build logs, which may contain project paths, compiler output, or dependency names\n• PRoot/rootfs/Linux environment logs, which may contain repositories, installed packages, or command output\n• export_manifest.txt with the collection policy\n\nNot included:\n• Source files or complete project files\n• Global logcat\n• User SDL/Native/NDK program crash tombstones\n\nIf you do not want to share these runtime environment logs, cancel and use Export logs for local sharing.</string>
+  <string name="dialog_message_upload_logs">A MobileIDE issue diagnostic package will be generated and sent to the server. Please confirm that you want to share the following information.\n\nIncluded:\n• MobileIDE structured logs (Timber)\n• Current app-process logcat only (no global logcat)\n• App/device info, MobileIDE host crash logs, and installation diagnostics\n• Project build logs, which may contain project paths, compiler output, or dependency names\n• PRoot/rootfs/Linux environment logs, which may contain repositories, installed packages, or command output\n• export_manifest.txt with the collection policy\n\nNot included:\n• Source files or complete project files\n• Global logcat\n• User SDL/Native/NDK program crash tombstones\n\nIf you do not want to share these runtime environment logs, cancel and use Export logs for local sharing.</string>
   <string name="dialog_title_clear_logs">Clear Log Cache</string>
   <string name="dialog_title_cursor_blink_rate">Cursor Blink Rate</string>
   <string name="dialog_title_delete_log">Delete Log</string>
@@ -2641,7 +2643,7 @@ kept=%3$d bytes
   <string name="dialog_title_rsync_module">rsync Module</string>
   <string name="dialog_title_rsync_port">rsync Port</string>
   <string name="dialog_title_shell_type">Shell Type</string>
-  <string name="dialog_title_tina_server_url">TinaServer URL</string>
+  <string name="dialog_title_mobile_server_url">MobileServer URL</string>
   <string name="dialog_title_upload_logs">Upload Logs</string>
   <string name="drawer_title_source_control">Source Control</string>
   <string name="empty_no_search_results">No matching logs found</string>
@@ -2727,7 +2729,7 @@ kept=%3$d bytes
   <string name="settings_cat_github_registry">GitHub Access Proxy</string>
   <string name="github_registry_proxy_enabled_title">Enable GitHub proxy</string>
   <string name="github_registry_proxy_enabled_desc">Only used for plugin marketplace and package Registry access through GitHub Raw/jsDelivr</string>
-  <string name="github_registry_proxy_scope_desc">This proxy does not affect Git HTTPS credentials, SSH keys, AI channels, or Tina server requests.</string>
+  <string name="github_registry_proxy_scope_desc">This proxy does not affect Git HTTPS credentials, SSH keys, AI channels, or Mobile server requests.</string>
   <string name="github_registry_proxy_host_label">Proxy host</string>
   <string name="github_registry_proxy_host_placeholder">127.0.0.1 or proxy.example.com</string>
   <string name="github_registry_proxy_port_label">Proxy port</string>
@@ -2770,11 +2772,11 @@ kept=%3$d bytes
   <string name="help_search_hint">Search docs...</string>
 
   <string name="help_doc_getting_started_title">Getting Started</string>
-  <string name="help_doc_getting_started_summary">Learn the basics of TinaIDE and how to use it</string>
+  <string name="help_doc_getting_started_summary">Learn the basics of MobileIDE and how to use it</string>
   <string name="help_doc_create_project_title">Create Project</string>
   <string name="help_doc_create_project_summary">Learn how to create a C/C++ project</string>
   <string name="help_doc_plugin_quick_start_title">Plugin Development Quick Start</string>
-  <string name="help_doc_plugin_quick_start_summary">Create a plugin project from a template, run to hot-install, package .tinaplug, and verify with install preflight</string>
+  <string name="help_doc_plugin_quick_start_summary">Create a plugin project from a template, run to hot-install, package .mobileplug, and verify with install preflight</string>
   <string name="help_quick_actions_title">Quick actions</string>
   <string name="help_action_create_plugin_project">Create Plugin Project</string>
   <string name="help_action_open_plugin_settings">Open Plugin Settings</string>
@@ -2864,7 +2866,7 @@ kept=%3$d bytes
     <item>plugin development</item>
     <item>plugin template</item>
     <item>plugin project</item>
-    <item>tinaplug</item>
+    <item>mobileplug</item>
     <item>manifest</item>
     <item>hot install</item>
     <item>preflight</item>
@@ -3046,7 +3048,7 @@ kept=%3$d bytes
   <string-array name="help_keywords_plugin_settings">
     <item>plugin</item>
     <item>extension</item>
-    <item>tinaplug</item>
+    <item>mobileplug</item>
     <item>plugin log</item>
     <item>theme plugin</item>
     <item>lsp plugin</item>
@@ -3097,14 +3099,14 @@ kept=%3$d bytes
   </string-array>
   <string name="hint_search">Search...</string>
   <string name="hint_search_log">Search log content...</string>
-  <string name="label_tina_server_url">Server base URL</string>
+  <string name="label_mobile_server_url">Server base URL</string>
   <string name="loading">Loading</string>
-  <string name="log_export_filename">TinaIDE_logs_%1$s.zip</string>
-  <string name="log_share_subject">TinaIDE logs</string>
-  <string name="log_share_text">TinaIDE application log files for diagnostics.</string>
+  <string name="log_export_filename">MobileIDE_logs_%1$s.zip</string>
+  <string name="log_share_subject">MobileIDE logs</string>
+  <string name="log_share_text">MobileIDE application log files for diagnostics.</string>
   <string name="log_share_chooser_title">Share logs</string>
 
-  <string name="log_export_app_info_title">=== TinaIDE App Info ===</string>
+  <string name="log_export_app_info_title">=== MobileIDE App Info ===</string>
   <string name="log_export_app_name">App name: %1$s</string>
   <string name="log_export_package_name">Package: %1$s</string>
   <string name="log_export_version_name">Version name: %1$s</string>
@@ -3288,7 +3290,7 @@ kept=%3$d bytes
   <string name="settings_remote_lsp_port">Port</string>
   <string name="settings_remote_lsp_port_hint">Default: 6789</string>
   <string name="settings_remote_lsp_rsync_module">rsync module</string>
-  <string name="settings_remote_lsp_rsync_module_hint">e.g. tina-workspace</string>
+  <string name="settings_remote_lsp_rsync_module_hint">e.g. mobile-workspace</string>
   <string name="settings_remote_lsp_rsync_port">rsync port</string>
   <string name="settings_remote_lsp_rsync_port_hint">Default: 873</string>
   <string name="settings_remote_lsp_status">Connection status</string>
@@ -3355,9 +3357,9 @@ kept=%3$d bytes
   <string name="toast_logs_exported">Logs exported to: %1$s</string>
   <string name="toast_logs_uploaded">Logs uploaded (ID=%1$s)</string>
   <string name="toast_shell_type_changed">Shell type changed. Restart the terminal to apply.</string>
-  <string name="toast_tina_server_restored_default">Restored default URL</string>
-  <string name="toast_tina_server_test_failed">Connection failed</string>
-  <string name="toast_tina_server_test_ok">Connection successful</string>
+  <string name="toast_mobile_server_restored_default">Restored default URL</string>
+  <string name="toast_mobile_server_test_failed">Connection failed</string>
+  <string name="toast_mobile_server_test_ok">Connection successful</string>
   <string name="toast_upload_logs_failed">Upload failed: %1$s</string>
   <string name="toast_uploading_logs">Uploading logs...</string>
   <string name="toast_zsh_install_success">Zsh installed</string>
@@ -3716,7 +3718,7 @@ kept=%3$d bytes
 
   <!-- Tutorial Categories -->
   <string name="tutorial_cat_getting_started">Getting Started</string>
-  <string name="tutorial_cat_getting_started_desc">Learn the basics of TinaIDE from scratch</string>
+  <string name="tutorial_cat_getting_started_desc">Learn the basics of MobileIDE from scratch</string>
   <string name="tutorial_cat_editor">Code Editing</string>
   <string name="tutorial_cat_editor_desc">Tips and features to boost your coding efficiency</string>
   <string name="tutorial_cat_build">Build &amp; Run</string>
@@ -3724,11 +3726,11 @@ kept=%3$d bytes
   <string name="tutorial_cat_git">Version Control</string>
   <string name="tutorial_cat_git_desc">Manage versions with Git</string>
   <string name="tutorial_cat_advanced">Advanced</string>
-  <string name="tutorial_cat_advanced_desc">Explore advanced features of TinaIDE</string>
+  <string name="tutorial_cat_advanced_desc">Explore advanced features of MobileIDE</string>
 
   <!-- Tutorial Titles -->
-  <string name="tutorial_onboarding_title">Welcome to TinaIDE</string>
-  <string name="tutorial_onboarding_desc">Quick tour of TinaIDE\'s main features</string>
+  <string name="tutorial_onboarding_title">Welcome to MobileIDE</string>
+  <string name="tutorial_onboarding_desc">Quick tour of MobileIDE\'s main features</string>
   <string name="tutorial_getting_started_title">Getting Started Guide</string>
   <string name="tutorial_getting_started_desc">Learn the interface layout and basic operations</string>
   <string name="tutorial_editor_basics_title">Editor Basics</string>
@@ -3746,25 +3748,25 @@ kept=%3$d bytes
   <string name="tutorial_step_market_tab_title">Plugin Market</string>
   <string name="tutorial_step_market_tab_desc">Browse and download various plugins and packages here</string>
   <string name="tutorial_step_tutorial_tab_title">Tutorial Center</string>
-  <string name="tutorial_step_tutorial_tab_desc">Find tutorials to help you learn TinaIDE</string>
+  <string name="tutorial_step_tutorial_tab_desc">Find tutorials to help you learn MobileIDE</string>
   <string name="tutorial_step_profile_tab_title">Profile</string>
   <string name="tutorial_step_profile_tab_desc">Manage feedback, settings, about, and download history</string>
 
   <!-- Onboarding Dialog -->
-  <string name="onboarding_dialog_title">Welcome to TinaIDE</string>
-  <string name="onboarding_dialog_message">Would you like to start the guided tour? We\'ll show you the main features of TinaIDE.</string>
+  <string name="onboarding_dialog_title">Welcome to MobileIDE</string>
+  <string name="onboarding_dialog_message">Would you like to start the guided tour? We\'ll show you the main features of MobileIDE.</string>
   <string name="onboarding_dialog_start">Start Tour</string>
   <string name="onboarding_dialog_later">Maybe Later</string>
   <string name="onboarding_dialog_skip">Don\'t Show Again</string>
 
   <!-- Onboarding Complete Dialog -->
   <string name="onboarding_complete_title">Tour Complete</string>
-  <string name="onboarding_complete_message">Congratulations on completing the guided tour!\n\nWant to learn more tips for using TinaIDE? Check out more tutorials in the Tutorial section.</string>
+  <string name="onboarding_complete_message">Congratulations on completing the guided tour!\n\nWant to learn more tips for using MobileIDE? Check out more tutorials in the Tutorial section.</string>
   <string name="onboarding_complete_go_tutorial">Go to Tutorials</string>
   <string name="onboarding_complete_dismiss">Got it</string>
 
   <!-- Profile Screen -->
-  <string name="profile_open_source_title">TinaIDE Open Source</string>
+  <string name="profile_open_source_title">MobileIDE Open Source</string>
   <string name="profile_open_source_desc">Private identity and commercial features have been moved out. Feedback, logs, plugins, package downloads, favorites, and download history remain available.</string>
   <string name="profile_version_format">Version %1$s</string>
   <string name="profile_settings">Settings</string>
@@ -4161,9 +4163,9 @@ kept=%3$d bytes
   <string name="apk_builder_sign_failed">APK signing failed. Retry, or switch to custom signing if it keeps failing. Details: %1$s</string>
   <string name="apk_builder_install">Install</string>
   <string name="apk_builder_install_failed">Failed to start APK installation: %1$s</string>
-  <string name="apk_builder_install_permission_required">Allow TinaIDE to install unknown apps, then tap Install again</string>
+  <string name="apk_builder_install_permission_required">Allow MobileIDE to install unknown apps, then tap Install again</string>
   <string name="apk_builder_install_unavailable">No system package installer is available</string>
-  <string name="file_provider_config_invalid">File sharing provider is misconfigured. Reinstall TinaIDE or export logs for diagnosis.</string>
+  <string name="file_provider_config_invalid">File sharing provider is misconfigured. Reinstall MobileIDE or export logs for diagnosis.</string>
   <string name="apk_builder_share">Share</string>
   <string name="apk_builder_share_failed">Failed to share the APK: %1$s</string>
   <string name="apk_builder_no_entry_library">No libmain.so found. Please build the project first.</string>
@@ -4185,7 +4187,7 @@ kept=%3$d bytes
   <string name="apk_builder_keystore_file_name">File name</string>
   <string name="apk_builder_keystore_file_name_hint">For example, release-signing.p12</string>
   <string name="apk_builder_keystore_common_name">Certificate</string>
-  <string name="apk_builder_keystore_common_name_hint">For example, TinaIDE Release</string>
+  <string name="apk_builder_keystore_common_name_hint">For example, MobileIDE Release</string>
   <string name="apk_builder_keystore_password">Keystore password</string>
   <string name="apk_builder_key_alias">Key alias</string>
   <string name="apk_builder_key_password">Key password</string>

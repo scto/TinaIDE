@@ -1,7 +1,7 @@
 # 插件系统路线图（Roadmap）
 
 > 文档更新：2026-06-05
-> 目标：以 **配置插件优先** 的方式逐步扩展 TinaIDE 插件能力（Play 合规、低风险、可维护）。
+> 目标：以 **配置插件优先** 的方式逐步扩展 MobileIDE 插件能力（Play 合规、低风险、可维护）。
 
 ---
 
@@ -55,7 +55,7 @@
 | Keybindings（快捷键绑定） | ⭐⭐⭐ | ⭐⭐⭐ | P2 | ✅ JSON 文件声明，MainActivity 硬件快捷键分发已接入 |
 | requires（依赖声明提示） | ⭐⭐⭐ | ⭐⭐ | P2 | ✅ 已完成：manifest 解析、详情展示、doctor 提示；不做安装 |
 | 插件详情页（权限/依赖/贡献预览） | ⭐⭐⭐ | ⭐⭐⭐ | P2 | UX 完整性 |
-| **插件设置页面** | ⭐⭐⭐ | ⭐⭐⭐ | P2 | ✅ 已完成：manifest `configuration` schema、插件详情页自动配置 UI、持久化与 `tina.config.*` API |
+| **插件设置页面** | ⭐⭐⭐ | ⭐⭐⭐ | P2 | ✅ 已完成：manifest `configuration` schema、插件详情页自动配置 UI、持久化与 `mobile.config.*` API |
 
 ---
 
@@ -114,7 +114,7 @@ interface HostCommand {
    - `FileTreeContextMenu` 渲染完内置项后，追加 `PluginMenuRegistry` 提供的 `DropdownMenuItem`
 2. 插件菜单项支持两类命令：
    - 宿主内置命令，例如 `file.copyPath`
-   - 当前插件通过 `tina.commands.register()` 注册的命令
+   - 当前插件通过 `mobile.commands.register()` 注册的命令
 3. 菜单仍由 `manifest.contributions.menus["filetree/context"]` 声明：
    - `command` 指向宿主内置命令或当前插件已注册命令
 4. 命令执行时传入上下文（当前文件/目录路径、项目根目录等）
@@ -164,7 +164,7 @@ interface HostCommand {
 当前实现（已落地最小集）：
 
 - 只加载 JSON 数据（不执行插件代码）
-- 在补全列表中展示 snippet，并使用 Tina 片段控制器进行插入
+- 在补全列表中展示 snippet，并使用 Mobile 片段控制器进行插入
 - 示例可直接复用本文的 snippet JSON 结构；当前仓库不再随 APK 内置
   `sample.snippets.cpp`，插件 starter 中保留了 snippet 配置示例。
 
@@ -225,7 +225,7 @@ interface HostCommand {
 - 已实现 manifest `configuration` 解析与校验
 - 已在插件详情页按 schema 自动生成配置 UI
 - 已提供按插件 ID 隔离的配置持久化
-- 已提供脚本 / hybrid 插件 `tina.config.get/set/reset`
+- 已提供脚本 / hybrid 插件 `mobile.config.get/set/reset`
 - 已提供定向 `config.changed` 事件，脚本可监听自身配置变化
 
 **当前边界**：
@@ -277,9 +277,9 @@ interface HostCommand {
 
 4. **配置读取 API**（脚本插件使用）
    ```javascript
-   const enabled = tina.config.get("myPlugin.enableFeatureX", true);
-   tina.config.set("myPlugin.outputFormat", "json");
-   tina.config.reset("myPlugin.outputFormat");
+   const enabled = mobile.config.get("myPlugin.enableFeatureX", true);
+   mobile.config.set("myPlugin.outputFormat", "json");
+   mobile.config.reset("myPlugin.outputFormat");
    ```
 
 **参考实现**：VS Code 的 `contributes.configuration`

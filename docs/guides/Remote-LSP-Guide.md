@@ -1,6 +1,6 @@
 # 远程 LSP 功能使用指南
 
-本文档介绍如何使用 TinaIDE 的远程 LSP 功能，在手机上获得 PC 级别的代码补全和诊断体验。
+本文档介绍如何使用 MobileIDE 的远程 LSP 功能，在手机上获得 PC 级别的代码补全和诊断体验。
 
 ## 快速开始
 
@@ -9,20 +9,20 @@
 在 PC 上运行 LSP 代理服务器：
 
 ```bash
-# 方式 1：使用 TinaIDE 提供的 Kotlin 版本（推荐，支持项目同步）
-cd tools/tina-lsp-proxy-kt
+# 方式 1：使用 MobileIDE 提供的 Kotlin 版本（推荐，支持项目同步）
+cd tools/mobile-lsp-proxy-kt
 ./gradlew jar
-java -jar build/libs/tina-lsp-proxy-kt-1.0.0.jar --port 6789 --lsp clangd
+java -jar build/libs/mobile-lsp-proxy-kt-1.0.0.jar --port 6789 --lsp clangd
 
 # 方式 2：使用 Python 脚本（推荐：快速验证）
-python tools/tina-lsp-proxy.py
+python tools/mobile-lsp-proxy.py
 
-# 方式 3：使用 lsp-ws-proxy（仅纯 LSP，不支持 TinaIDE 自定义消息/项目同步）
+# 方式 3：使用 lsp-ws-proxy（仅纯 LSP，不支持 MobileIDE 自定义消息/项目同步）
 cargo install lsp-ws-proxy
 lsp-ws-proxy --listen 0.0.0.0:6789 -- clangd
 ```
 
-### 2. TinaIDE 配置
+### 2. MobileIDE 配置
 
 1. 打开 **设置** → **编辑器**
 2. 找到 **远程 LSP** 部分
@@ -115,16 +115,16 @@ lsp-ws-proxy --listen 0.0.0.0:6789 -- clangd
 **Linux/macOS**：
 ```bash
 # 创建配置文件 /etc/rsyncd.conf
-[tina-workspace]
-    path = /tmp/tina-workspace
+[mobile-workspace]
+    path = /tmp/mobile-workspace
     read only = no
 
 # 启动服务
 rsync --daemon
 ```
 
-**TinaIDE 配置**：
-- rsync 模块：`tina-workspace`
+**MobileIDE 配置**：
+- rsync 模块：`mobile-workspace`
 - rsync 端口：`873`
 
 详细配置请参考 [PC-LSP-Proxy-Setup-Guide.md](PC-LSP-Proxy-Setup-Guide.md)
@@ -135,12 +135,12 @@ PC 端可以自定义 LSP 启动参数：
 
 ```bash
 # Kotlin 代理支持传入完整命令行（推荐）
-java -jar build/libs/tina-lsp-proxy-kt-1.0.0.jar --lsp "clangd --background-index=false"
+java -jar build/libs/mobile-lsp-proxy-kt-1.0.0.jar --lsp "clangd --background-index=false"
 
 # Python 代理当前仅支持指定 clangd 可执行文件路径（不支持在 --clangd-path 里拼接参数）
-# 如需自定义参数，建议使用 Kotlin 代理，或直接修改 tools/tina-lsp-proxy.py
+# 如需自定义参数，建议使用 Kotlin 代理，或直接修改 tools/mobile-lsp-proxy.py
 
-# lsp-ws-proxy 也可用于自定义参数（但不支持 TinaIDE 自定义消息/项目同步）
+# lsp-ws-proxy 也可用于自定义参数（但不支持 MobileIDE 自定义消息/项目同步）
 lsp-ws-proxy --listen 0.0.0.0:6789 -- clangd --background-index=false
 ```
 

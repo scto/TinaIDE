@@ -2,13 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
-        android:label="TINAIDE_APP_NAME_PLACEHOLDER_PADPADPADPADPADPAD"
+        android:label="MOBILEIDE_APP_NAME_PLACEHOLDER_PADPADPADPADPADPAD"
         android:icon="@mipmap/ic_launcher"
         android:hasCode="true"
         android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
 
         <activity
-            android:name="com.tinaide.template.nativeactivity.TemplateNativeActivity"
+            android:name="com.mobileide.template.nativeactivity.TemplateNativeActivity"
             android:exported="true"
             android:configChanges="orientation|keyboardHidden|screenSize|screenLayout|smallestScreenSize"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">

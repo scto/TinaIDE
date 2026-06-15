@@ -33,7 +33,7 @@
     - 远程 LSP 服务器连接（ws://pc-ip:port）
     - 本地开发和调试（127.0.0.1、localhost）
 
-    注意：TinaIDE 作为开发工具需要连接各种本地/远程服务器
+    注意：MobileIDE 作为开发工具需要连接各种本地/远程服务器
 -->
 <network-security-config>
     <!-- 允许所有明文通信（开发工具必需） -->
@@ -88,7 +88,7 @@ pwsh ./tools/build-apk.ps1 -Variant debug -Abi x86 -Install
 但这种方式存在问题：
 1. `includeSubdomains` 对 IP 地址没有实际意义
 2. 不同 Android 版本对 IP 地址的 domain-config 解析可能有差异
-3. TinaIDE 作为开发工具，需要连接各种本地和远程服务器
+3. MobileIDE 作为开发工具，需要连接各种本地和远程服务器
 
 因此采用 `base-config` 允许所有明文通信，更简单可靠。
 

@@ -1,17 +1,17 @@
 plugins {
-    id("tina.android.library")
+    id("mobile.android.library")
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
 }
 
 android {
-    namespace = "com.wuxianggujun.tinaide.core.common"
+    namespace = "com.scto.mobileide.core.common"
 }
 
 dependencies {
     implementation(project(":core:i18n"))
     implementation(project(":core:model"))
-    implementation(project(":tina-exec:integration"))
+    implementation(project(":mobile-exec:integration"))
     // PtyProcess 依赖 Termux JNI
     implementation(project(":termux-terminal:terminal-emulator"))
     // Koin DI — api 传递给所有依赖 core:common 的模块

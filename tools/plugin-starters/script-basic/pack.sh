@@ -10,7 +10,7 @@ STAGING_DIR="$ROOT/.pack"
 
 PLUGIN_ID="$(sed -n 's/.*"id"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' manifest.json | head -n 1)"
 PLUGIN_VERSION="$(sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' manifest.json | head -n 1)"
-OUT_FILE="$DIST_DIR/${PLUGIN_ID}-${PLUGIN_VERSION}.tinaplug"
+OUT_FILE="$DIST_DIR/${PLUGIN_ID}-${PLUGIN_VERSION}.mobileplug"
 
 rm -rf "$STAGING_DIR"
 mkdir -p "$DIST_DIR" "$STAGING_DIR"
@@ -20,7 +20,7 @@ for entry in .* *; do
   [ "$entry" = ".." ] && continue
   [ "$entry" = "dist" ] && continue
   [ "$entry" = ".pack" ] && continue
-  [ "$entry" = ".tina-starter" ] && continue
+  [ "$entry" = ".mobile-starter" ] && continue
   [ "$entry" = "README.md" ] && continue
   [ "$entry" = "pack.ps1" ] && continue
   [ "$entry" = "pack.sh" ] && continue

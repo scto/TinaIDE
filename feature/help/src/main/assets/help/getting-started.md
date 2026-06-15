@@ -1,6 +1,6 @@
 # 快速开始
 
-TinaIDE 开源版聚焦本地 Android/C/C++ 开发、插件、包管理、终端和 AI BYOK。
+MobileIDE 开源版聚焦本地 Android/C/C++ 开发、插件、包管理、终端和 AI BYOK。
 
 ## 主要入口
 

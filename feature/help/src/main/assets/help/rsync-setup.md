@@ -12,15 +12,15 @@ sudo mkdir -p /etc/rsyncd
 
 # 创建配置文件
 sudo tee /etc/rsyncd.conf << 'EOF'
-# TinaIDE rsync daemon 配置
+# MobileIDE rsync daemon 配置
 pid file = /var/run/rsyncd.pid
 lock file = /var/run/rsync.lock
 log file = /var/log/rsyncd.log
 
-# TinaIDE 工作区模块
-[tina-workspace]
+# MobileIDE 工作区模块
+[mobile-workspace]
     # 工作区路径（clangd 将在此目录工作）
-    path = /tmp/tina-workspace
+    path = /tmp/mobile-workspace
     # 允许写入
     read only = no
     # 允许列出模块
@@ -29,11 +29,11 @@ log file = /var/log/rsyncd.log
     uid = $USER
     gid = $USER
     # 注释说明
-    comment = TinaIDE Project Workspace
+    comment = MobileIDE Project Workspace
 EOF
 
 # 创建工作区目录
-mkdir -p /tmp/tina-workspace
+mkdir -p /tmp/mobile-workspace
 ```
 
 ### 2. 启动 rsync daemon
@@ -54,9 +54,9 @@ rsync --daemon --config=/etc/rsyncd.conf
 
 ```bash
 # 创建 systemd 服务文件
-sudo tee /etc/systemd/system/rsyncd-tina.service << 'EOF'
+sudo tee /etc/systemd/system/rsyncd-mobile.service << 'EOF'
 [Unit]
-Description=TinaIDE rsync daemon
+Description=MobileIDE rsync daemon
 After=network.target
 
 [Service]
@@ -71,11 +71,11 @@ EOF
 
 # 启用并启动服务
 sudo systemctl daemon-reload
-sudo systemctl enable rsyncd-tina
-sudo systemctl start rsyncd-tina
+sudo systemctl enable rsyncd-mobile
+sudo systemctl start rsyncd-mobile
 
 # 查看状态
-sudo systemctl status rsyncd-tina
+sudo systemctl status rsyncd-mobile
 ```
 
 ### 3. 防火墙配置
@@ -113,11 +113,11 @@ use chroot = false
 strict modes = false
 log file = C:\cwRsync\rsyncd.log
 
-[tina-workspace]
-    path = C:\TinaWorkspace
+[mobile-workspace]
+    path = C:\MobileWorkspace
     read only = no
     list = yes
-    comment = TinaIDE Project Workspace
+    comment = MobileIDE Project Workspace
 ```
 
 4. 启动服务：
@@ -136,7 +136,7 @@ rsync --daemon --config=C:\cwRsync\rsyncd.conf
 rsync rsync://localhost/
 
 # 应该显示：
-# tina-workspace    TinaIDE Project Workspace
+# mobile-workspace    MobileIDE Project Workspace
 ```
 
 ## 手机端配置
@@ -144,7 +144,7 @@ rsync rsync://localhost/
 1. 设置 → 语言服务器
 2. 同步模式：项目模式
 3. 同步方案：rsync 增量同步
-4. rsync 模块：`tina-workspace`
+4. rsync 模块：`mobile-workspace`
 5. rsync 端口：`873`
 
 ## 安全建议
@@ -157,7 +157,7 @@ rsync rsync://localhost/
 # 在手机端建立 SSH 隧道（需要 Termux）
 ssh -L 873:localhost:873 user@pc-ip
 
-# 然后 TinaIDE 连接 localhost:873
+# 然后 MobileIDE 连接 localhost:873
 ```
 
 ## 常见问题
@@ -172,4 +172,4 @@ ssh -L 873:localhost:873 user@pc-ip
 
 **Q: 模块不存在？**
 
-确认 `rsyncd.conf` 中定义了 `[tina-workspace]` 模块，并且 rsync daemon 已重启。
+确认 `rsyncd.conf` 中定义了 `[mobile-workspace]` 模块，并且 rsync daemon 已重启。

@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "com.tinaide.template.nativeactivity"
+    namespace = "com.mobileide.template.nativeactivity"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.tinaide.template.placeholder.padpadpadpadpad"
+        applicationId = "com.mobileide.template.placeholder.padpadpadpadpad"
         minSdk = 28
         targetSdk = 36
         versionCode = 1

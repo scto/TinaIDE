@@ -1,6 +1,6 @@
 # {{PROJECT_NAME}}
 
-这是一个 TinaIDE `config` 插件模板。
+这是一个 MobileIDE `config` 插件模板。
 
 ## 已包含能力
 
@@ -15,9 +15,9 @@
 1. 修改 `manifest.json` 里的 `id`、`name`、`author`
 2. 调整 `themes/starter-theme.json`
 3. 调整 `snippets/starter-snippets.json`
-4. 在 TinaIDE 中点击 **运行**，让 IDE 校验、打包并热安装
+4. 在 MobileIDE 中点击 **运行**，让 IDE 校验、打包并热安装
 5. 需要离线分发时，再运行 `pack.ps1` 或 `pack.sh`
-6. 用“设置 → 插件 → 从文件安装”验证生成的 `.tinaplug`
+6. 用“设置 → 插件 → 从文件安装”验证生成的 `.mobileplug`
 
 ## 当前能力边界
 
@@ -27,13 +27,13 @@
 - `contributions.commands` 只提供菜单标题，不会自动生成可执行逻辑
 
 如果你需要自定义命令回调，请改用 `script-command` 或 `script-basic`，
-并在 `main.lua` 中用 `tina.commands.register(...)` 注册同一个命令 ID。
+并在 `main.lua` 中用 `mobile.commands.register(...)` 注册同一个命令 ID。
 
 ## 打包说明
 
-- 在 TinaIDE 中点击 **运行**：校验当前目录、打包 `.tinaplug`，并热安装到当前 IDE
-- 在 TinaIDE 中点击 **打包**，或执行 `pack.ps1` / `pack.sh`：只生成插件包，不执行热安装
-- 输出路径固定为 `dist/<manifest.id>-<manifest.version>.tinaplug`
+- 在 MobileIDE 中点击 **运行**：校验当前目录、打包 `.mobileplug`，并热安装到当前 IDE
+- 在 MobileIDE 中点击 **打包**，或执行 `pack.ps1` / `pack.sh`：只生成插件包，不执行热安装
+- 输出路径固定为 `dist/<manifest.id>-<manifest.version>.mobileplug`
 - `pack.ps1` / `pack.sh` 会先自动执行校验
-- 最终 `.tinaplug` 会排除 README、打包脚本和校验辅助文件
-- 离线分发前，建议再用“设置 → 插件 → 从文件安装”选择生成的 `.tinaplug` 做一次预检
+- 最终 `.mobileplug` 会排除 README、打包脚本和校验辅助文件
+- 离线分发前，建议再用“设置 → 插件 → 从文件安装”选择生成的 `.mobileplug` 做一次预检

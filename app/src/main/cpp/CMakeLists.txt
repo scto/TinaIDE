@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.22)
-project(tina_native)
+project(mobile_native)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-option(TINA_BUILD_PROOT_FROM_SOURCE "Build TinaIDE PRoot binaries from external/termux-proot" ON)
-get_filename_component(TINA_PROJECT_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../.." ABSOLUTE)
+option(MOBILE_BUILD_PROOT_FROM_SOURCE "Build MobileIDE PRoot binaries from external/termux-proot" ON)
+get_filename_component(MOBILE_PROJECT_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../.." ABSOLUTE)
 
 # ============================================================================
 # 编译优化 - 减小 .so 体积
@@ -30,20 +30,20 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,max-page-size
 # 源文件列表
 # ============================================================================
 #
-# PRoot 默认从 external/termux-proot 直接编译；需要预编译产物时可关闭 TINA_BUILD_PROOT_FROM_SOURCE。
-# Tree-sitter 由 external/tina-android-tree-sitter 模块提供。
+# PRoot 默认从 external/termux-proot 直接编译；需要预编译产物时可关闭 MOBILE_BUILD_PROOT_FROM_SOURCE。
+# Tree-sitter 由 external/mobile-android-tree-sitter 模块提供。
 # 此 native 库只包含 App 侧 JNI 工具函数。
 # ============================================================================
 
-if(TINA_BUILD_PROOT_FROM_SOURCE)
-    set(TINA_TERMUX_PROOT_DIR "${TINA_PROJECT_ROOT}/external/termux-proot")
-    if(NOT EXISTS "${TINA_TERMUX_PROOT_DIR}/CMakeLists.txt")
+if(MOBILE_BUILD_PROOT_FROM_SOURCE)
+    set(MOBILE_TERMUX_PROOT_DIR "${MOBILE_PROJECT_ROOT}/external/termux-proot")
+    if(NOT EXISTS "${MOBILE_TERMUX_PROOT_DIR}/CMakeLists.txt")
         message(FATAL_ERROR "external/termux-proot is missing; run git submodule update --init --recursive")
     endif()
-    add_subdirectory("${TINA_TERMUX_PROOT_DIR}" "${CMAKE_BINARY_DIR}/termux-proot")
+    add_subdirectory("${MOBILE_TERMUX_PROOT_DIR}" "${CMAKE_BINARY_DIR}/termux-proot")
 endif()
 
-add_library(tina_native SHARED
+add_library(mobile_native SHARED
     # Utils 模块
     utils/jni_utils.cpp
     utils/file_utils.cpp
@@ -53,11 +53,11 @@ add_library(tina_native SHARED
 # PTY（终端伪设备）
 # ============================================================================
 
-add_library(tina_pty SHARED
+add_library(mobile_pty SHARED
     pty/pty_jni.cpp
 )
 
-target_include_directories(tina_native PRIVATE
+target_include_directories(mobile_native PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -66,8 +66,8 @@ target_include_directories(tina_native PRIVATE
 # ============================================================================
 
 find_library(log-lib log)
-target_link_libraries(tina_native PRIVATE c++_shared ${log-lib})
-target_link_libraries(tina_pty PRIVATE c++_shared ${log-lib})
+target_link_libraries(mobile_native PRIVATE c++_shared ${log-lib})
+target_link_libraries(mobile_pty PRIVATE c++_shared ${log-lib})
 
 # ============================================================================
 # 注意：proot-loader (libproot-loader.so) 可以来自预编译 source set，

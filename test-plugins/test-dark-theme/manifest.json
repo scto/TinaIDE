@@ -1,9 +1,9 @@
 {
-  "id": "com.tinaide.test.dark-theme",
+  "id": "com.mobileide.test.dark-theme",
   "name": "Test Dark Theme",
   "version": "1.0.0",
-  "description": "A test dark theme plugin for TinaIDE marketplace testing",
-  "author": "TinaIDE Test",
+  "description": "A test dark theme plugin for MobileIDE marketplace testing",
+  "author": "MobileIDE Test",
   "type": "config",
   "minAppVersion": "1.0.0",
   "contributions": {

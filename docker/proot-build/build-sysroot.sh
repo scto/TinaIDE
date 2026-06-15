@@ -1,9 +1,9 @@
 #!/bin/bash
-# TinaIDE NDK Sysroot 统一打包脚本
+# MobileIDE NDK Sysroot 统一打包脚本
 # 
 # 功能：
 # - 从 Android NDK 提取所有 API 级别的 sysroot
-# - 统一打包为单个 tar.xz 文件，供 TinaIDE 使用
+# - 统一打包为单个 tar.xz 文件，供 MobileIDE 使用
 # - 支持 arm64-v8a 和 x86_64 架构
 # - 头文件只打包一次，节省空间和压缩率
 
@@ -67,7 +67,7 @@ fi
 
 echo ""
 echo "============================================"
-log_info "TinaIDE NDK Sysroot 统一打包"
+log_info "MobileIDE NDK Sysroot 统一打包"
 echo "============================================"
   echo "  目标架构:    ${TARGET_ARCH}"
 echo "  Android ABI: ${ANDROID_ABI}"
@@ -239,33 +239,33 @@ if [ "${LIB_SO_COUNT}" -eq 0 ] && [ "${LIB_A_COUNT}" -eq 0 ]; then
     exit 1
 fi
 
-# 生成 toolchain.cmake（用同一个 sysroot 支持多 API：通过 -DTINA_ANDROID_API_LEVEL=xx 切换）
+# 生成 toolchain.cmake（用同一个 sysroot 支持多 API：通过 -DMOBILE_ANDROID_API_LEVEL=xx 切换）
 DEFAULT_API_LEVEL="28"
 if ! printf '%s\n' "${PACKAGED_APIS[@]}" | grep -qx "${DEFAULT_API_LEVEL}"; then
     DEFAULT_API_LEVEL="${PACKAGED_APIS[0]}"
 fi
 cat > "${SYSROOT_STAGING}/toolchain.cmake" << EOF
-# Android CMake Toolchain for TinaIDE (unified sysroot)
+# Android CMake Toolchain for MobileIDE (unified sysroot)
 # ABI: ${ANDROID_ABI}
 # Triple: ${TOOLCHAIN_TRIPLE}
 #
 # Usage:
 #   cmake -S . -B build \\
 #     -DCMAKE_TOOLCHAIN_FILE=/android-sysroot/toolchain.cmake \\
-#     -DTINA_ANDROID_API_LEVEL=${DEFAULT_API_LEVEL}
+#     -DMOBILE_ANDROID_API_LEVEL=${DEFAULT_API_LEVEL}
 
 set(CMAKE_SYSTEM_NAME Android)
 
-if(NOT DEFINED TINA_ANDROID_API_LEVEL)
-  set(TINA_ANDROID_API_LEVEL ${DEFAULT_API_LEVEL})
+if(NOT DEFINED MOBILE_ANDROID_API_LEVEL)
+  set(MOBILE_ANDROID_API_LEVEL ${DEFAULT_API_LEVEL})
 endif()
 
-set(CMAKE_SYSTEM_VERSION \${TINA_ANDROID_API_LEVEL})
+set(CMAKE_SYSTEM_VERSION \${MOBILE_ANDROID_API_LEVEL})
 set(CMAKE_ANDROID_ARCH_ABI ${ANDROID_ABI})
 set(ANDROID_ABI ${ANDROID_ABI})
-set(ANDROID_PLATFORM android-\${TINA_ANDROID_API_LEVEL})
+set(ANDROID_PLATFORM android-\${MOBILE_ANDROID_API_LEVEL})
 
-set(ANDROID_TARGET ${TOOLCHAIN_TRIPLE}\${TINA_ANDROID_API_LEVEL})
+set(ANDROID_TARGET ${TOOLCHAIN_TRIPLE}\${MOBILE_ANDROID_API_LEVEL})
 set(CMAKE_C_COMPILER_TARGET \${ANDROID_TARGET})
 set(CMAKE_CXX_COMPILER_TARGET \${ANDROID_TARGET})
 

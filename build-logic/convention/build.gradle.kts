@@ -25,36 +25,36 @@ fun Provider<PluginDependency>.toDep() = map {
 gradlePlugin {
     plugins {
         register("androidLibrary") {
-            id = "tina.android.library"
-            implementationClass = "TinaAndroidLibraryPlugin"
+            id = "mobile.android.library"
+            implementationClass = "MobileAndroidLibraryPlugin"
         }
         register("androidLibraryCompose") {
-            id = "tina.android.library.compose"
-            implementationClass = "TinaAndroidLibraryComposePlugin"
+            id = "mobile.android.library.compose"
+            implementationClass = "MobileAndroidLibraryComposePlugin"
         }
         register("androidAppVersioning") {
-            id = "tina.android.app.versioning"
-            implementationClass = "com.wuxianggujun.tinaide.buildlogic.TinaAndroidAppVersioningPlugin"
+            id = "mobile.android.app.versioning"
+            implementationClass = "com.scto.mobileide.buildlogic.MobileAndroidAppVersioningPlugin"
         }
         register("androidAppToolchainAssets") {
-            id = "tina.android.app.toolchain.assets"
-            implementationClass = "com.wuxianggujun.tinaide.buildlogic.TinaAndroidAppToolchainAssetsPlugin"
+            id = "mobile.android.app.toolchain.assets"
+            implementationClass = "com.scto.mobileide.buildlogic.MobileAndroidAppToolchainAssetsPlugin"
         }
         register("androidAppAbiAggregation") {
-            id = "tina.android.app.abi-aggregation"
-            implementationClass = "com.wuxianggujun.tinaide.buildlogic.TinaAndroidAppAbiAggregationPlugin"
+            id = "mobile.android.app.abi-aggregation"
+            implementationClass = "com.scto.mobileide.buildlogic.MobileAndroidAppAbiAggregationPlugin"
         }
         register("androidAppGuardrails") {
-            id = "tina.android.app.guardrails"
-            implementationClass = "com.wuxianggujun.tinaide.buildlogic.TinaAndroidAppGuardrailsPlugin"
+            id = "mobile.android.app.guardrails"
+            implementationClass = "com.scto.mobileide.buildlogic.MobileAndroidAppGuardrailsPlugin"
         }
         register("androidAppTreeSitter") {
-            id = "tina.android.app.treesitter"
-            implementationClass = "com.wuxianggujun.tinaide.buildlogic.TinaAndroidAppTreeSitterPlugin"
+            id = "mobile.android.app.treesitter"
+            implementationClass = "com.scto.mobileide.buildlogic.MobileAndroidAppTreeSitterPlugin"
         }
         register("androidAppMapping") {
-            id = "tina.android.app.mapping"
-            implementationClass = "com.wuxianggujun.tinaide.buildlogic.TinaAndroidAppMappingPlugin"
+            id = "mobile.android.app.mapping"
+            implementationClass = "com.scto.mobileide.buildlogic.MobileAndroidAppMappingPlugin"
         }
     }
 }

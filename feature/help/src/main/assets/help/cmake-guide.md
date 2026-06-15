@@ -1,6 +1,6 @@
 # CMake 配置指南
 
-CMake 是一个跨平台的构建系统生成器，TinaIDE 使用 CMake 管理 C/C++ 项目的编译和依赖。
+CMake 是一个跨平台的构建系统生成器，MobileIDE 使用 CMake 管理 C/C++ 项目的编译和依赖。
 
 ## CMake 基础
 
@@ -222,7 +222,7 @@ LSP 需要此文件提供代码补全：
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 ```
 
-在 TinaIDE 中，`compile_commands.json` 会生成到项目目录下的 `build` 目录，
+在 MobileIDE 中，`compile_commands.json` 会生成到项目目录下的 `build` 目录，
 由 IDE 自动接入；运行阶段如果需要执行二进制，会单独复制到私有目录启动。
 
 ## 常用变量

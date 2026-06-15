@@ -1,11 +1,11 @@
 plugins {
-    id("tina.android.library")
+    id("mobile.android.library")
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
 }
 
 android {
-    namespace = "com.wuxianggujun.tinaide.feature.terminal"
+    namespace = "com.scto.mobileide.feature.terminal"
     buildFeatures {
         compose = true
     }

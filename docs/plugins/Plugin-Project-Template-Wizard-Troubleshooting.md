@@ -10,13 +10,13 @@
 
 插件教程里的“创建插件项目”入口，语义上必须是 **新建插件项目**，不应该让用户感觉进入了默认 C/C++ 新建项目。
 
-历史问题的根因是：插件项目创建复用了 TinaIDE 已有的新建项目向导，而教程快捷入口没有显式传入“插件项目”语境。
+历史问题的根因是：插件项目创建复用了 MobileIDE 已有的新建项目向导，而教程快捷入口没有显式传入“插件项目”语境。
 因此向导曾经可能仍按默认模板进入，例如默认停在 C++ 单文件模板。
 
 当前已通过插件项目专用启动参数修正：教程快捷入口会进入“新建插件项目”语境，
 只展示 `ProjectBuildSystem.PLUGIN` 模板。
 
-插件模板通过用户已安装并启用的 `tinaide.plugin.starters` 的
+插件模板通过用户已安装并启用的 `mobileide.plugin.starters` 的
 `contributions.projectTemplates` 注入到模板列表里。也就是说，插件模板目前只是通用项目模板列表中的一类模板。
 
 当前真实流程仍然是：
@@ -59,7 +59,7 @@
 
 - 打开新建插件项目语境的向导，而不是普通 C/C++ 新建项目语境
 - 插件入口下只展示插件项目模板，避免用户误选普通项目模板
-- 优先选择已安装的 starter 模板 `plugin:tinaide.plugin.starters:config-basic`
+- 优先选择已安装的 starter 模板 `plugin:mobileide.plugin.starters:config-basic`
 - 如果精确模板暂时不可用，则回退到第一个可用插件模板
 - 如果没有任何插件模板，显示“暂无插件项目模板”的明确提示
 - 配置步骤隐藏 C++ 标准等无关字段
@@ -75,7 +75,7 @@
 1. 在 `NewProjectWizardActivity` 增加“初始模板 / 优先插件模板”启动参数
 2. 在插件教程快捷入口中使用插件项目专用启动方法
 3. 向导收到插件语境后，仅展示 `ProjectBuildSystem.PLUGIN` 模板
-4. 优先选中 `tinaide.plugin.starters` 的 `config-basic` 模板
+4. 优先选中 `mobileide.plugin.starters` 的 `config-basic` 模板
 5. 如果目标模板不存在，则查找第一个 `ProjectBuildSystem.PLUGIN` 模板
 6. 如果仍没有插件模板，则显示插件模板缺失提示，并禁用下一步
 7. 插件语境下标题显示为“新建插件项目”
@@ -116,7 +116,7 @@
 如果后续又出现“插件教程打开后不像插件创建”的问题，按下面顺序查：
 
 1. 检查 starter 插件是否安装并启用
-   - 插件 ID：`tinaide.plugin.starters`
+   - 插件 ID：`mobileide.plugin.starters`
    - 来源：插件市场 / GitHub Registry
 
 2. 检查模板贡献项是否存在
@@ -126,10 +126,10 @@
    - 插件模板建议声明 `primaryLanguage: "MIXED"`
 
 3. 检查模板 zip 是否真实存在
-   - `templates/tina-config-plugin.zip`
-   - `templates/tina-script-command-plugin.zip`
-   - `templates/tina-script-plugin.zip`
-   - `templates/tina-lsp-plugin.zip`
+   - `templates/mobile-config-plugin.zip`
+   - `templates/mobile-script-command-plugin.zip`
+   - `templates/mobile-script-plugin.zip`
+   - `templates/mobile-lsp-plugin.zip`
 
 4. 检查向导是否收到插件模板偏好
    - 入口：`NewProjectWizardActivity.createPluginProjectIntent()`
@@ -149,13 +149,13 @@
 
 ## 7. 相关代码入口
 
-- `feature/wizard/src/main/java/com/wuxianggujun/tinaide/ui/wizard/NewProjectWizardActivity.kt`
-- `feature/wizard/src/main/java/com/wuxianggujun/tinaide/ui/wizard/NewProjectWizardViewModel.kt`
-- `feature/wizard/src/main/java/com/wuxianggujun/tinaide/ui/wizard/NewProjectWizardSupport.kt`
-- `feature/wizard/src/main/java/com/wuxianggujun/tinaide/ui/wizard/NewProjectWizardScreen.kt`
-- `core/plugin/src/main/java/com/wuxianggujun/tinaide/plugin/PluginManager.kt`
-- `core/project/src/main/java/com/wuxianggujun/tinaide/project/ProjectCreationService.kt`
-- `core/project/src/main/java/com/wuxianggujun/tinaide/project/ProjectTemplateInstaller.kt`
+- `feature/wizard/src/main/java/com/scto/mobileide/ui/wizard/NewProjectWizardActivity.kt`
+- `feature/wizard/src/main/java/com/scto/mobileide/ui/wizard/NewProjectWizardViewModel.kt`
+- `feature/wizard/src/main/java/com/scto/mobileide/ui/wizard/NewProjectWizardSupport.kt`
+- `feature/wizard/src/main/java/com/scto/mobileide/ui/wizard/NewProjectWizardScreen.kt`
+- `core/plugin/src/main/java/com/scto/mobileide/plugin/PluginManager.kt`
+- `core/project/src/main/java/com/scto/mobileide/project/ProjectCreationService.kt`
+- `core/project/src/main/java/com/scto/mobileide/project/ProjectTemplateInstaller.kt`
 - `feature/help/src/main/assets/help/plugin-quick-start.md`
 
 ---
@@ -165,7 +165,7 @@
 如果后续要继续提升体验，建议按优先级拆：
 
 1. P1：插件模板列表增加分组或筛选，让插件模板和 C/C++ 模板更容易区分
-2. P1：插件模板配置页增加更明确的“运行即热安装、打包生成 `.tinaplug`”说明
+2. P1：插件模板配置页增加更明确的“运行即热安装、打包生成 `.mobileplug`”说明
 3. P2：插件项目创建完成后自动打开 `manifest.json`
 4. P2：为插件项目提供专属的首次任务面板
 5. 暂不建议：立即拆独立插件创建向导，除非插件模板需要大量专属字段
@@ -189,19 +189,19 @@
 
 4. 应用内快速开始只说“新建项目”，没有强调教程快捷入口的插件语境。
    - 已改为优先点击“创建插件项目”。
-   - 已补充 `TinaIDE Plugin Starters` 缺失时的排查路径。
+   - 已补充 `MobileIDE Plugin Starters` 缺失时的排查路径。
 
 5. `tools/plugin-starters/*/README.md` 源模板仍偏向手工 `validate` / `pack`。
    - 已改为 IDE 内点击 **运行** 优先，脚本打包用于离线分发。
    - 已修正 `config-basic` 的菜单命令边界说明。
 
 6. starter zip 已根据源模板重新生成，并应同步到 Registry 发布目录。
-   - `tina-config-plugin.zip`
-   - `tina-script-command-plugin.zip`
-   - `tina-script-plugin.zip`
-   - `tina-lsp-plugin.zip`
+   - `mobile-config-plugin.zip`
+   - `mobile-script-command-plugin.zip`
+   - `mobile-script-plugin.zip`
+   - `mobile-lsp-plugin.zip`
 
-7. 因内置插件安装逻辑会跳过同版本插件，已将 `tinaide.plugin.starters` 从 `1.0.0` 提升到 `1.0.1`，确保新版 starter 可覆盖安装。
+7. 因内置插件安装逻辑会跳过同版本插件，已将 `mobileide.plugin.starters` 从 `1.0.0` 提升到 `1.0.1`，确保新版 starter 可覆盖安装。
 
 ---
 
@@ -212,7 +212,7 @@
 1. **教程快捷入口**
    - 打开设置页帮助中心，进入“插件开发快速开始”。
    - 点击“创建插件项目”。
-   - 预期：进入“新建插件项目”，只看到 `Tina Config Plugin`、`Tina Script Command Plugin (Beta)`、`Tina Script Plugin (Beta)`、`Tina LSP Plugin`。
+   - 预期：进入“新建插件项目”，只看到 `Mobile Config Plugin`、`Mobile Script Command Plugin (Beta)`、`Mobile Script Plugin (Beta)`、`Mobile LSP Plugin`。
 
 2. **项目页通用入口**
    - 回到项目页，点击右下角 **+**。
@@ -220,7 +220,7 @@
    - 这是刻意保留的通用入口，不应该强制只显示插件模板。
 
 3. **插件模板缺失场景**
-   - 临时禁用或移除 `TinaIDE Plugin Starters` 后，再从教程入口进入。
+   - 临时禁用或移除 `MobileIDE Plugin Starters` 后，再从教程入口进入。
    - 预期：显示“暂无插件项目模板”，并禁用“下一步”。
 
 4. **配置页字段**
@@ -252,29 +252,29 @@
         ├── BuildSystem.PLUGIN
         └── executePluginProjectAction()
             ├── BUILD → PluginProjectActions.build()
-            │   └── 校验 + 打包 dist/<id>-<version>.tinaplug
+            │   └── 校验 + 打包 dist/<id>-<version>.mobileplug
             └── RUN / REBUILD_RUN / TERMINAL → PluginProjectActions.install()
                 └── 校验 + 打包 + PluginManager.install() 热安装
 ```
 
 关键判断点：
 
-- `BuildSystemDetector` 优先读取 `.tinaide/project.json`，并能通过根目录 `manifest.json` 识别插件项目。
+- `BuildSystemDetector` 优先读取 `.mobileide/project.json`，并能通过根目录 `manifest.json` 识别插件项目。
 - `ProjectBuildSystem.PLUGIN` 会映射到 `BuildSystem.PLUGIN`。
 - `CompileProjectUseCase` 一旦检测到 `BuildSystem.PLUGIN`，会提前返回插件项目动作，不再继续解析 CMake / Makefile / 单文件策略。
 - `AndroidPluginProjectActions` 会调用 `PluginDoctor.inspectDirectory()` 做安装前同源诊断。
-- 构建只生成 `.tinaplug`；运行会在打包后调用 `PluginManager.install()` 热安装。
+- 构建只生成 `.mobileplug`；运行会在打包后调用 `PluginManager.install()` 热安装。
 - 成功热安装后，`CompileActionsHelper` 显示插件安装成功提示，并打开构建日志。
 
 相关回归测试：
 
-- `AndroidPluginProjectActionsTest`：验证构建会生成 `.tinaplug`、排除开发辅助文件，运行会委托 `PluginManager.install()`。
+- `AndroidPluginProjectActionsTest`：验证构建会生成 `.mobileplug`、排除开发辅助文件，运行会委托 `PluginManager.install()`。
 - `BuildSystemDetectorTest`：验证插件元数据和根目录插件 `manifest.json` 都会识别为 `BuildSystem.PLUGIN`。
 - `CompileActionsHelperTest`：验证插件热安装成功后显示插件安装成功提示。
 
 如果后续又出现“插件项目点击运行像普通 C/C++ 项目”的问题，优先检查：
 
-1. 创建出来的 `.tinaide/project.json` 是否写入 `buildSystem: "PLUGIN"`。
+1. 创建出来的 `.mobileide/project.json` 是否写入 `buildSystem: "PLUGIN"`。
 2. 项目根目录 `manifest.json` 是否包含 `id`、`name`、`version`，以及插件 `type` 或插件贡献/权限字段。
 3. `CompileProjectUseCase` 注入时是否传入 `PluginProjectActions`。
-4. `AndroidPluginProjectActions` 是否能成功读取 manifest 并生成 `dist/*.tinaplug`。
+4. `AndroidPluginProjectActions` 是否能成功读取 manifest 并生成 `dist/*.mobileplug`。

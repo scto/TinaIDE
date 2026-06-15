@@ -13,7 +13,7 @@ else
 fi
 
 for candidate in \
-  "$SCRIPT_DIR/.tina-starter/validate_core.py" \
+  "$SCRIPT_DIR/.mobile-starter/validate_core.py" \
   "$SCRIPT_DIR/../shared/validate_core.py"
 do
   if [ -f "$candidate" ]; then

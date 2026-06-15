@@ -1,9 +1,9 @@
 plugins {
-    id("tina.android.library")
+    id("mobile.android.library")
 }
 
 android {
-    namespace = "com.wuxianggujun.tinaide.core.treesitter"
+    namespace = "com.scto.mobileide.core.treesitter"
 }
 
 dependencies {

@@ -1,4 +1,4 @@
-# TinaIDE PRoot Builder
+# MobileIDE PRoot Builder
 
 从 Termux 源码编译 PRoot、proot-loader 和 talloc，生成可在 Android 上运行的二进制文件。
 
@@ -84,7 +84,7 @@ Copy-Item output\x86_64\libproot*.so app\src\prebuiltProot\jniLibs\x86_64\
 Copy-Item output\x86_64\libtalloc.so.2 app\src\x86_64\assets\proot\x86_64\
 ```
 
-`-CopyToJniLibs` 会写入 `app/src/prebuiltProot/jniLibs/`。TinaIDE 默认会从 `external/termux-proot` 源码直接编译 PRoot；只有传入 `-Ptina.buildProotFromSource=false` 时，Gradle 才会合并这里的 Docker 预编译产物。
+`-CopyToJniLibs` 会写入 `app/src/prebuiltProot/jniLibs/`。MobileIDE 默认会从 `external/termux-proot` 源码直接编译 PRoot；只有传入 `-Pmobile.buildProotFromSource=false` 时，Gradle 才会合并这里的 Docker 预编译产物。
 
 ## 清理
 
@@ -108,14 +108,14 @@ Copy-Item output\x86_64\libtalloc.so.2 app\src\x86_64\assets\proot\x86_64\
 
 | 资源 | 名称 | 用途 |
 |------|------|------|
-| 镜像 | `tinaide-proot-builder:arm64` | arm64 构建环境 |
-| 镜像 | `tinaide-proot-builder:x86_64` | x86_64 构建环境 |
-| Volume | `tinaide-proot-source` | 持久化源码（所有架构共享） |
+| 镜像 | `mobileide-proot-builder:arm64` | arm64 构建环境 |
+| 镜像 | `mobileide-proot-builder:x86_64` | x86_64 构建环境 |
+| Volume | `mobileide-proot-source` | 持久化源码（所有架构共享） |
 
 ```powershell
 # 查看资源
-docker images | Select-String "tinaide-proot"
-docker volume ls | Select-String "tinaide-proot"
+docker images | Select-String "mobileide-proot"
+docker volume ls | Select-String "mobileide-proot"
 ```
 
 ## 技术说明
@@ -166,8 +166,8 @@ docker volume ls | Select-String "tinaide-proot"
 如果终端没有输出，请直接查看容器日志定位问题：
 
 ```powershell
-docker logs -f tinaide-proot-build-arm64
-docker logs -f tinaide-proot-build-x86_64
+docker logs -f mobileide-proot-build-arm64
+docker logs -f mobileide-proot-build-x86_64
 ```
 
 ### Docker 未运行
@@ -185,10 +185,10 @@ docker version
 
 ```powershell
 # 查看完整日志
-docker logs tinaide-proot-build-arm64
+docker logs mobileide-proot-build-arm64
 
 # 进入容器调试
-docker run -it --rm -v tinaide-proot-source:/build/src tinaide-proot-builder:arm64 /bin/bash
+docker run -it --rm -v mobileide-proot-source:/build/src mobileide-proot-builder:arm64 /bin/bash
 ```
 
 ## 详细文档

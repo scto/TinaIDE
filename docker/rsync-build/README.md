@@ -1,4 +1,4 @@
-# TinaIDE Rsync Docker Builder
+# MobileIDE Rsync Docker Builder
 
 使用 Docker 编译支持 16KB 页面对齐的 Android rsync 二进制文件。
 
@@ -154,15 +154,15 @@ implementation("com.nerdoftheherd:android-rsync:3.4.1")
 
 ```bash
 # 构建镜像
-docker build -t tinaide-rsync-builder docker/rsync-build
+docker build -t mobileide-rsync-builder docker/rsync-build
 
 # 运行容器
 docker run --rm \
-  -v tinaide-rsync-src:/build/src \
+  -v mobileide-rsync-src:/build/src \
   -v $(pwd)/app/src/main/jniLibs/arm64-v8a:/output/arm64-v8a \
   -e TARGET_ARCH=aarch64-linux-android \
   -e RSYNC_VERSION=v3.4.0 \
-  tinaide-rsync-builder
+  mobileide-rsync-builder
 ```
 
 ## 故障排除
@@ -199,7 +199,7 @@ docker run --rm \
 ls app\src\main\jniLibs\arm64-v8a\
 
 # 查看 Docker 日志
-docker logs tinaide-rsync-build-arm64-v8a
+docker logs mobileide-rsync-build-arm64-v8a
 ```
 
 ## 性能优化

@@ -3,7 +3,7 @@
 > 文档更新：2026-02-25
 > 作者：Claude Code
 
-本文档介绍如何开发 LSP（Language Server Protocol）类型的插件，为 TinaIDE 添加新语言的代码补全、诊断、跳转定义等功能。
+本文档介绍如何开发 LSP（Language Server Protocol）类型的插件，为 MobileIDE 添加新语言的代码补全、诊断、跳转定义等功能。
 
 ---
 
@@ -27,7 +27,7 @@ LSP 插件是一种特殊类型的插件（`type: "lsp"`），它通过声明：
 ### 1. 创建插件目录结构
 
 ```
-tinaide.lsp.python/
+mobileide.lsp.python/
 ├── manifest.json          # 必须：插件元信息
 └── README.md              # 可选：插件说明
 ```
@@ -38,7 +38,7 @@ tinaide.lsp.python/
 
 ```json
 {
-  "id": "tinaide.lsp.python",
+  "id": "mobileide.lsp.python",
   "name": "Python Language Support",
   "version": "1.0.0",
   "type": "lsp",
@@ -115,15 +115,15 @@ tinaide.lsp.python/
 
 ```powershell
 # PowerShell
-Compress-Archive -Path .\* -DestinationPath ..\tinaide.lsp.python.tinaplug
+Compress-Archive -Path .\* -DestinationPath ..\mobileide.lsp.python.mobileplug
 ```
 
 ```bash
 # Linux/macOS
-zip -r ../tinaide.lsp.python.tinaplug .
+zip -r ../mobileide.lsp.python.mobileplug .
 ```
 
-在 TinaIDE 中：设置 → 插件 → 从文件安装
+在 MobileIDE 中：设置 → 插件 → 从文件安装
 
 ---
 
@@ -133,7 +133,7 @@ zip -r ../tinaide.lsp.python.tinaplug .
 
 | 字段 | 类型 | 必须 | 说明 |
 |------|------|------|------|
-| `id` | string | ✓ | 插件唯一 ID（建议：`tinaide.lsp.<language>`） |
+| `id` | string | ✓ | 插件唯一 ID（建议：`mobileide.lsp.<language>`） |
 | `name` | string | ✓ | 插件显示名称 |
 | `version` | string | ✓ | 版本号（语义化版本） |
 | `type` | string | ✓ | 必须为 `"lsp"` |
@@ -366,7 +366,7 @@ Language Server 配置数组，每个元素定义一个 LSP 服务器。
 
 ```json
 {
-  "id": "tinaide.lsp.python",
+  "id": "mobileide.lsp.python",
   "name": "Python Language Support",
   "version": "1.0.0",
   "type": "lsp",
@@ -400,7 +400,7 @@ Language Server 配置数组，每个元素定义一个 LSP 服务器。
 
 ```json
 {
-  "id": "tinaide.lsp.typescript",
+  "id": "mobileide.lsp.typescript",
   "name": "TypeScript Language Support",
   "version": "1.0.0",
   "type": "lsp",
@@ -424,7 +424,7 @@ Language Server 配置数组，每个元素定义一个 LSP 服务器。
 
 ```json
 {
-  "id": "tinaide.lsp.rust",
+  "id": "mobileide.lsp.rust",
   "name": "Rust Language Support",
   "version": "1.0.0",
   "type": "lsp",
@@ -453,7 +453,7 @@ Language Server 配置数组，每个元素定义一个 LSP 服务器。
 
 ```json
 {
-  "id": "tinaide.lsp.java",
+  "id": "mobileide.lsp.java",
   "name": "Java Language Support",
   "version": "1.0.0",
   "type": "lsp",
@@ -502,7 +502,7 @@ Language Server 配置数组，每个元素定义一个 LSP 服务器。
 ### 插件安装流程
 
 ```
-用户安装 LSP 插件（.tinaplug）
+用户安装 LSP 插件（.mobileplug）
     ↓
 PluginManager 解析 manifest.json
     ↓
@@ -642,11 +642,11 @@ data class LspToolchainConfig(
 
 | 文件 | 说明 |
 |------|------|
-| [LspPluginModels.kt](../../core/plugin/src/main/java/com/wuxianggujun/tinaide/plugin/lsp/LspPluginModels.kt) | LSP 插件数据模型 |
-| [LspPluginManager.kt](../../core/plugin/src/main/java/com/wuxianggujun/tinaide/plugin/lsp/LspPluginManager.kt) | LSP 插件管理器 |
-| [LspToolchainInstaller.kt](../../core/plugin/src/main/java/com/wuxianggujun/tinaide/plugin/lsp/LspToolchainInstaller.kt) | 工具链安装器 |
-| [PluginLspConnectionProvider.kt](../../core/plugin/src/main/java/com/wuxianggujun/tinaide/plugin/lsp/PluginLspConnectionProvider.kt) | LSP 连接提供者 |
-| [tinaide.lsp.python/manifest.json](https://github.com/wuxianggujun/TinaIDE-Registry/tree/main/sources/plugins/tinaide.lsp.python) | Python LSP 示例插件发布源 |
+| [LspPluginModels.kt](../../core/plugin/src/main/java/com/scto/mobileide/plugin/lsp/LspPluginModels.kt) | LSP 插件数据模型 |
+| [LspPluginManager.kt](../../core/plugin/src/main/java/com/scto/mobileide/plugin/lsp/LspPluginManager.kt) | LSP 插件管理器 |
+| [LspToolchainInstaller.kt](../../core/plugin/src/main/java/com/scto/mobileide/plugin/lsp/LspToolchainInstaller.kt) | 工具链安装器 |
+| [PluginLspConnectionProvider.kt](../../core/plugin/src/main/java/com/scto/mobileide/plugin/lsp/PluginLspConnectionProvider.kt) | LSP 连接提供者 |
+| [mobileide.lsp.python/manifest.json](https://github.com/scto/MobileIDE-Registry/tree/main/sources/plugins/mobileide.lsp.python) | Python LSP 示例插件发布源 |
 
 ---
 

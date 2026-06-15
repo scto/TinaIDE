@@ -1,5 +1,5 @@
 #!/bin/bash
-# TinaIDE PRoot Android 交叉编译脚本
+# MobileIDE PRoot Android 交叉编译脚本
 # 编译 proot、loader（从 proot 源码构建）和 talloc
 #
 # 支持架构：aarch64 (arm64-v8a) 和 x86_64
@@ -98,7 +98,7 @@ esac
 
 echo ""
 echo "============================================"
-log_info "TinaIDE PRoot 编译"
+log_info "MobileIDE PRoot 编译"
 echo "============================================"
 echo "  目标架构:    ${TARGET_ARCH}"
 echo "  Android ABI: ${ANDROID_ABI}"
@@ -137,7 +137,7 @@ log_info "Using compiler: ${CC}"
 ${CC} --version | head -1
 
 # 检查源码是否已准备
-if [ ! -f "${SRC_DIR}/.tinaide-prepared" ]; then
+if [ ! -f "${SRC_DIR}/.mobileide-prepared" ]; then
     log_error "源码未准备！请先运行 prepare-source.sh"
     exit 1
 fi

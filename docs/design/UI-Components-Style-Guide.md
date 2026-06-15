@@ -1,34 +1,34 @@
-# TinaIDE UI 组件样式指南
+# MobileIDE UI 组件样式指南
 
 ## 概述
 
-本文档定义了 TinaIDE 应用中 UI 组件的统一样式规范，确保整个应用的视觉一致性。
+本文档定义了 MobileIDE 应用中 UI 组件的统一样式规范，确保整个应用的视觉一致性。
 
 ## 圆角规范
 
 | 用途 | 圆角大小 | 常量名 |
 |------|----------|--------|
-| 徽章、标签 | 4dp | `TinaShapes.ExtraSmallCorner` |
-| 小型卡片、小按钮 | 8dp | `TinaShapes.SmallCorner` |
-| 按钮、输入框 | 12dp | `TinaShapes.ButtonCorner` / `TinaShapes.TextFieldCorner` |
-| 卡片 | 16dp | `TinaShapes.CardCorner` |
-| 对话框、底部弹窗 | 24dp | `TinaShapes.DialogCorner` |
+| 徽章、标签 | 4dp | `MobileShapes.ExtraSmallCorner` |
+| 小型卡片、小按钮 | 8dp | `MobileShapes.SmallCorner` |
+| 按钮、输入框 | 12dp | `MobileShapes.ButtonCorner` / `MobileShapes.TextFieldCorner` |
+| 卡片 | 16dp | `MobileShapes.CardCorner` |
+| 对话框、底部弹窗 | 24dp | `MobileShapes.DialogCorner` |
 
 ## 按钮类型
 
 ### 1. 主要按钮 (Primary Button)
 - **用途**: 页面中最重要的操作，如"确认"、"下一步"、"保存"
 - **样式**: 填充样式，使用 `MaterialTheme.colorScheme.primary` 背景
-- **组件**: `TinaPrimaryButton` / `TinaPrimaryButtonLarge`
+- **组件**: `MobilePrimaryButton` / `MobilePrimaryButtonLarge`
 
 ```kotlin
-TinaPrimaryButton(
+MobilePrimaryButton(
     text = "确认",
     onClick = { /* ... */ }
 )
 
 // 大号按钮（用于页面底部）
-TinaPrimaryButtonLarge(
+MobilePrimaryButtonLarge(
     text = "下一步",
     onClick = { /* ... */ }
 )
@@ -37,10 +37,10 @@ TinaPrimaryButtonLarge(
 ### 2. 次要按钮 (Secondary Button)
 - **用途**: 次要操作，如"编辑"、"查看详情"
 - **样式**: 色调样式 (Tonal)
-- **组件**: `TinaSecondaryButton`
+- **组件**: `MobileSecondaryButton`
 
 ```kotlin
-TinaSecondaryButton(
+MobileSecondaryButton(
     text = "编辑",
     onClick = { /* ... */ }
 )
@@ -49,10 +49,10 @@ TinaSecondaryButton(
 ### 3. 轮廓按钮 (Outlined Button)
 - **用途**: 中等强调的操作，如"取消"、"返回"
 - **样式**: 轮廓样式
-- **组件**: `TinaOutlinedButton`
+- **组件**: `MobileOutlinedButton`
 
 ```kotlin
-TinaOutlinedButton(
+MobileOutlinedButton(
     text = "取消",
     onClick = { /* ... */ }
 )
@@ -61,10 +61,10 @@ TinaOutlinedButton(
 ### 4. 文本按钮 (Text Button)
 - **用途**: 低优先级操作，如"跳过"、"稍后"
 - **样式**: 纯文本
-- **组件**: `TinaTextButton`
+- **组件**: `MobileTextButton`
 
 ```kotlin
-TinaTextButton(
+MobileTextButton(
     text = "跳过",
     onClick = { /* ... */ }
 )
@@ -73,10 +73,10 @@ TinaTextButton(
 ### 5. 危险按钮 (Danger Button)
 - **用途**: 删除、清除等危险操作
 - **样式**: 使用 `MaterialTheme.colorScheme.error` 颜色
-- **组件**: `TinaDangerButton` / `TinaDangerOutlinedButton`
+- **组件**: `MobileDangerButton` / `MobileDangerOutlinedButton`
 
 ```kotlin
-TinaDangerButton(
+MobileDangerButton(
     text = "删除",
     onClick = { /* ... */ }
 )
@@ -86,10 +86,10 @@ TinaDangerButton(
 
 ### 统一输入框
 - **样式**: OutlinedTextField，圆角 12dp
-- **组件**: `TinaTextField`
+- **组件**: `MobileTextField`
 
 ```kotlin
-TinaTextField(
+MobileTextField(
     value = text,
     onValueChange = { text = it },
     label = "用户名",
@@ -103,10 +103,10 @@ TinaTextField(
 
 ### 1. 普通卡片
 - **圆角**: 16dp
-- **组件**: `TinaCard`
+- **组件**: `MobileCard`
 
 ```kotlin
-TinaCard(
+MobileCard(
     onClick = { /* 可选 */ }
 ) {
     // 内容
@@ -117,10 +117,10 @@ TinaCard(
 
 ### 统一对话框
 - **圆角**: 24dp
-- **组件**: `TinaAlertDialog` / `TinaConfirmDialog`
+- **组件**: `MobileAlertDialog` / `MobileConfirmDialog`
 
 ```kotlin
-TinaConfirmDialog(
+MobileConfirmDialog(
     title = "确认删除",
     message = "确定要删除这个项目吗？",
     confirmText = "删除",
@@ -135,7 +135,7 @@ TinaConfirmDialog(
 
 ### 推荐徽章
 ```kotlin
-TinaRecommendedBadge()
+MobileRecommendedBadge()
 ```
 
 ## 迁移指南
@@ -143,21 +143,21 @@ TinaRecommendedBadge()
 ### 从旧样式迁移
 
 1. **按钮圆角统一**
-   - 将所有 `RoundedCornerShape(16.dp)` 或 `RoundedCornerShape(24.dp)` 或 `RoundedCornerShape(28.dp)` 改为 `RoundedCornerShape(TinaShapes.ButtonCorner)`
-   - 或直接使用 `TinaPrimaryButton` 等组件
+   - 将所有 `RoundedCornerShape(16.dp)` 或 `RoundedCornerShape(24.dp)` 或 `RoundedCornerShape(28.dp)` 改为 `RoundedCornerShape(MobileShapes.ButtonCorner)`
+   - 或直接使用 `MobilePrimaryButton` 等组件
 
 2. **卡片圆角统一**
-   - 将所有卡片的 `RoundedCornerShape(12.dp)` 或 `RoundedCornerShape(16.dp)` 改为 `RoundedCornerShape(TinaShapes.CardCorner)`
-   - 或直接使用 `TinaCard` 组件
+   - 将所有卡片的 `RoundedCornerShape(12.dp)` 或 `RoundedCornerShape(16.dp)` 改为 `RoundedCornerShape(MobileShapes.CardCorner)`
+   - 或直接使用 `MobileCard` 组件
 
 3. **对话框圆角统一**
-   - 将所有对话框的 `shape = RoundedCornerShape(24.dp)` 改为 `shape = RoundedCornerShape(TinaShapes.DialogCorner)`
-   - 或直接使用 `TinaAlertDialog` 组件
+   - 将所有对话框的 `shape = RoundedCornerShape(24.dp)` 改为 `shape = RoundedCornerShape(MobileShapes.DialogCorner)`
+   - 或直接使用 `MobileAlertDialog` 组件
 
 ## 文件位置
 
-- 统一组件库: `core/designsystem/src/main/java/com/wuxianggujun/tinaide/ui/compose/components/`
-- 主题定义: `core/designsystem/src/main/java/com/wuxianggujun/tinaide/ui/theme/TinaIDETheme.kt`
+- 统一组件库: `core/designsystem/src/main/java/com/scto/mobileide/ui/compose/components/`
+- 主题定义: `core/designsystem/src/main/java/com/scto/mobileide/ui/theme/MobileIDETheme.kt`
 - XML 主题: `app/src/main/res/values/themes.xml`
 
 ## 颜色使用规范
@@ -203,7 +203,7 @@ MaterialTheme.colorScheme.error             // 错误色
 ## 注意事项
 
 1. **新代码**: 优先使用 `core/designsystem` 中的统一组件和设计 Token
-2. **旧代码**: 逐步迁移到统一组件，或至少使用 `TinaShapes` 常量
+2. **旧代码**: 逐步迁移到统一组件，或至少使用 `MobileShapes` 常量
 3. **对话框按钮**: 对话框内的按钮通常使用 `TextButton`，这是 Material 3 的标准做法
 4. **颜色**: 始终使用 `MaterialTheme.colorScheme` 中的语义化颜色，避免硬编码颜色值
 5. **深色模式**: 使用语义化颜色可自动适配深色模式，无需额外处理

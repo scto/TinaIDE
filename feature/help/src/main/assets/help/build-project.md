@@ -1,6 +1,6 @@
 # 编译项目
 
-本文描述的是 TinaIDE 当前支持的主流构建工作流：单文件、CMake、Make，以及 NDK 原生库场景。
+本文描述的是 MobileIDE 当前支持的主流构建工作流：单文件、CMake、Make，以及 NDK 原生库场景。
 
 ## 当前支持的项目类型
 
@@ -42,7 +42,7 @@
 
 ## Make 项目
 
-如果项目已有自己的 Makefile，TinaIDE 也可以配合它工作。
+如果项目已有自己的 Makefile，MobileIDE 也可以配合它工作。
 
 适合：
 

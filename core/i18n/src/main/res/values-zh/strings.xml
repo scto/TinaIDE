@@ -1,10 +1,10 @@
 <resources>
-  <string name="app_name">TinaIDE</string>
+  <string name="app_name">MobileIDE</string>
   <string name="menu_refresh">刷新</string>
   <string name="menu_settings">设置</string>
 <string name="permission_storage_title">需要存储权限</string>
   <string name="permission_storage_settings">请在系统设置中开启"所有文件访问权限"</string>
-  <string name="project_public_projects_permission_hint">如果你之前把项目保存在公共目录（Documents/TinaIDE），请先授予文件管理权限。授权后项目列表会自动刷新，你就可以直接看到并打开这些项目。</string>
+  <string name="project_public_projects_permission_hint">如果你之前把项目保存在公共目录（Documents/MobileIDE），请先授予文件管理权限。授权后项目列表会自动刷新，你就可以直接看到并打开这些项目。</string>
   <string name="permission_btn_grant">授予权限</string>
   <string name="open_file_tree">打开文件树</string>
   <string name="empty_editor_title">没有打开的文件</string>
@@ -18,7 +18,7 @@
   <string name="error_create_project_dir">创建项目目录失败</string>
   <string name="error_template_failed">模板生成失败</string>
   <string name="success_project_created">项目创建成功</string>
-  <string name="success_plugin_project_created">插件项目已创建：点击运行会校验并热安装，打包会生成 .tinaplug。</string>
+  <string name="success_plugin_project_created">插件项目已创建：点击运行会校验并热安装，打包会生成 .mobileplug。</string>
 
   <!-- Project manager / main screen strings -->
 
@@ -52,7 +52,7 @@
   <string name="settings_cat_github_registry">GitHub 访问代理</string>
   <string name="github_registry_proxy_enabled_title">启用 GitHub 代理</string>
   <string name="github_registry_proxy_enabled_desc">仅用于插件市场和依赖包 Registry 的 GitHub Raw/jsDelivr 访问</string>
-  <string name="github_registry_proxy_scope_desc">该代理不会影响 Git HTTPS 认证、SSH 密钥、AI 渠道或 Tina 服务端请求。</string>
+  <string name="github_registry_proxy_scope_desc">该代理不会影响 Git HTTPS 认证、SSH 密钥、AI 渠道或 Mobile 服务端请求。</string>
   <string name="github_registry_proxy_host_label">代理主机</string>
   <string name="github_registry_proxy_host_placeholder">127.0.0.1 或 proxy.example.com</string>
   <string name="github_registry_proxy_port_label">代理端口</string>
@@ -82,8 +82,8 @@
 
   <!-- Developer Options -->
   <string name="dev_options_backend">后端服务</string>
-  <string name="dev_options_tina_server_url">TinaServer 地址</string>
-  <string name="dev_options_tina_server_url_desc">切换后端服务地址并测试连通性</string>
+  <string name="dev_options_mobile_server_url">MobileServer 地址</string>
+  <string name="dev_options_mobile_server_url_desc">切换后端服务地址并测试连通性</string>
   <string name="dev_options_diagnostics">诊断日志</string>
   <string name="dev_options_diagnostics_enabled">启用诊断日志</string>
   <string name="dev_options_diagnostics_enabled_desc">总开关：关闭后不会输出额外诊断日志（用于减少性能开销/日志量）</string>
@@ -111,12 +111,12 @@
   <string name="dev_options_builtin_cmake_lsp_enabled">内置 CMake LSP</string>
   <string name="dev_options_builtin_cmake_lsp_enabled_desc">关闭后不附加内置 CMake 语义补全/语义高亮，便于单测 CMake 的 Tree-sitter 表现</string>
   <string name="dev_options_ai_chat_message_count">%1$d 条消息</string>
-  <string name="dialog_title_tina_server_url">TinaServer 地址</string>
-  <string name="label_tina_server_url">服务器基础 URL</string>
+  <string name="dialog_title_mobile_server_url">MobileServer 地址</string>
+  <string name="label_mobile_server_url">服务器基础 URL</string>
   <string name="btn_save_and_test">保存并测试</string>
-  <string name="toast_tina_server_test_ok">连接成功</string>
-  <string name="toast_tina_server_test_failed">连接失败</string>
-  <string name="toast_tina_server_restored_default">已恢复默认地址</string>
+  <string name="toast_mobile_server_test_ok">连接成功</string>
+  <string name="toast_mobile_server_test_failed">连接失败</string>
+  <string name="toast_mobile_server_restored_default">已恢复默认地址</string>
 
   <!-- Plugin Database Test Screen -->
 
@@ -133,7 +133,7 @@
   <string name="git_ssh_generate_dialog_title">生成 SSH 密钥</string>
   <string name="git_ssh_key_name_label">密钥文件名</string>
   <string name="git_ssh_key_comment_label">注释（可选）</string>
-  <string name="git_ssh_key_comment_placeholder">例如：your@email.com</string>
+  <string name="git_ssh_key_comment_placeholder">例如：tschmid35@gmail.com</string>
   <string name="git_ssh_generate_ok">已生成：%1$s</string>
   <string name="git_ssh_generate_failed">生成失败</string>
 
@@ -258,7 +258,7 @@
   <string name="plugins_preflight_diagnostics_summary">错误 %1$d · 警告 %2$d</string>
   <string name="plugins_preflight_diagnostics_group_header">%1$s · 错误 %2$d · 警告 %3$d</string>
   <string name="plugins_preflight_guide_manifest">先检查 manifest.json 的基础字段、apiVersion、main 路径、networkHosts 和资源文件路径。</string>
-  <string name="plugins_preflight_guide_permissions">检查 permissions / optionalPermissions 是否使用 TinaIDE 支持的权限 ID，并移除重复声明。</string>
+  <string name="plugins_preflight_guide_permissions">检查 permissions / optionalPermissions 是否使用 MobileIDE 支持的权限 ID，并移除重复声明。</string>
   <string name="plugins_preflight_guide_contributions">检查 commands、menus、fileIcons、projectTemplates 等贡献项是否声明完整，且引用的命令和文件真实存在。</string>
   <string name="plugins_preflight_guide_compatibility">检查 apiVersion、minAppVersion 或插件类型是否与当前 IDE 支持范围一致。</string>
   <string name="plugins_preflight_guide_runtime">这是运行期问题，建议先查看插件日志、脚本入口和权限授权状态。</string>
@@ -429,7 +429,7 @@
   <string name="export_failed">导出失败: %1$s</string>
   <string name="export_share_title">分享项目</string>
   <string name="export_share_subject">项目导出: %1$s</string>
-  <string name="export_share_text">这是从 TinaIDE 导出的项目: %1$s</string>
+  <string name="export_share_text">这是从 MobileIDE 导出的项目: %1$s</string>
   <string name="export_empty_project">项目为空，没有可导出的文件</string>
   <string name="export_dir_not_exist">项目目录不存在</string>
 
@@ -564,13 +564,14 @@
   <string name="wizard_title_new_project">新建项目</string>
   <string name="wizard_subtitle_new_project">创建一个新的 C/C++ 项目</string>
   <string name="wizard_title_new_plugin_project">新建插件项目</string>
-  <string name="wizard_subtitle_new_plugin_project">选择一个 TinaIDE 插件模板开始开发</string>
+  <string name="wizard_subtitle_new_plugin_project">选择一个 MobileIDE 插件模板开始开发</string>
   <string name="wizard_project_source_location">本次创建位置</string>
   <string name="wizard_btn_next">下一步</string>
   <string name="wizard_btn_previous">上一步</string>
   <string name="wizard_btn_create">创建项目</string>
   <string name="wizard_template_recommended">推荐</string>
   <string name="wizard_category_native_projects">C/C++ 项目</string>
+  <string name="wizard_category_android_projects">Android / Gradle</string>
   <string name="wizard_category_plugin_projects">插件项目</string>
   <string name="wizard_category_user_templates">自定义模板</string>
   <string name="wizard_plugin_template_badge">插件</string>
@@ -578,14 +579,14 @@
   <string name="wizard_user_template_badge">自定义</string>
   <string name="wizard_user_template_card_hint">来自用户模板目录，创建时会自动替换项目名称占位符。</string>
   <string name="wizard_author_name">作者</string>
-  <string name="wizard_author_name_placeholder">例如 Tina</string>
+  <string name="wizard_author_name_placeholder">例如 Mobile</string>
   <string name="wizard_author_name_desc">可选，用于替换模板中的 {{AUTHOR}} 占位符</string>
   <string name="wizard_plugin_template_config_guide_title">插件项目下一步</string>
-  <string name="wizard_plugin_template_config_guide_body">创建完成后，打开项目点击运行会执行校验 + 打包 + 热安装；点击打包会生成 .tinaplug，用于分享或从文件安装。</string>
+  <string name="wizard_plugin_template_config_guide_body">创建完成后，打开项目点击运行会执行校验 + 打包 + 热安装；点击打包会生成 .mobileplug，用于分享或从文件安装。</string>
   <string name="wizard_templates_empty_title">暂无可用模板</string>
   <string name="wizard_templates_empty_body">请先在插件市场安装并启用对应的项目模板插件，然后重新打开新建项目向导。</string>
   <string name="wizard_plugin_templates_empty_title">暂无插件项目模板</string>
-  <string name="wizard_plugin_templates_empty_body">请先在插件市场安装并启用 TinaIDE Plugin Starters，然后重新打开插件教程入口继续。</string>
+  <string name="wizard_plugin_templates_empty_body">请先在插件市场安装并启用 MobileIDE Plugin Starters，然后重新打开插件教程入口继续。</string>
 
   <!-- Project Tags -->
   <string name="tag_public_source">公有</string>
@@ -902,16 +903,16 @@
   <string name="settings_user_templates_edit_description_label">说明</string>
   <string name="settings_user_templates_edit_description_placeholder">说明这个模板适合的项目类型</string>
   <string name="settings_user_templates_edit_author_label">作者</string>
-  <string name="settings_user_templates_edit_author_placeholder">例如 TinaIDE</string>
+  <string name="settings_user_templates_edit_author_placeholder">例如 MobileIDE</string>
   <string name="settings_user_templates_variables_label">变量默认值</string>
-  <string name="settings_user_templates_variables_placeholder">例如 AUTHOR=TinaIDE</string>
+  <string name="settings_user_templates_variables_placeholder">例如 AUTHOR=MobileIDE</string>
   <string name="settings_user_templates_variables_desc">每行一个 KEY=VALUE，用于模板占位符默认值</string>
   <string name="settings_user_templates_edit_build_system">构建系统</string>
   <string name="settings_user_templates_edit_build_system_value">构建系统：%1$s</string>
   <string name="settings_user_templates_edit_primary_language">主要语言</string>
   <string name="settings_user_templates_edit_primary_language_value">主要语言：%1$s</string>
   <string name="settings_user_templates_edit_ndk_template">作为 NDK 模板显示</string>
-  <string name="settings_user_templates_preview_title">tina-template.json 预览</string>
+  <string name="settings_user_templates_preview_title">mobile-template.json 预览</string>
   <string name="settings_user_templates_metadata_auto_detect">自动检测</string>
   <string name="settings_user_templates_language_c">C</string>
   <string name="settings_user_templates_language_cpp">C++</string>
@@ -940,7 +941,7 @@
   <string name="settings_user_templates_variables_error_missing_separator">变量默认值必须使用 KEY=VALUE 格式</string>
   <string name="settings_user_templates_variables_error_invalid_name">变量名只能包含英文字母、数字和下划线，且不能以数字开头</string>
   <string name="settings_user_templates_variables_error_empty_value">变量默认值不能为空</string>
-  <string name="project_source_location_public">公共目录（Documents/TinaIDE）</string>
+  <string name="project_source_location_public">公共目录（Documents/MobileIDE）</string>
   <string name="project_source_location_public_desc">卸载应用后源码仍保留，但创建项目时需要文件管理权限</string>
   <string name="project_source_location_private">私有目录（应用内部）</string>
   <string name="project_source_location_private_desc">无需文件权限，构建更稳定，但卸载应用后项目会被删除</string>
@@ -1248,7 +1249,7 @@
   <string name="settings_github">GitHub</string>
   <string name="settings_github_desc">查看源代码、提交 Issue</string>
   <string name="about_donation_title">赞赏支持</string>
-  <string name="about_donation_desc">如果 TinaIDE 对你有帮助，可以扫码支持项目维护。</string>
+  <string name="about_donation_desc">如果 MobileIDE 对你有帮助，可以扫码支持项目维护。</string>
   <string name="about_donation_wechat">微信赞赏</string>
   <string name="about_donation_alipay">支付宝赞赏</string>
   <string name="settings_cat_legal">法律信息</string>
@@ -1790,18 +1791,18 @@
   <string name="crash_title">应用崩溃了</string>
   <string name="crash_title_user_native">用户程序崩溃了</string>
   <string name="crash_hint">以下是崩溃信息，点击复制按钮可复制完整日志</string>
-  <string name="crash_hint_user_native">用户运行的 SDL/Native/NDK 程序已在独立进程中崩溃，TinaIDE 主界面不应受影响。以下是崩溃信息，点击复制按钮可复制完整日志。</string>
-  <string name="crash_user_native_privacy_note">这是用户项目/运行程序的崩溃日志，不会上传到 TinaIDE 服务器。你可以复制或分享给项目作者自行排查。</string>
+  <string name="crash_hint_user_native">用户运行的 SDL/Native/NDK 程序已在独立进程中崩溃，MobileIDE 主界面不应受影响。以下是崩溃信息，点击复制按钮可复制完整日志。</string>
+  <string name="crash_user_native_privacy_note">这是用户项目/运行程序的崩溃日志，不会上传到 MobileIDE 服务器。你可以复制或分享给项目作者自行排查。</string>
   <string name="crash_upload_status_title">崩溃日志上传状态</string>
   <string name="crash_upload_status_none">尚未检测到上传状态。重启应用后会再次检查崩溃日志。</string>
   <string name="crash_upload_status_queued">已加入后台上传队列，网络可用时会自动上传。</string>
   <string name="crash_upload_status_uploading">正在尝试上传崩溃日志。</string>
-  <string name="crash_upload_status_uploaded">已上传到 TinaIDE 服务器。</string>
+  <string name="crash_upload_status_uploaded">已上传到 MobileIDE 服务器。</string>
   <string name="crash_upload_status_skipped">本次崩溃日志不会上传，日志仍保存在本地。</string>
   <string name="crash_upload_status_retry_pending">暂未上传成功，已保留本地日志并会自动重试。</string>
   <string name="crash_upload_status_failed">上传失败，日志仍保存在本地，可复制或分享给开发者。</string>
   <string name="crash_btn_share">分享本地日志</string>
-  <string name="crash_share_subject">TinaIDE 崩溃日志</string>
+  <string name="crash_share_subject">MobileIDE 崩溃日志</string>
   <string name="crash_share_chooser_title">分享崩溃日志</string>
   <string name="crash_share_failed">分享失败: %1$s</string>
   <string name="crash_btn_exit">退出</string>
@@ -2046,7 +2047,7 @@
   <string name="settings_ai_prompt_refactoring">重构专家</string>
   <string name="settings_ai_prompt_documentation">文档编写</string>
     <string name="settings_ai_tools">启用工具调用</string>
-    <string name="settings_ai_tools_subtitle">允许模型调用 TinaIDE 内置工具（需要网关支持 tools/tool_calls）</string>
+    <string name="settings_ai_tools_subtitle">允许模型调用 MobileIDE 内置工具（需要网关支持 tools/tool_calls）</string>
     <string name="settings_ai_allow_dangerous_tools_auto">允许高危工具自动调用</string>
     <string name="settings_ai_allow_dangerous_tools_auto_subtitle">自动执行模式下，允许自动调用高危工具（如文件删除、系统命令等）</string>
     <string name="settings_ai_deep_thinking">启用深度思考</string>
@@ -2212,7 +2213,7 @@
   <!-- EditorKeepAliveService -->
   <string name="service_editor_keep_alive_channel_name">编辑器后台运行</string>
   <string name="service_editor_keep_alive_channel_desc">保持编辑器在后台运行，防止被系统杀死</string>
-  <string name="service_editor_keep_alive_title">TinaIDE 正在运行</string>
+  <string name="service_editor_keep_alive_title">MobileIDE 正在运行</string>
   <string name="service_editor_keep_alive_text">编辑器在后台保持运行</string>
 
   <!-- Compiler / Sysroot -->
@@ -2380,7 +2381,7 @@ kept=%3$d bytes
   <string name="settings_remote_lsp_sync_method_manual">手动同步</string>
 
   <string name="settings_remote_lsp_rsync_module">rsync 模块</string>
-  <string name="settings_remote_lsp_rsync_module_hint">例如：tina-workspace</string>
+  <string name="settings_remote_lsp_rsync_module_hint">例如：mobile-workspace</string>
   <string name="settings_remote_lsp_rsync_port">rsync 端口</string>
   <string name="settings_remote_lsp_rsync_port_hint">默认：873</string>
 
@@ -2415,11 +2416,11 @@ kept=%3$d bytes
 
   <!-- Help Documents -->
   <string name="help_doc_getting_started_title">快速开始</string>
-  <string name="help_doc_getting_started_summary">了解 TinaIDE 的基本功能和使用方法</string>
+  <string name="help_doc_getting_started_summary">了解 MobileIDE 的基本功能和使用方法</string>
   <string name="help_doc_create_project_title">创建项目</string>
   <string name="help_doc_create_project_summary">学习如何创建 C/C++ 项目</string>
   <string name="help_doc_plugin_quick_start_title">插件开发快速开始</string>
-  <string name="help_doc_plugin_quick_start_summary">从插件模板创建项目，运行热安装，打包 .tinaplug，并用安装前预检闭环验证</string>
+  <string name="help_doc_plugin_quick_start_summary">从插件模板创建项目，运行热安装，打包 .mobileplug，并用安装前预检闭环验证</string>
   <string name="help_quick_actions_title">快捷操作</string>
   <string name="help_action_create_plugin_project">创建插件项目</string>
   <string name="help_action_open_plugin_settings">打开插件设置</string>
@@ -2511,7 +2512,7 @@ kept=%3$d bytes
     <item>插件开发</item>
     <item>插件模板</item>
     <item>插件项目</item>
-    <item>tinaplug</item>
+    <item>mobileplug</item>
     <item>manifest</item>
     <item>热安装</item>
     <item>预检</item>
@@ -2701,7 +2702,7 @@ kept=%3$d bytes
   <string-array name="help_keywords_plugin_settings">
     <item>插件</item>
     <item>扩展</item>
-    <item>tinaplug</item>
+    <item>mobileplug</item>
     <item>主题插件</item>
     <item>插件日志</item>
     <item>lsp 插件</item>
@@ -2805,7 +2806,7 @@ kept=%3$d bytes
   <string name="settings_crash_auto_upload_desc">下次启动自动上传崩溃日志（可在此关闭）</string>
   <string name="settings_crash_upload_status">最近崩溃上传状态</string>
   <string name="settings_crash_upload_status_no_record">暂未记录崩溃上传状态。</string>
-  <string name="settings_crash_upload_status_disabled">自动上传已关闭，新的 TinaIDE 崩溃日志不会自动上传。</string>
+  <string name="settings_crash_upload_status_disabled">自动上传已关闭，新的 MobileIDE 崩溃日志不会自动上传。</string>
   <string name="settings_clear_logs">清空日志缓存</string>
   <string name="settings_clear_logs_desc">清空本地缓存的日志文件</string>
 
@@ -2826,15 +2827,15 @@ kept=%3$d bytes
   <string name="toast_logs_cleared">日志缓存已清空</string>
   <string name="toast_clear_logs_failed">清空日志失败: %1$s</string>
   <string name="dialog_title_upload_logs">上传日志</string>
-  <string name="dialog_message_upload_logs">将生成 TinaIDE 问题诊断上传包并发送到服务器。请确认你愿意分享以下信息。\n\n会上传：\n• TinaIDE 结构化日志（Timber）\n• 当前 App 进程 logcat（不含全局 logcat）\n• 应用/设备信息、TinaIDE 主进程崩溃与安装诊断\n• 项目构建日志（可能包含项目路径、编译输出或依赖名）\n• PRoot/rootfs/Linux 环境日志（可能包含软件源、已安装包或命令输出）\n• export_manifest.txt（记录收集策略）\n\n不会上传：\n• 源码文件或完整项目文件\n• 全局 logcat\n• 用户 SDL/Native/NDK 程序崩溃 tombstone\n\n如不想分享这些运行环境日志，请取消并改用“导出日志”本地分享。</string>
+  <string name="dialog_message_upload_logs">将生成 MobileIDE 问题诊断上传包并发送到服务器。请确认你愿意分享以下信息。\n\n会上传：\n• MobileIDE 结构化日志（Timber）\n• 当前 App 进程 logcat（不含全局 logcat）\n• 应用/设备信息、MobileIDE 主进程崩溃与安装诊断\n• 项目构建日志（可能包含项目路径、编译输出或依赖名）\n• PRoot/rootfs/Linux 环境日志（可能包含软件源、已安装包或命令输出）\n• export_manifest.txt（记录收集策略）\n\n不会上传：\n• 源码文件或完整项目文件\n• 全局 logcat\n• 用户 SDL/Native/NDK 程序崩溃 tombstone\n\n如不想分享这些运行环境日志，请取消并改用“导出日志”本地分享。</string>
   <string name="dialog_title_clear_logs">清空日志缓存</string>
   <string name="dialog_message_clear_logs">确定要清空所有日志缓存吗？此操作不可撤销。</string>
-  <string name="log_export_filename">TinaIDE_logs_%1$s.zip</string>
-  <string name="log_share_subject">TinaIDE 日志</string>
-  <string name="log_share_text">TinaIDE 应用日志文件，用于问题诊断。</string>
+  <string name="log_export_filename">MobileIDE_logs_%1$s.zip</string>
+  <string name="log_share_subject">MobileIDE 日志</string>
+  <string name="log_share_text">MobileIDE 应用日志文件，用于问题诊断。</string>
   <string name="log_share_chooser_title">分享日志</string>
 
-  <string name="log_export_app_info_title">=== TinaIDE 应用信息 ===</string>
+  <string name="log_export_app_info_title">=== MobileIDE 应用信息 ===</string>
   <string name="log_export_app_name">应用名称: %1$s</string>
   <string name="log_export_package_name">包名: %1$s</string>
   <string name="log_export_version_name">版本名称: %1$s</string>
@@ -2935,7 +2936,7 @@ kept=%3$d bytes
 
   <!-- WeChat Auth Provider Errors -->
 
-  <!-- TinaIDEException Messages -->
+  <!-- MobileIDEException Messages -->
   <string name="exception_compile_failed_at">编译失败: %1$s:%2$d - %3$s</string>
   <string name="exception_compile_failed">编译失败: %1$s</string>
   <string name="exception_found_errors">发现 %1$d 个错误</string>
@@ -3123,9 +3124,9 @@ kept=%3$d bytes
   <string name="dev_options_disable_desc">关闭后需要在关于页面重新激活</string>
   <string name="dev_options_disabled">开发者选项已关闭</string>
 
-  <!-- Tina Components -->
-  <string name="tina_badge_recommended">推荐</string>
-  <string name="tina_search_placeholder">搜索...</string>
+  <!-- Mobile Components -->
+  <string name="mobile_badge_recommended">推荐</string>
+  <string name="mobile_search_placeholder">搜索...</string>
 
   <!-- Debug -->
   <string name="debug_session_started">启动调试会话：%1$s</string>
@@ -3252,8 +3253,8 @@ kept=%3$d bytes
     <string name="plugin_error_permission_not_declared">manifest 未声明权限：%1$s</string>
     <string name="plugin_error_permission_not_granted">权限未授予：%1$s</string>
     <string name="plugin_error_permission_denied_generic">权限不足</string>
-    <string name="plugin_log_permission_denied_not_declared">权限调用被拒绝：tina.%1$s.%2$s 需要权限 %3$s（manifest 未声明）</string>
-    <string name="plugin_log_permission_denied_not_granted">权限调用被拒绝：tina.%1$s.%2$s 需要权限 %3$s（未授予）</string>
+    <string name="plugin_log_permission_denied_not_declared">权限调用被拒绝：mobile.%1$s.%2$s 需要权限 %3$s（manifest 未声明）</string>
+    <string name="plugin_log_permission_denied_not_granted">权限调用被拒绝：mobile.%1$s.%2$s 需要权限 %3$s（未授予）</string>
     <string name="plugin_diagnostic_load_missing_manifest_fix">在插件根目录补充 manifest.json，并重新安装或重载插件。</string>
   <string name="plugin_diagnostic_load_invalid_manifest_fix">检查 manifest 字段、权限声明和引用资源路径，修复后重新安装或重载插件。</string>
   <string name="plugin_diagnostic_permissions_duplicate">权限重复声明：%1$s</string>
@@ -3265,17 +3266,17 @@ kept=%3$d bytes
   <string name="plugin_diagnostic_network_hosts_format_fix">只声明裸 host，例如 api.example.com；不要包含协议、路径、端口或通配符。</string>
   <string name="plugin_diagnostic_min_app_version_invalid">minAppVersion 格式无法比较：%1$s</string>
   <string name="plugin_diagnostic_min_app_version_invalid_fix">请使用可比较的版本号，例如 1.2.3 或 0.14.67-beta。</string>
-  <string name="plugin_diagnostic_min_app_version_unsupported">插件要求宿主版本至少为 %1$s，当前 TinaIDE 版本为 %2$s</string>
-  <string name="plugin_diagnostic_min_app_version_unsupported_fix">请升级 TinaIDE，或改用兼容当前宿主版本的插件版本。</string>
+  <string name="plugin_diagnostic_min_app_version_unsupported">插件要求宿主版本至少为 %1$s，当前 MobileIDE 版本为 %2$s</string>
+  <string name="plugin_diagnostic_min_app_version_unsupported_fix">请升级 MobileIDE，或改用兼容当前宿主版本的插件版本。</string>
   <string name="plugin_diagnostic_command_blank_id">命令 ID 不能为空（序号 %1$d）</string>
   <string name="plugin_diagnostic_command_blank_title">命令标题不能为空（序号 %1$d）</string>
   <string name="plugin_diagnostic_command_duplicate_id">命令 ID 重复：%1$s</string>
   <string name="plugin_diagnostic_command_unsupported">当前宿主不支持该命令 ID，且该插件类型也不能在运行时注册它：%1$s</string>
-  <string name="plugin_diagnostic_command_fix">请改用宿主白名单命令，或在当前 script/hybrid 插件里通过 tina.commands.register() 注册同名命令。</string>
+  <string name="plugin_diagnostic_command_fix">请改用宿主白名单命令，或在当前 script/hybrid 插件里通过 mobile.commands.register() 注册同名命令。</string>
   <string name="plugin_diagnostic_menu_blank_command">菜单项缺少 command（位置 %1$s）</string>
   <string name="plugin_diagnostic_menu_unsupported_command">菜单项引用了当前宿主不支持的命令：%1$s（位置 %2$s）</string>
   <string name="plugin_diagnostic_menu_plugin_command_not_declared">菜单项引用了未在 contributions.commands 中声明的插件命令：%1$s（位置 %2$s）</string>
-  <string name="plugin_diagnostic_menu_plugin_command_not_declared_fix">在 contributions.commands 中声明相同命令 ID，并确保运行时通过 tina.commands.register() 注册它。</string>
+  <string name="plugin_diagnostic_menu_plugin_command_not_declared_fix">在 contributions.commands 中声明相同命令 ID，并确保运行时通过 mobile.commands.register() 注册它。</string>
   <string name="plugin_diagnostic_command_permission_missing">检测到插件自定义命令，但 manifest 未声明 command.execute 权限：%1$s</string>
   <string name="plugin_diagnostic_command_permission_missing_fix">在 permissions 或 optionalPermissions 中加入 command.execute，然后重新加载插件。</string>
   <string name="plugin_diagnostic_menu_unknown_when">菜单项使用了当前未支持的 when 表达式：%1$s（位置 %2$s）</string>
@@ -3294,7 +3295,7 @@ kept=%3$d bytes
   <string name="plugin_diagnostic_requirements_toolchain_recommended">推荐工具链：%1$s</string>
   <string name="plugin_diagnostic_requirements_toolchain_optional">可选工具链：%1$s</string>
   <string name="plugin_diagnostic_requirements_packages">环境包：%1$s</string>
-  <string name="plugin_diagnostic_requirements_fix">请在插件详情页或插件文档中确认依赖；TinaIDE 当前只提示，不会自动安装。</string>
+  <string name="plugin_diagnostic_requirements_fix">请在插件详情页或插件文档中确认依赖；MobileIDE 当前只提示，不会自动安装。</string>
   <string name="plugin_diagnostic_panels_unsupported">已声明 panels 贡献，但宿主当前尚未提供面板入口</string>
   <string name="plugin_diagnostic_panels_fix">保留 manifest 声明即可，等宿主提供面板能力后再启用 UI 入口。</string>
   <string name="plugin_diagnostic_file_icon_blank_icon">文件图标规则缺少 icon（序号 %1$d）</string>
@@ -3467,6 +3468,7 @@ kept=%3$d bytes
   <string name="compile_artifact_kind_shared_library">共享库</string>
   <string name="compile_artifact_kind_static_library">静态库</string>
   <string name="compile_artifact_kind_plugin_package">插件包</string>
+  <string name="compile_artifact_kind_apk">APK 应用</string>
   <string name="compile_artifact_kind_unknown">未知产物</string>
   <string name="compile_complete">=== 构建完成 ===</string>
   <string name="compile_result_build_complete">构建完成</string>
@@ -3862,7 +3864,7 @@ kept=%3$d bytes
 
   <!-- Tutorial Categories -->
   <string name="tutorial_cat_getting_started">快速上手</string>
-  <string name="tutorial_cat_getting_started_desc">从零开始学习 TinaIDE 的基本功能</string>
+  <string name="tutorial_cat_getting_started_desc">从零开始学习 MobileIDE 的基本功能</string>
   <string name="tutorial_cat_editor">代码编辑</string>
   <string name="tutorial_cat_editor_desc">提升编码效率的技巧和功能</string>
   <string name="tutorial_cat_build">构建与运行</string>
@@ -3870,13 +3872,13 @@ kept=%3$d bytes
   <string name="tutorial_cat_git">版本控制</string>
   <string name="tutorial_cat_git_desc">使用 Git 进行版本管理</string>
   <string name="tutorial_cat_advanced">进阶功能</string>
-  <string name="tutorial_cat_advanced_desc">探索 TinaIDE 的高级特性</string>
+  <string name="tutorial_cat_advanced_desc">探索 MobileIDE 的高级特性</string>
 
   <!-- Tutorial Titles -->
-  <string name="tutorial_onboarding_title">欢迎使用 TinaIDE</string>
-  <string name="tutorial_onboarding_desc">快速了解 TinaIDE 的主要功能</string>
-  <string name="tutorial_getting_started_title">TinaIDE 入门指南</string>
-  <string name="tutorial_getting_started_desc">了解 TinaIDE 的界面布局和基本操作</string>
+  <string name="tutorial_onboarding_title">欢迎使用 MobileIDE</string>
+  <string name="tutorial_onboarding_desc">快速了解 MobileIDE 的主要功能</string>
+  <string name="tutorial_getting_started_title">MobileIDE 入门指南</string>
+  <string name="tutorial_getting_started_desc">了解 MobileIDE 的界面布局和基本操作</string>
   <string name="tutorial_editor_basics_title">编辑器基础</string>
   <string name="tutorial_editor_basics_desc">掌握代码编辑、撤销重做和快捷键</string>
   <string name="tutorial_build_project_title">项目构建配置</string>
@@ -3894,25 +3896,25 @@ kept=%3$d bytes
   <string name="tutorial_step_market_tab_title">插件市场</string>
   <string name="tutorial_step_market_tab_desc">在这里可以浏览和下载各种插件和工具包</string>
   <string name="tutorial_step_tutorial_tab_title">教程中心</string>
-  <string name="tutorial_step_tutorial_tab_desc">这里有丰富的教程帮助你学习使用 TinaIDE</string>
+  <string name="tutorial_step_tutorial_tab_desc">这里有丰富的教程帮助你学习使用 MobileIDE</string>
   <string name="tutorial_step_profile_tab_title">个人中心</string>
   <string name="tutorial_step_profile_tab_desc">管理反馈、设置、关于和下载历史</string>
 
   <!-- Onboarding Dialog -->
-  <string name="onboarding_dialog_title">欢迎使用 TinaIDE</string>
-  <string name="onboarding_dialog_message">是否开始新手引导？我们将带你快速了解 TinaIDE 的主要功能。</string>
+  <string name="onboarding_dialog_title">欢迎使用 MobileIDE</string>
+  <string name="onboarding_dialog_message">是否开始新手引导？我们将带你快速了解 MobileIDE 的主要功能。</string>
   <string name="onboarding_dialog_start">开始引导</string>
   <string name="onboarding_dialog_later">稍后再说</string>
   <string name="onboarding_dialog_skip">不再提示</string>
 
   <!-- Onboarding Complete Dialog -->
   <string name="onboarding_complete_title">引导完成</string>
-  <string name="onboarding_complete_message">恭喜你完成了新手引导！\n\n想要学习更多 TinaIDE 的使用技巧吗？前往教程页面查看更多教程。</string>
+  <string name="onboarding_complete_message">恭喜你完成了新手引导！\n\n想要学习更多 MobileIDE 的使用技巧吗？前往教程页面查看更多教程。</string>
   <string name="onboarding_complete_go_tutorial">前往教程</string>
   <string name="onboarding_complete_dismiss">知道了</string>
 
   <!-- Profile Screen -->
-  <string name="profile_open_source_title">TinaIDE 开源版</string>
+  <string name="profile_open_source_title">MobileIDE 开源版</string>
   <string name="profile_open_source_desc">私有身份与商业功能已迁出；反馈、日志、插件、包下载、收藏和下载历史保留。</string>
   <string name="profile_version_format">版本 %1$s</string>
   <string name="profile_settings">设置</string>
@@ -4361,9 +4363,9 @@ kept=%3$d bytes
   <string name="apk_builder_sign_failed">APK 签名失败，请重试；如果仍然失败，请切换为自定义签名。详情：%1$s</string>
   <string name="apk_builder_install">安装</string>
   <string name="apk_builder_install_failed">拉起安装失败：%1$s</string>
-  <string name="apk_builder_install_permission_required">请先允许 TinaIDE 安装未知应用，然后再点一次安装</string>
+  <string name="apk_builder_install_permission_required">请先允许 MobileIDE 安装未知应用，然后再点一次安装</string>
   <string name="apk_builder_install_unavailable">系统安装器不可用</string>
-  <string name="file_provider_config_invalid">文件分享 Provider 配置异常，请重新安装 TinaIDE 或导出日志排查</string>
+  <string name="file_provider_config_invalid">文件分享 Provider 配置异常，请重新安装 MobileIDE 或导出日志排查</string>
   <string name="apk_builder_share">分享</string>
   <string name="apk_builder_share_failed">分享 APK 失败：%1$s</string>
   <string name="apk_builder_no_entry_library">未找到 libmain.so，请先编译项目</string>
@@ -4385,7 +4387,7 @@ kept=%3$d bytes
   <string name="apk_builder_keystore_file_name">文件名</string>
   <string name="apk_builder_keystore_file_name_hint">例如 release-signing.p12</string>
   <string name="apk_builder_keystore_common_name">证书名</string>
-  <string name="apk_builder_keystore_common_name_hint">例如 TinaIDE Release</string>
+  <string name="apk_builder_keystore_common_name_hint">例如 MobileIDE Release</string>
   <string name="apk_builder_keystore_password">Keystore 密码</string>
   <string name="apk_builder_key_alias">Key Alias</string>
   <string name="apk_builder_key_password">私钥密码</string>

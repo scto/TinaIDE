@@ -528,7 +528,7 @@ val segments = wrapLayout.segmentCount
   ┌──────────────────┐
   │ LspEditorManager  │ cursorOffset → Position → LSP (line, character)
   │ LspSemanticTokenD.│ LSP (line, char) → offset → 存入 semanticTokens
-  │ LspDiagnosticsBridge / TinaCodeEditorPage │ LSP (line, char) → editor diagnostics
+  │ LspDiagnosticsBridge / MobileCodeEditorPage │ LSP (line, char) → editor diagnostics
   └──────────────────┘
 ```
 
@@ -559,8 +559,8 @@ val segments = wrapLayout.segmentCount
 | `EditorScrollGestureCoordinator.kt` | 不涉及 Position，无改动 |
 | `EditorKeyboardShortcuts.kt` | moveCursorTo → offset 版 |
 | `EditorOverlays.kt` | 补全位置改用 offsetToViewport |
-| `TinaEditorSession.kt` | 适配新 API |
-| `TinaEditorUiState.kt` | 无改动 |
+| `MobileEditorSession.kt` | 适配新 API |
+| `MobileEditorUiState.kt` | 无改动 |
 
 ### 8.2 core:editor-view 新增
 
@@ -573,7 +573,7 @@ val segments = wrapLayout.segmentCount
 
 | 文件 | 改动 |
 |---|---|
-| `TinaCodeEditorPage.kt` | `cursorPosition.line/column` → `cursorLine/cursorColumn` |
+| `MobileCodeEditorPage.kt` | `cursorPosition.line/column` → `cursorLine/cursorColumn` |
 | `EditorContainerState.kt` | `CodeEditorCallback` Position API → offset |
 | `LspEditorManager.kt` | 在 LSP 请求边界做 `offset ↔ Position` 转换 |
 

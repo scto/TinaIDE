@@ -1,9 +1,9 @@
 # PC端远程LSP代理服务器配置指南
 
 > **更新日期**: 2026-01-05  
-> **适用版本**: TinaIDE v1.0+
+> **适用版本**: MobileIDE v1.0+
 
-本指南介绍如何在PC上运行LSP代理服务器，用于调试TinaIDE的远程LSP功能。
+本指南介绍如何在PC上运行LSP代理服务器，用于调试MobileIDE的远程LSP功能。
 
 ---
 
@@ -25,7 +25,7 @@
 
 ```
 ┌─────────────────┐      WebSocket      ┌──────────────────┐
-│   TinaIDE (手机)  │ ←───────────────→ │  LSP Proxy (PC)   │
+│   MobileIDE (手机)  │ ←───────────────→ │  LSP Proxy (PC)   │
 │                 │   ws://IP:6789      │                  │
 │  RemoteLspConn  │                     │  WebSocket ↔     │
 │  Provider       │                     │  stdio           │
@@ -42,8 +42,8 @@
 - 接收WebSocket连接（端口6789）
 - 启动并管理LSP服务器进程（clangd等）
 - 双向转发LSP消息
-- 支持项目同步（`tina/syncProject`）
-- 支持文件变更（`tina/fileChanged`）
+- 支持项目同步（`mobile/syncProject`）
+- 支持文件变更（`mobile/fileChanged`）
 
 ---
 
@@ -53,7 +53,7 @@
 |------|------|------|---------|
 | **Python版** | 简单快速，无需编译 | 需要 Python 环境；不便传入自定义 clangd 参数 | 快速测试/调试 |
 | **Kotlin版** | 类型安全，支持自定义 LSP 命令 | 需要 JDK 17+ | 日常使用（推荐） |
-| **Rust版（第三方）** | 性能好、资源占用低 | 不支持 `tina/syncProject` 等自定义消息 | 仅纯 LSP 场景 |
+| **Rust版（第三方）** | 性能好、资源占用低 | 不支持 `mobile/syncProject` 等自定义消息 | 仅纯 LSP 场景 |
 
 ---
 
@@ -73,33 +73,33 @@ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple websockets
 
 ```bash
 # 在仓库根目录执行（默认端口 6789）
-python tools/tina-lsp-proxy.py
+python tools/mobile-lsp-proxy.py
 
 # 指定端口
-python tools/tina-lsp-proxy.py --port 8080
+python tools/mobile-lsp-proxy.py --port 8080
 
 # 指定 clangd 可执行文件路径（如果不在 PATH 中；仅路径，不支持在这里拼接参数）
-python tools/tina-lsp-proxy.py --clangd-path /usr/local/bin/clangd
+python tools/mobile-lsp-proxy.py --clangd-path /usr/local/bin/clangd
 
 # 指定监听地址和端口
-python tools/tina-lsp-proxy.py --host 192.168.1.100 --port 6789
+python tools/mobile-lsp-proxy.py --host 192.168.1.100 --port 6789
 ```
 
 ### 3. 启动成功输出
 
 ```
 ============================================================
-TinaIDE LSP Proxy v2.0 (支持项目模式)
+MobileIDE LSP Proxy v2.0 (支持项目模式)
 ============================================================
 监听地址: ws://0.0.0.0:6789
 clangd 路径: clangd
 
 支持的功能:
   - 标准 LSP 消息转发
-  - tina/syncProject (项目同步)
-  - tina/fileChanged (文件变更)
+  - mobile/syncProject (项目同步)
+  - mobile/fileChanged (文件变更)
 
-等待 TinaIDE 连接...
+等待 MobileIDE 连接...
 ============================================================
 ```
 
@@ -109,7 +109,7 @@ clangd 路径: clangd
 [INFO] 客户端已连接: ('192.168.1.10', 54321)
 [INFO] clangd 已启动 (PID: 12345)
 [INFO] 收到项目同步请求: MyProject (15 文件)
-[INFO] 项目已同步到: /tmp/tina-workspace-MyProject-abc123
+[INFO] 项目已同步到: /tmp/mobile-workspace-MyProject-abc123
 ```
 
 ---
@@ -120,7 +120,7 @@ clangd 路径: clangd
 
 ```bash
 # 进入Kotlin代理目录
-cd tools/tina-lsp-proxy-kt
+cd tools/mobile-lsp-proxy-kt
 
 # Windows
 gradlew.bat build jar
@@ -133,35 +133,35 @@ gradlew.bat build jar
 
 ```bash
 # 基本用法
-java -jar build/libs/tina-lsp-proxy-kt-1.0.0.jar
+java -jar build/libs/mobile-lsp-proxy-kt-1.0.0.jar
 
 # 指定参数
-java -jar build/libs/tina-lsp-proxy-kt-1.0.0.jar \
+java -jar build/libs/mobile-lsp-proxy-kt-1.0.0.jar \
   --host 0.0.0.0 \
   --port 6789 \
   --lsp clangd
 
 # 使用带参数的LSP命令
-java -jar build/libs/tina-lsp-proxy-kt-1.0.0.jar \
+java -jar build/libs/mobile-lsp-proxy-kt-1.0.0.jar \
   --lsp "clangd --background-index=false --limit-results=50"
 
 # 禁用文件同步（仅转发LSP消息）
-java -jar build/libs/tina-lsp-proxy-kt-1.0.0.jar --sync false
+java -jar build/libs/mobile-lsp-proxy-kt-1.0.0.jar --sync false
 ```
 
 ### 3. 启动成功输出
 
 ```
 ============================================================
-  TinaIDE LSP Proxy v1.0.0 (Kotlin)
+  MobileIDE LSP Proxy v1.0.0 (Kotlin)
 ============================================================
 
   支持的功能:
     - 标准 LSP 消息转发
-    - tina/syncProject (项目同步)
-    - tina/fileChanged (文件变更)
+    - mobile/syncProject (项目同步)
+    - mobile/fileChanged (文件变更)
 
-  等待 TinaIDE 连接...
+  等待 MobileIDE 连接...
 ============================================================
 监听地址: ws://0.0.0.0:6789
 LSP 命令: clangd
@@ -172,19 +172,19 @@ LSP 命令: clangd
 
 ```bash
 # C/C++
-java -jar build/libs/tina-lsp-proxy-kt-1.0.0.jar --lsp clangd
+java -jar build/libs/mobile-lsp-proxy-kt-1.0.0.jar --lsp clangd
 
 # Rust
-java -jar build/libs/tina-lsp-proxy-kt-1.0.0.jar --lsp rust-analyzer
+java -jar build/libs/mobile-lsp-proxy-kt-1.0.0.jar --lsp rust-analyzer
 
 # Go
-java -jar build/libs/tina-lsp-proxy-kt-1.0.0.jar --lsp gopls
+java -jar build/libs/mobile-lsp-proxy-kt-1.0.0.jar --lsp gopls
 
 # Python
-java -jar build/libs/tina-lsp-proxy-kt-1.0.0.jar --lsp pylsp
+java -jar build/libs/mobile-lsp-proxy-kt-1.0.0.jar --lsp pylsp
 
 # TypeScript/JavaScript
-java -jar build/libs/tina-lsp-proxy-kt-1.0.0.jar --lsp "typescript-language-server --stdio"
+java -jar build/libs/mobile-lsp-proxy-kt-1.0.0.jar --lsp "typescript-language-server --stdio"
 ```
 
 ---
@@ -218,7 +218,7 @@ lsp-ws-proxy --listen 0.0.0.0:6789 -- clangd --compile-commands-dir=/path/to/bui
 
 ### 3. 注意事项
 
-⚠️ **lsp-ws-proxy不支持TinaIDE自定义消息**（`tina/syncProject`等），因此：
+⚠️ **lsp-ws-proxy不支持MobileIDE自定义消息**（`mobile/syncProject`等），因此：
 - ✅ 适用于 **LIGHTWEIGHT模式**（仅转发当前文件）
 - ❌ 不适用于 **PROJECT模式**（需要项目同步）
 
@@ -237,9 +237,9 @@ curl http://192.168.1.100:6789/
 # 应返回: OK
 ```
 
-### 2. TinaIDE配置
+### 2. MobileIDE配置
 
-1. **打开TinaIDE设置**
+1. **打开MobileIDE设置**
    - 设置 → 编辑器设置 → 远程LSP服务器
 
 2. **配置服务器**
@@ -292,7 +292,7 @@ int main() {
 
 # Kotlin版 - 查看详细日志
 export JAVA_OPTS="-Dlogback.configurationFile=logback-debug.xml"
-java -jar build/libs/tina-lsp-proxy-kt-1.0.0.jar
+java -jar build/libs/mobile-lsp-proxy-kt-1.0.0.jar
 ```
 
 **手机端日志：**
@@ -312,7 +312,7 @@ I/LspEditorManager: Attaching remote LSP: ws://192.168.1.100:6789
 
 ### 问题1: 连接超时
 
-**症状：** TinaIDE状态显示 `Remote Connecting...` 长时间不变
+**症状：** MobileIDE状态显示 `Remote Connecting...` 长时间不变
 
 **可能原因：**
 - PC防火墙阻止了6789端口
@@ -322,7 +322,7 @@ I/LspEditorManager: Attaching remote LSP: ws://192.168.1.100:6789
 **解决方法：**
 ```bash
 # Windows - 允许端口通过防火墙
-netsh advfirewall firewall add rule name="TinaLSP" dir=in action=allow protocol=TCP localport=6789
+netsh advfirewall firewall add rule name="MobileLSP" dir=in action=allow protocol=TCP localport=6789
 
 # Linux - 使用iptables
 sudo iptables -A INPUT -p tcp --dport 6789 -j ACCEPT
@@ -366,10 +366,10 @@ echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | clangd
 **解决方法：**
 ```bash
 # 1. 使用Python或Kotlin版本（支持项目同步）
-python tools/tina-lsp-proxy.py
+python tools/mobile-lsp-proxy.py
 
 # 2. 或切换到LIGHTWEIGHT模式（仅传输当前文件）
-# TinaIDE设置 → 同步模式 → LIGHTWEIGHT
+# MobileIDE设置 → 同步模式 → LIGHTWEIGHT
 
 # 3. 增加消息大小限制（Kotlin版）
 # 编辑 Main.kt，修改 maxFrameSize
@@ -387,7 +387,7 @@ install(WebSockets) {
 # 1. 使用5GHz WiFi或有线连接
 
 # 2. clangd 参数调优（建议用 Kotlin 代理传入完整命令行）
-java -jar build/libs/tina-lsp-proxy-kt-1.0.0.jar --lsp "clangd --background-index=false --limit-results=30"
+java -jar build/libs/mobile-lsp-proxy-kt-1.0.0.jar --lsp "clangd --background-index=false --limit-results=30"
 
 # Python 代理默认已禁用后台索引；且 --clangd-path 仅支持 clangd 可执行文件路径，不支持拼接参数
 
@@ -401,11 +401,11 @@ java -jar build/libs/tina-lsp-proxy-kt-1.0.0.jar --lsp "clangd --background-inde
 **调试方法：**
 ```bash
 # Python版 - 查看详细错误
-python -u tools/tina-lsp-proxy.py 2>&1 | tee proxy.log
+python -u tools/mobile-lsp-proxy.py 2>&1 | tee proxy.log
 
 # Kotlin版 - 启用调试日志
 java -Dlogback.configurationFile=logback-debug.xml \
-     -jar build/libs/tina-lsp-proxy-kt-1.0.0.jar
+     -jar build/libs/mobile-lsp-proxy-kt-1.0.0.jar
 
 # 检查系统资源
 top  # Linux/macOS
@@ -427,34 +427,34 @@ RUN apt-get update && \
     pip3 install websockets && \
     rm -rf /var/lib/apt/lists/*
 
-COPY tools/tina-lsp-proxy.py /app/tina-lsp-proxy.py
+COPY tools/mobile-lsp-proxy.py /app/mobile-lsp-proxy.py
 WORKDIR /app
 
 EXPOSE 6789
-CMD ["python3", "/app/tina-lsp-proxy.py"]
+CMD ["python3", "/app/mobile-lsp-proxy.py"]
 ```
 
 ```bash
 # 构建镜像
-docker build -t tina-lsp-proxy .
+docker build -t mobile-lsp-proxy .
 
 # 运行容器
-docker run -p 6789:6789 tina-lsp-proxy
+docker run -p 6789:6789 mobile-lsp-proxy
 ```
 
 ### 系统服务配置（Linux）
 
 ```ini
-# /etc/systemd/system/tina-lsp-proxy.service
+# /etc/systemd/system/mobile-lsp-proxy.service
 [Unit]
-Description=TinaIDE LSP Proxy
+Description=MobileIDE LSP Proxy
 After=network.target
 
 [Service]
 Type=simple
 User=your-username
-WorkingDirectory=/path/to/TinaIDE/tools
-ExecStart=/usr/bin/python3 tina-lsp-proxy.py
+WorkingDirectory=/path/to/MobileIDE/tools
+ExecStart=/usr/bin/python3 mobile-lsp-proxy.py
 Restart=always
 
 [Install]
@@ -463,11 +463,11 @@ WantedBy=multi-user.target
 
 ```bash
 # 启用服务
-sudo systemctl enable tina-lsp-proxy
-sudo systemctl start tina-lsp-proxy
+sudo systemctl enable mobile-lsp-proxy
+sudo systemctl start mobile-lsp-proxy
 
 # 查看状态
-sudo systemctl status tina-lsp-proxy
+sudo systemctl status mobile-lsp-proxy
 ```
 
 ---
@@ -496,4 +496,4 @@ A: Python版和Kotlin版性能相近，都能满足开发需求。Rust版（lsp-
 ---
 
 **最后更新**: 2026-01-05  
-**维护者**: TinaIDE Team
+**维护者**: MobileIDE Team

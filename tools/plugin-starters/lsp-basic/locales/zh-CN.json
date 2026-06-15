@@ -1,6 +1,6 @@
 {
   "name": "{{PROJECT_NAME}} 语言支持",
-  "description": "TinaIDE LSP 插件入门模板。",
+  "description": "MobileIDE LSP 插件入门模板。",
   "contributions": {
     "languageServers": {
       "{{PROJECT_NAME}}-server": {

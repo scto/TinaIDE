@@ -3,7 +3,7 @@
   "name": "{{PROJECT_NAME}}",
   "version": "0.1.0",
   "type": "config",
-  "description": "Starter config plugin for TinaIDE.",
+  "description": "Starter config plugin for MobileIDE.",
   "author": {
     "name": "Your Name"
   },
@@ -52,7 +52,7 @@
       {
         "icon": "icons/starter-file.svg",
         "extensions": [
-          "tinaplugin"
+          "mobileplugin"
         ],
         "priority": 10
       }

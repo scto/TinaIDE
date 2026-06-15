@@ -4,7 +4,7 @@ set -eu
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 REPO_ROOT="$(CDPATH= cd -- "$SCRIPT_DIR/../.." && pwd)"
 # Historical script name kept for now; starter packages are no longer written into APK assets.
-OUTPUT_ROOT="$REPO_ROOT/tools/plugin-starters/dist/tinaide.plugin.starters/templates"
+OUTPUT_ROOT="$REPO_ROOT/tools/plugin-starters/dist/mobileide.plugin.starters/templates"
 SHARED_ROOT="$SCRIPT_DIR/shared"
 STAGING_ROOT="$SCRIPT_DIR/.bundle"
 
@@ -22,7 +22,7 @@ build_template() {
 
   rm -f "$output_zip"
   rm -rf "$staging_dir"
-  mkdir -p "$staging_dir/.tina-starter"
+  mkdir -p "$staging_dir/.mobile-starter"
   (
     cd "$source_dir"
     for entry in .* *; do
@@ -34,9 +34,9 @@ build_template() {
       cp -R "$entry" "$staging_dir/"
     done
   )
-  cp "$SHARED_ROOT/validate-core.ps1" "$staging_dir/.tina-starter/validate-core.ps1"
-  cp "$SHARED_ROOT/validate_core.py" "$staging_dir/.tina-starter/validate_core.py"
-  cp "$SHARED_ROOT/validation-rules.json" "$staging_dir/.tina-starter/validation-rules.json"
+  cp "$SHARED_ROOT/validate-core.ps1" "$staging_dir/.mobile-starter/validate-core.ps1"
+  cp "$SHARED_ROOT/validate_core.py" "$staging_dir/.mobile-starter/validate_core.py"
+  cp "$SHARED_ROOT/validation-rules.json" "$staging_dir/.mobile-starter/validation-rules.json"
   (
     cd "$staging_dir"
     zip -qr "$output_zip" .
@@ -44,9 +44,9 @@ build_template() {
   echo "Built $output_zip"
 }
 
-build_template "config-basic" "$OUTPUT_ROOT/tina-config-plugin.zip"
-build_template "script-command" "$OUTPUT_ROOT/tina-script-command-plugin.zip"
-build_template "script-basic" "$OUTPUT_ROOT/tina-script-plugin.zip"
-build_template "lsp-basic" "$OUTPUT_ROOT/tina-lsp-plugin.zip"
+build_template "config-basic" "$OUTPUT_ROOT/mobile-config-plugin.zip"
+build_template "script-command" "$OUTPUT_ROOT/mobile-script-command-plugin.zip"
+build_template "script-basic" "$OUTPUT_ROOT/mobile-script-plugin.zip"
+build_template "lsp-basic" "$OUTPUT_ROOT/mobile-lsp-plugin.zip"
 
 rm -rf "$STAGING_ROOT"

@@ -2,20 +2,20 @@
 
 > 更新日期：2026-04-27
 >
-> 本文用于澄清 TinaIDE 内置 Android-hosted LLVM 工具链、Termux LLVM、termux-ndk
-> 之间的差异，并记录当前 TinaIDE 方案的主要问题与改进方向。
+> 本文用于澄清 MobileIDE 内置 Android-hosted LLVM 工具链、Termux LLVM、termux-ndk
+> 之间的差异，并记录当前 MobileIDE 方案的主要问题与改进方向。
 
 ## 结论摘要
 
-TinaIDE 当前工具链不是普通桌面 NDK 工具链，而是 **运行在 Android 设备上的
+MobileIDE 当前工具链不是普通桌面 NDK 工具链，而是 **运行在 Android 设备上的
 LLVM/Clang 工具链**。官方 NDK 只作为构建时交叉编译基础和运行时资源来源。
 
 核心判断：
 
 - Termux 并不是“完全不改 LLVM”。它的 `libllvm` 包维护了多处 LLVM、Clang、LLD、LLDB、compiler-rt 补丁。
 - Termux 把 Android 高版本执行限制的主要适配放在 `termux-exec` 运行时，通过 `LD_PRELOAD` 拦截 `execve`。
-- TinaIDE 不完整依赖 Termux runtime，因此必须自己处理 `linker64` 启动、`/proc/self/exe` 修正、LLVM 内部子进程执行包装。
-- 当前 TinaIDE 方案方向是合理的，但补丁分散、执行策略多层叠加，维护复杂度和回归风险偏高。
+- MobileIDE 不完整依赖 Termux runtime，因此必须自己处理 `linker64` 启动、`/proc/self/exe` 修正、LLVM 内部子进程执行包装。
+- 当前 MobileIDE 方案方向是合理的，但补丁分散、执行策略多层叠加，维护复杂度和回归风险偏高。
 
 ## 名词边界
 
@@ -32,7 +32,7 @@ target = Android ABI，例如 aarch64-linux-android
 
 ### Android-hosted LLVM
 
-TinaIDE 和 Termux 关注的是另一类工具链：
+MobileIDE 和 Termux 关注的是另一类工具链：
 
 ```text
 host   = Android / aarch64
@@ -93,26 +93,26 @@ TERMUX_EXEC__PROC_SELF_EXE
 
 所以 termux-ndk 的目标不是替代 Termux runtime，而是在 Termux 环境里提供更接近官方 NDK 的 Android-hosted 工具链。
 
-### TinaIDE 内置工具链
+### MobileIDE 内置工具链
 
-TinaIDE 的目标更特殊：
+MobileIDE 的目标更特殊：
 
 ```text
-TinaIDE App
+MobileIDE App
   ├── 内置 clang / clangd / lld / llvm-* 等 Android ELF
   ├── 内置 CMake / Ninja / Make 等 Android ELF
-  ├── 可选 tina-exec 执行拦截
+  ├── 可选 mobile-exec 执行拦截
   ├── 可选 PRoot Linux 环境
   └── 默认 native 构建链路不依赖完整 Termux 环境
 ```
 
-因此 TinaIDE 不能默认假设存在 Termux 的前缀目录、包管理、shell profile 和完整 runtime。
+因此 MobileIDE 不能默认假设存在 Termux 的前缀目录、包管理、shell profile 和完整 runtime。
 
-## TinaIDE 为什么需要改 LLVM 源码
+## MobileIDE 为什么需要改 LLVM 源码
 
 ### 原因一：Android 高版本限制 App 私有目录执行 ELF
 
-TinaIDE 当前 `targetSdk = 36`。在 Android 10+，尤其 Android 15+ 设备上，App 私有目录内的可执行文件不能再按传统 Linux 方式稳定直接 `execve`。
+MobileIDE 当前 `targetSdk = 36`。在 Android 10+，尤其 Android 15+ 设备上，App 私有目录内的可执行文件不能再按传统 Linux 方式稳定直接 `execve`。
 
 外层可以用 shell shim 或 `linker64` 启动：
 
@@ -135,7 +135,7 @@ clang
 
 如果这些子进程仍然直接 `execve('/data/data/.../ld.lld')`，就可能在 Android 高版本失败。
 
-所以 TinaIDE 当前在 `llvm/lib/Support/Unix/Program.inc` 里做 execwrap：
+所以 MobileIDE 当前在 `llvm/lib/Support/Unix/Program.inc` 里做 execwrap：
 
 ```text
 原始：execve(<真实工具路径>, argv, envp)
@@ -161,24 +161,24 @@ clang
 - `clang -cc1` 或 `ld.lld` 路径错误
 - `clangd` 找不到相邻资源
 
-所以 TinaIDE 当前在 `llvm/lib/Support/Unix/Path.inc` 里检测 `linker/linker64`，并回退到 `argv0` 的真实路径。
+所以 MobileIDE 当前在 `llvm/lib/Support/Unix/Path.inc` 里检测 `linker/linker64`，并回退到 `argv0` 的真实路径。
 
 Termux 也修这个问题，只是它依赖 `termux-exec` 设置 `TERMUX_EXEC__PROC_SELF_EXE`。
 
-### 原因三：TinaIDE 不能完全依赖 LD_PRELOAD
+### 原因三：MobileIDE 不能完全依赖 LD_PRELOAD
 
-从架构上看，TinaIDE 也有类似 Termux 的 `tina-exec`：
+从架构上看，MobileIDE 也有类似 Termux 的 `mobile-exec`：
 
 ```text
-tina-exec
+mobile-exec
   └── 基于 termux-exec 思路，拦截 execve / execv / execvp / fexecve 等
 ```
 
-但 TinaIDE 在 CMake configure、try_compile、Ninja build 等链路里存在主动禁用 preload 的情况，原因是 `LD_PRELOAD` 会影响系统 shell、CMake 探测、try_compile 和 wrapper 链路。
+但 MobileIDE 在 CMake configure、try_compile、Ninja build 等链路里存在主动禁用 preload 的情况，原因是 `LD_PRELOAD` 会影响系统 shell、CMake 探测、try_compile 和 wrapper 链路。
 
-因此只靠 `tina-exec` 不够稳定。LLVM 源码级补丁目前仍是必要兜底。
+因此只靠 `mobile-exec` 不够稳定。LLVM 源码级补丁目前仍是必要兜底。
 
-## 当前 TinaIDE 方案的主要问题
+## 当前 MobileIDE 方案的主要问题
 
 ### P0：执行策略分散，容易出现双重包装或漏包装
 
@@ -186,7 +186,7 @@ tina-exec
 
 - `ToolchainLinker64ShimManager` 生成 shell shim
 - `NativeExecutableRunner` 顶层 linker64 启动
-- `tina-exec` LD_PRELOAD 拦截
+- `mobile-exec` LD_PRELOAD 拦截
 - LLVM `Program.inc` 内部 execwrap
 - CMake 源码级 exec patch
 - Ninja 文件路径 patch
@@ -211,10 +211,10 @@ tina-exec
 当前已将 LLVM 补丁里的默认值改为：
 
 ```text
-TINAIDE_LLVM_EXEC_TRACE_DEFAULT 0
+MOBILEIDE_LLVM_EXEC_TRACE_DEFAULT 0
 ```
 
-并由 App 侧默认注入 `TINAIDE_LLVM_EXEC_TRACE=0`。该问题的剩余风险是后续新增补丁或实验包回退为默认开启。
+并由 App 侧默认注入 `MOBILEIDE_LLVM_EXEC_TRACE=0`。该问题的剩余风险是后续新增补丁或实验包回退为默认开启。
 
 风险：
 
@@ -227,11 +227,11 @@ TINAIDE_LLVM_EXEC_TRACE_DEFAULT 0
 
 - Release 包默认设为 `0`。
 - 仅在诊断模式或环境变量显式开启时输出。
-- 把 trace 前缀统一为可过滤格式，例如 `[TinaIDE:toolchain-trace]`。
+- 把 trace 前缀统一为可过滤格式，例如 `[MobileIDE:toolchain-trace]`。
 
 ### P0：Path.inc 修复依赖 argv0，仍存在边界风险
 
-当前 TinaIDE pathfix 在检测到 `/proc/self/exe` 是 linker/linker64 后，回退解析 `argv0`。
+当前 MobileIDE pathfix 在检测到 `/proc/self/exe` 是 linker/linker64 后，回退解析 `argv0`。
 
 风险：
 
@@ -241,13 +241,13 @@ TINAIDE_LLVM_EXEC_TRACE_DEFAULT 0
 
 建议：
 
-- 借鉴 Termux，增加 TinaIDE 自己的真实路径环境变量，例如：
+- 借鉴 Termux，增加 MobileIDE 自己的真实路径环境变量，例如：
 
 ```text
-TINA_EXEC__PROC_SELF_EXE
+MOBILE_EXEC__PROC_SELF_EXE
 ```
 
-- shell shim 和 tina-exec 都统一设置该变量。
+- shell shim 和 mobile-exec 都统一设置该变量。
 - LLVM `Path.inc` 优先读取该变量，再回退 `argv0`。
 
 ### P1：CMake 链路补丁和外部 patcher 重叠
@@ -291,7 +291,7 @@ arm64 只保留 `patched` v0.2.4，x86_64 仍是单包资产。
 `build-and-package-android-toolchain.sh` 同时负责：
 
 - 拉取 LLVM 源码
-- 应用 TinaIDE patch
+- 应用 MobileIDE patch
 - 构建 host tblgen
 - 交叉构建 Android-hosted LLVM
 - stage 二进制
@@ -324,7 +324,7 @@ arm64 只保留 `patched` v0.2.4，x86_64 仍是单包资产。
 
 风险：
 
-- 用户把“Linux 环境 toolchain”和“TinaIDE native toolchain”混为一谈。
+- 用户把“Linux 环境 toolchain”和“MobileIDE native toolchain”混为一谈。
 - 某些错误提示可能没有说明当前处于 native 还是 PRoot 路径。
 
 建议：
@@ -340,10 +340,10 @@ arm64 只保留 `patched` v0.2.4，x86_64 仍是单包资产。
 
 落地状态（2026-04-27）：
 
-- 已将 LLVM `Path.inc` / `Program.inc` 补丁中的 `TINAIDE_LLVM_EXEC_TRACE_DEFAULT` 从 `1` 改为 `0`。
-- 已让 `NativeExecutableRunner.configureEnvironment` 默认注入 `TINAIDE_LLVM_EXEC_TRACE=0`，但保留诊断场景显式覆盖。
-- 已让 shell shim 导出 `TINA_EXEC__PROC_SELF_EXE=$REAL_BIN`，供 LLVM 自定位优先使用。
-- 已让 LLVM `Path.inc` patch 优先读取 `TINA_EXEC__PROC_SELF_EXE`，再回退 `argv0`。
+- 已将 LLVM `Path.inc` / `Program.inc` 补丁中的 `MOBILEIDE_LLVM_EXEC_TRACE_DEFAULT` 从 `1` 改为 `0`。
+- 已让 `NativeExecutableRunner.configureEnvironment` 默认注入 `MOBILEIDE_LLVM_EXEC_TRACE=0`，但保留诊断场景显式覆盖。
+- 已让 shell shim 导出 `MOBILE_EXEC__PROC_SELF_EXE=$REAL_BIN`，供 LLVM 自定位优先使用。
+- 已让 LLVM `Path.inc` patch 优先读取 `MOBILE_EXEC__PROC_SELF_EXE`，再回退 `argv0`。
 - 已为 App 侧和 LLVM patch 侧补充 linker64 幂等判断，避免明显的重复包装。
 
 建议任务：
@@ -354,7 +354,7 @@ arm64 只保留 `patched` v0.2.4，x86_64 仍是单包资产。
 
 验收标准：
 
-- 普通编译日志不出现 TinaIDE trace。
+- 普通编译日志不出现 MobileIDE trace。
 - Android 10+ 可以稳定执行 clang、clang++、ld.lld。
 - `clang -print-resource-dir` 指向工具链内资源目录。
 - `clang++ hello.cpp` 可以生成并运行 Android ELF。
@@ -385,7 +385,7 @@ arm64 只保留 `patched` v0.2.4，x86_64 仍是单包资产。
 ```text
 场景                         主策略              fallback
 App 顶层运行工具              shell shim/linker64  NativeExecutableRunner
-LLVM 内部子进程               Program.inc patch    tina-exec
+LLVM 内部子进程               Program.inc patch    mobile-exec
 CMake configure              shim launcher        cache hints
 Ninja build                  PATH shim            Ninja patcher
 PRoot 内部 Linux 工具         PRoot guest env      无
@@ -399,12 +399,12 @@ PRoot 内部 Linux 工具         PRoot guest env      无
 - `scripts/build-and-package-android-toolchain.sh`
 - `tools/toolchain-patches/llvm-android-linker-pathfix.patch`
 - `tools/toolchain-patches/llvm-android-linker-execwrap.patch`
-- `core/compile/src/main/java/com/wuxianggujun/tinaide/core/compile/toolchain/ToolchainLinker64ShimManager.kt`
-- `core/compile/src/main/java/com/wuxianggujun/tinaide/core/compile/cmake/NativeCMakeBuildExecutor.kt`
-- `core/compile/src/main/java/com/wuxianggujun/tinaide/core/compile/NativeMakeBuildStrategy.kt`
-- `core/proot/src/main/java/com/wuxianggujun/tinaide/core/proot/PRootManager.kt`
-- `external/tina-exec/runtime/src/main/cpp/entrypoints/TinaExecDirectLdPreloadEntryPoint.c`
-- `external/tina-exec/runtime/src/main/cpp/entrypoints/TinaExecLinkerLdPreloadEntryPoint.c`
+- `core/compile/src/main/java/com/scto/mobileide/core/compile/toolchain/ToolchainLinker64ShimManager.kt`
+- `core/compile/src/main/java/com/scto/mobileide/core/compile/cmake/NativeCMakeBuildExecutor.kt`
+- `core/compile/src/main/java/com/scto/mobileide/core/compile/NativeMakeBuildStrategy.kt`
+- `core/proot/src/main/java/com/scto/mobileide/core/proot/PRootManager.kt`
+- `external/mobile-exec/runtime/src/main/cpp/entrypoints/MobileExecDirectLdPreloadEntryPoint.c`
+- `external/mobile-exec/runtime/src/main/cpp/entrypoints/MobileExecLinkerLdPreloadEntryPoint.c`
 
 相关文档：
 
@@ -422,13 +422,13 @@ PRoot 内部 Linux 工具         PRoot guest env      无
 
 ## 最终判断
 
-TinaIDE 当前需要修改 LLVM 源码不是方向错误，而是由运行环境决定的工程取舍。
+MobileIDE 当前需要修改 LLVM 源码不是方向错误，而是由运行环境决定的工程取舍。
 
 Termux 的成功经验不能简单理解成“不要改 LLVM”，更准确地说是：
 
 ```text
 Termux = patched LLVM + termux-exec + 统一发行版环境
-TinaIDE = patched LLVM + linker64 shim + tina-exec 子集 + App 内置资产
+MobileIDE = patched LLVM + linker64 shim + mobile-exec 子集 + App 内置资产
 ```
 
 当前最大问题不是“改了 LLVM”，而是执行策略太分散。后续优化应优先收敛执行入口、降低默认日志噪声，并把真实二进制路径通过统一环境变量传给 LLVM。

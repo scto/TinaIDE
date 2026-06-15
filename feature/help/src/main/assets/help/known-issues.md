@@ -97,7 +97,7 @@
 
 - 设备型号
 - Android 版本
-- TinaIDE 版本
+- MobileIDE 版本
 - 复现步骤
 - 日志导出结果
 

@@ -1,6 +1,6 @@
 # 游戏引擎插件图形运行方案
 
-本文记录 TinaIDE 当前对游戏引擎插件的 SDL 图形运行支持。当前仅保留 SDL2/SDL3 运行链路，不再提供 TinaIDE 自研 GUI 头文件、绘制协议或非 SDL 图形宿主。
+本文记录 MobileIDE 当前对游戏引擎插件的 SDL 图形运行支持。当前仅保留 SDL2/SDL3 运行链路，不再提供 MobileIDE 自研 GUI 头文件、绘制协议或非 SDL 图形宿主。
 
 ## 目标体验
 
@@ -13,10 +13,10 @@
   ↓
 点击运行
   ↓
-TinaIDE 通过 SDL 运行时打开运行界面
+MobileIDE 通过 SDL 运行时打开运行界面
 ```
 
-Android 依赖库不能像桌面程序一样自行创建窗口。插件应提供项目模板、构建配置和运行配置，实际图形窗口由 TinaIDE 内置的 SDL 运行时承载。TinaIDE 不再暴露自研 GUI API 给插件或普通项目调用。
+Android 依赖库不能像桌面程序一样自行创建窗口。插件应提供项目模板、构建配置和运行配置，实际图形窗口由 MobileIDE 内置的 SDL 运行时承载。MobileIDE 不再暴露自研 GUI API 给插件或普通项目调用。
 
 ## 当前支持
 
@@ -61,8 +61,8 @@ friend-engine-sdl3.zip
 ├── CMakeLists.txt
 ├── src/main.cpp
 ├── assets/
-├── .tinaide/project.json
-└── .tinaide/run_configs.json
+├── .mobileide/project.json
+└── .mobileide/run_configs.json
 ```
 
 ## SDL 图形运行链路
@@ -77,14 +77,14 @@ friend-engine-sdl3.zip
 - `CompileUiEventObserver`
 - `SdlLauncher`
 
-运行前 TinaIDE 会检查构建产物：
+运行前 MobileIDE 会检查构建产物：
 
 1. 目标必须是可读的 `.so` 共享库。
 2. 共享库必须依赖 SDL2 或 SDL3。
 3. SDL 运行库必须能在已安装包目录中解析到。
 4. 项目同目录私有 `.so` 依赖会被 staging 到 app 私有目录后启动。
 
-如果 `.so` 未检测到 SDL 依赖，TinaIDE 会拒绝用 SDL 图形运行启动。普通原生可执行文件应切换到终端模式运行。
+如果 `.so` 未检测到 SDL 依赖，MobileIDE 会拒绝用 SDL 图形运行启动。普通原生可执行文件应切换到终端模式运行。
 
 ## CMake 模板要求
 
@@ -120,23 +120,23 @@ target_link_libraries(friend_engine_game PRIVATE SDL3::SDL3)
 }
 ```
 
-当 CMake 项目选择了 `OutputMode.SDL`，TinaIDE 会优先选择共享库目标。如果项目没有共享库目标，会提示用户改为 `add_library(... SHARED ...)` 或切换到终端模式。
+当 CMake 项目选择了 `OutputMode.SDL`，MobileIDE 会优先选择共享库目标。如果项目没有共享库目标，会提示用户改为 `add_library(... SHARED ...)` 或切换到终端模式。
 
 ## APK 导出
 
-SDL3 项目仍可走现有 APK 导出链路。插件模板可以内置 `.tinaide/project.json` 标记 SDL3 项目类型，从而复用现有 SDL3 模板和导出能力。
+SDL3 项目仍可走现有 APK 导出链路。插件模板可以内置 `.mobileide/project.json` 标记 SDL3 项目类型，从而复用现有 SDL3 模板和导出能力。
 
 当前建议：
 
 - 游戏引擎插件优先发布 SDL3/CMake 模板。
 - 引擎 runtime 以项目源码、预编译 `.so` 或模板内 CMake 配置形式交付。
-- 如果需要独立 Android Activity/View 或 AAR 依赖管理，应先扩展插件系统和 Android Gradle App 构建系统，而不是恢复 TinaIDE 自研 GUI 协议。
+- 如果需要独立 Android Activity/View 或 AAR 依赖管理，应先扩展插件系统和 Android Gradle App 构建系统，而不是恢复 MobileIDE 自研 GUI 协议。
 
 ## 不再支持
 
 以下能力已移除：
 
-- TinaIDE 自研 GUI 头文件。
+- MobileIDE 自研 GUI 头文件。
 - 非 SDL 图形头文件。
 - 通用 `.so` 图形宿主。
 - 通过自定义渲染回调输出帧缓冲的运行协议。

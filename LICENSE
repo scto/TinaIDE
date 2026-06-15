@@ -1,19 +1,19 @@
-# TinaIDE Open Source License
+# MobileIDE Open Source License
 
 Version 1.0, January 2025
 
-Copyright (c) 2025 wuxianggujun
+Copyright (c) 2025 Thomas Schmid
 
 ## Preamble
 
-This license applies to **TinaIDE version 1.0.0** source code only. This version is released as open source to contribute to the developer community. Future versions (1.1.0 and beyond) will be developed privately and will not be released under this license.
+This license applies to **MobileIDE version 1.0.0** source code only. This version is released as open source to contribute to the developer community. Future versions (1.1.0 and beyond) will be developed privately and will not be released under this license.
 
 ## Terms and Conditions
 
 ### 1. Definitions
 
-- **"Software"** refers to TinaIDE version 1.0.0 source code and associated documentation files.
-- **"Licensor"** refers to the copyright holder, wuxianggujun.
+- **"Software"** refers to MobileIDE version 1.0.0 source code and associated documentation files.
+- **"Licensor"** refers to the copyright holder, Thomas Schmid.
 - **"You"** refers to any individual or legal entity exercising permissions granted by this License.
 - **"Derivative Works"** refers to any work that is based on the Software and for which the editorial revisions, annotations, elaborations, or other modifications represent an original work of authorship.
 
@@ -33,7 +33,7 @@ d) **Distribute** - Redistribute copies of the original Software or your Derivat
 
 The above rights are granted provided that You meet the following conditions:
 
-a) **Attribution** - You must give appropriate credit to the original author (wuxianggujun), provide a link to this license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the Licensor endorses You or Your use.
+a) **Attribution** - You must give appropriate credit to the original author (Thomas Schmid), provide a link to this license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the Licensor endorses You or Your use.
 
 b) **License Notice** - You must include a copy of this License with every copy of the Software or Derivative Works that You distribute.
 
@@ -43,7 +43,7 @@ d) **No Trademark Rights** - This License does not grant permission to use the t
 
 ### 4. Scope Limitations
 
-This License applies **only** to TinaIDE version 1.0.0. Specifically:
+This License applies **only** to MobileIDE version 1.0.0. Specifically:
 
 a) **Version Limitation** - This License covers only the source code tagged or released as version 1.0.0. Any subsequent versions (1.1.0, 2.0.0, etc.) are NOT covered by this License and may be subject to different licensing terms or may not be publicly available.
 

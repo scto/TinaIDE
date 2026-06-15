@@ -8,7 +8,7 @@
         android:theme="@android:style/Theme.Black.NoTitleBar">
 
         <activity
-            android:name="com.tinaide.template.terminal.TemplateTerminalActivity"
+            android:name="com.mobileide.template.terminal.TemplateTerminalActivity"
             android:exported="true"
             android:configChanges="orientation|keyboardHidden|screenSize|screenLayout|smallestScreenSize"
             android:theme="@android:style/Theme.Black.NoTitleBar"

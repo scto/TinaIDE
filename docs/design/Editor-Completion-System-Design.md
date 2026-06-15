@@ -6,7 +6,7 @@
 
 ## 1. 背景与问题
 
-TinaIDE 的编辑器补全系统在日常使用中暴露了以下架构层面的问题：
+MobileIDE 的编辑器补全系统在日常使用中暴露了以下架构层面的问题：
 
 ### 1.1 当前架构的快速修复（2026-03-07 已落地）
 
@@ -279,7 +279,7 @@ class PlaceholderTracker(
 
 ```kotlin
 @Composable
-internal fun SnippetPlaceholderOverlay(session: TinaEditorSession) {
+internal fun SnippetPlaceholderOverlay(session: MobileEditorSession) {
     val snippetSession = session.state.activeSnippetSession ?: return
     // 遍历所有占位符，绘制背景高亮
     // 当前占位符：主题色 alpha 0.3
@@ -373,7 +373,7 @@ fun onPlaceholderEdited(editedPlaceholder: SnippetPlaceholderInfo, newText: Stri
 | `core/editor-lsp/.../CompletionProvider.kt` | `CompletionItem` 加 `snippetText`；`mergeCompletions` LSP 去重 |
 | `app/.../LspEditorManager.kt` | 提取原始 snippet 文本 |
 | `app/.../EditorContainerState.kt` | snippet 补全传递原始文本 |
-| `app/.../TinaCodeEditorPage.kt` | 映射加 `snippetText`、`isLsp` |
+| `app/.../MobileCodeEditorPage.kt` | 映射加 `snippetText`、`isLsp` |
 
 ### 7.2 目标架构需要新增/重构的文件
 
@@ -389,7 +389,7 @@ fun onPlaceholderEdited(editedPlaceholder: SnippetPlaceholderInfo, newText: Stri
 ## 8. 相关文档
 
 - [LSP-Snippet-Placeholder-Handling.md](LSP-Snippet-Placeholder-Handling.md) — snippet 占位符处理机制
-- [TinaEditor-Highlight-Pipeline-Review.md](TinaEditor-Highlight-Pipeline-Review.md) — 编辑器渲染 / 高亮链路现状
+- [MobileEditor-Highlight-Pipeline-Review.md](MobileEditor-Highlight-Pipeline-Review.md) — 编辑器渲染 / 高亮链路现状
 - [../架构概览.md](../架构概览.md) — 当前编辑器与语言服务的主入口
 
 ## 9. 更新日志

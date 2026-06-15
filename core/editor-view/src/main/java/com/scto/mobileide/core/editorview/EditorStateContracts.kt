@@ -1,0 +1,22 @@
+package com.scto.mobileide.core.editorview
+
+import com.scto.mobileide.core.textengine.TextBuffer
+
+interface EditorStateSnapshot {
+    val textBuffer: TextBuffer
+    var cursorOffset: Int
+    var selectionRange: OffsetRange?
+
+    fun moveCursorTo(offset: Int, clearSelection: Boolean = true)
+    fun selectRange(startOffset: Int, endOffset: Int)
+}
+
+interface EditorEditOperations {
+    fun insert(text: String)
+    fun backspace()
+    fun deleteForward()
+    fun replaceSelection(replacement: String): Boolean
+    fun replaceRange(startOffset: Int, endOffset: Int, replacement: String): Boolean
+    fun undo(): Boolean
+    fun redo(): Boolean
+}

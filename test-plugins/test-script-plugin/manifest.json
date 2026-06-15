@@ -1,9 +1,9 @@
 {
-  "id": "com.tinaide.test.script-tools",
+  "id": "com.mobileide.test.script-tools",
   "name": "Test Script Tools",
   "version": "1.0.0",
   "description": "A test Lua script plugin demonstrating editor and file operations",
-  "author": "TinaIDE Test",
+  "author": "MobileIDE Test",
   "type": "script",
   "main": "main.lua",
   "minAppVersion": "1.0.0",

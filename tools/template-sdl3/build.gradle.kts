@@ -8,11 +8,11 @@ val copySDLSources = tasks.register<Copy>("copySDLSources") {
 }
 
 android {
-    namespace = "com.tinaide.template.sdl3"
+    namespace = "com.mobileide.template.sdl3"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.tinaide.template.placeholder.padpadpadpadpad"
+        applicationId = "com.mobileide.template.placeholder.padpadpadpadpad"
         minSdk = 28
         targetSdk = 36
         versionCode = 1

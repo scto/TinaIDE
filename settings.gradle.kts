@@ -56,7 +56,7 @@ val shouldIncludeTreeSitterComposite =
 
 // 让 composite build 的 Android 工程也能找到 SDK（避免单独配置时失败）
 if (shouldIncludeTreeSitterComposite) {
-    ensureIncludedBuildLocalProperties(file("external/tina-android-tree-sitter"))
+    ensureIncludedBuildLocalProperties(file("external/mobile-android-tree-sitter"))
 }
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
@@ -113,9 +113,9 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.10.0"
 }
 
-// 包含本地的 tina-android-tree-sitter 项目，替换 Maven 依赖
+// 包含本地的 mobile-android-tree-sitter 项目，替换 Maven 依赖
 if (shouldIncludeTreeSitterComposite) {
-    includeBuild("external/tina-android-tree-sitter") {
+    includeBuild("external/mobile-android-tree-sitter") {
         dependencySubstitution {
             substitute(module("com.itsaky.androidide.treesitter:android-tree-sitter")).using(project(":android-tree-sitter"))
             substitute(module("com.itsaky.androidide.treesitter:tree-sitter-java")).using(project(":tree-sitter-java"))
@@ -131,7 +131,7 @@ if (shouldIncludeTreeSitterComposite) {
         }
     }
 } else {
-    logger.lifecycle("Skipping tina-android-tree-sitter included build for isolated local tests.")
+    logger.lifecycle("Skipping mobile-android-tree-sitter included build for isolated local tests.")
 }
 
 dependencyResolutionManagement {
@@ -169,7 +169,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "TinaIDE"
+rootProject.name = "MobileIDE"
 include(":app")
 
 // ===== 基础层 =====
@@ -226,12 +226,12 @@ project(":termux-terminal:terminal-emulator").projectDir = file("external/termux
 project(":termux-terminal:terminal-view").projectDir = file("external/termux-terminal/terminal-view")
 
 
-// Include Tina exec runtime modules (vendored from upstream termux-exec/core with local wrapping)
-include(":tina-exec:runtime")
-include(":tina-exec:integration")
-project(":tina-exec").projectDir = file("external/tina-exec")
-project(":tina-exec:runtime").projectDir = file("external/tina-exec/runtime")
-project(":tina-exec:integration").projectDir = file("external/tina-exec/integration")
+// Include Mobile exec runtime modules (vendored from upstream termux-exec/core with local wrapping)
+include(":mobile-exec:runtime")
+include(":mobile-exec:integration")
+project(":mobile-exec").projectDir = file("external/mobile-exec")
+project(":mobile-exec:runtime").projectDir = file("external/mobile-exec/runtime")
+project(":mobile-exec:integration").projectDir = file("external/mobile-exec/integration")
 
 // Include xCrash (local build with 16KB page alignment)
 include(":xcrash")

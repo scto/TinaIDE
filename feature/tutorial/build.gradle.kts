@@ -1,11 +1,11 @@
 plugins {
-    id("tina.android.library")
+    id("mobile.android.library")
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
 }
 
 android {
-    namespace = "com.wuxianggujun.tinaide.feature.tutorial"
+    namespace = "com.scto.mobileide.feature.tutorial"
     buildFeatures {
         compose = true
     }

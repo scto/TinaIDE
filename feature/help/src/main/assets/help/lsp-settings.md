@@ -273,7 +273,7 @@
 
 当前默认值分别是：
 
-- 模块：`tina-workspace`
+- 模块：`mobile-workspace`
 - 端口：`873`
 
 模块名当前还有限制：

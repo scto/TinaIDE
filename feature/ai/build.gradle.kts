@@ -1,11 +1,11 @@
 plugins {
-    id("tina.android.library")
+    id("mobile.android.library")
     alias(libs.plugins.kotlin.serialization)
     jacoco
 }
 
 android {
-    namespace = "com.wuxianggujun.tinaide.feature.ai"
+    namespace = "com.scto.mobileide.feature.ai"
 }
 
 dependencies {

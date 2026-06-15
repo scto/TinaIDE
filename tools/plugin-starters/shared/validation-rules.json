@@ -106,8 +106,8 @@
     "cmake",
     "make",
     "plugin",
-    "tina_plugin",
-    "tina-plugin",
-    "tinaplugin"
+    "mobile_plugin",
+    "mobile-plugin",
+    "mobileplugin"
   ]
 }

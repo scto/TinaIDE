@@ -16,7 +16,7 @@
 → 只看到插件项目模板
 → 创建插件项目
 → 点击运行完成校验、打包、热安装
-→ 点击打包生成 dist/<id>-<version>.tinaplug
+→ 点击打包生成 dist/<id>-<version>.mobileplug
 → 从文件安装可复用同一套预检规则
 ```
 
@@ -36,7 +36,7 @@
 4. 点击 `创建插件项目`。
 5. 预期：进入“新建插件项目”向导。
 6. 预期：向导只展示 `ProjectBuildSystem.PLUGIN` 模板。
-7. 预期：默认优先定位到 `plugin:tinaide.plugin.starters:config-basic`。
+7. 预期：默认优先定位到 `plugin:mobileide.plugin.starters:config-basic`。
 
 关键代码：
 
@@ -67,7 +67,7 @@
 2. 点击“创建插件项目”。
 3. 预期：进入“新建插件项目”向导。
 4. 预期：携带 `EXTRA_PREFER_PLUGIN_TEMPLATE=true`。
-5. 预期：携带 `EXTRA_INITIAL_TEMPLATE_ID=plugin:tinaide.plugin.starters:config-basic`。
+5. 预期：携带 `EXTRA_INITIAL_TEMPLATE_ID=plugin:mobileide.plugin.starters:config-basic`。
 
 关键代码：
 
@@ -91,24 +91,24 @@
 
 ### 3.1 有插件模板时
 
-1. 确保 `TinaIDE Plugin Starters` 已安装并启用。
+1. 确保 `MobileIDE Plugin Starters` 已安装并启用。
 2. 从插件教程快捷入口进入。
 3. 预期：标题显示“新建插件项目”。
 4. 预期：模板列表只包含插件模板：
-   - `Tina Config Plugin`
-   - `Tina Script Command Plugin (Beta)`
-   - `Tina Script Plugin (Beta)`
-   - `Tina LSP Plugin`
+   - `Mobile Config Plugin`
+   - `Mobile Script Command Plugin (Beta)`
+   - `Mobile Script Plugin (Beta)`
+   - `Mobile LSP Plugin`
 5. 预期：插件模板卡片显示“插件”标识。
 6. 预期：配置页隐藏 C++ 标准、NDK API 这类无关字段。
 7. 预期：配置页显示插件项目下一步提示。
 
 ### 3.2 没有插件模板时
 
-1. 禁用或移除 `TinaIDE Plugin Starters`。
+1. 禁用或移除 `MobileIDE Plugin Starters`。
 2. 从插件教程快捷入口进入。
 3. 预期：显示“暂无插件项目模板”。
-4. 预期：显示引导用户检查 `TinaIDE Plugin Starters` 的说明。
+4. 预期：显示引导用户检查 `MobileIDE Plugin Starters` 的说明。
 5. 预期：`下一步` 按钮禁用。
 6. 预期：不会回退到 C/C++ 默认模板。
 
@@ -142,7 +142,7 @@
 
 ### 4.2 项目元数据
 
-创建出的 `.tinaide/project.json` 应正确表达插件项目语义：
+创建出的 `.mobileide/project.json` 应正确表达插件项目语义：
 
 - `buildSystem` 应为插件语义，对应 `ProjectBuildSystem.PLUGIN`
 - 如果历史模板元数据不正确，`BuildSystemDetector` 应能通过根目录 `manifest.json` 纠正为 `BuildSystem.PLUGIN`
@@ -164,7 +164,7 @@ CompileActionsHelper
 → BuildSystem.PLUGIN
 → PluginProjectActions.install()
 → PluginDoctor.inspectDirectory()
-→ 打包 dist/<id>-<version>.tinaplug
+→ 打包 dist/<id>-<version>.mobileplug
 → PluginManager.install()
 ```
 
@@ -176,8 +176,8 @@ CompileActionsHelper
 ### 5.2 打包插件项目
 
 1. 点击顶部 `打包` 或构建动作。
-2. 预期：只生成 `.tinaplug`。
-3. 预期：输出路径为 `dist/<id>-<version>.tinaplug`。
+2. 预期：只生成 `.mobileplug`。
+3. 预期：输出路径为 `dist/<id>-<version>.mobileplug`。
 4. 预期：不调用 `PluginManager.install()`。
 5. 预期：最终包不包含开发辅助文件：
    - `README.md`
@@ -185,7 +185,7 @@ CompileActionsHelper
    - `pack.sh`
    - `validate.ps1`
    - `validate.sh`
-   - `.tinaide/`
+   - `.mobileide/`
    - `.git/`
    - `dist/`
 
@@ -202,7 +202,7 @@ CompileActionsHelper
 ## 6. 从文件安装验收
 
 1. 进入 `设置 → 插件 → 从文件安装插件`。
-2. 选择刚生成的 `.tinaplug`。
+2. 选择刚生成的 `.mobileplug`。
 3. 预期：安装前执行同源诊断。
 4. 预期：有 error 时阻止安装。
 5. 预期：只有 warning 时允许用户确认后继续。
@@ -236,7 +236,7 @@ CompileActionsHelper
 1. `contributions.commands` 声明同一个命令 ID。
 2. `contributions.menus` 引用同一个命令 ID。
 3. `permissions` 声明 `command.execute`。
-4. `main.lua` 在插件加载时调用 `tina.commands.register(...)` 注册同一个命令 ID。
+4. `main.lua` 在插件加载时调用 `mobile.commands.register(...)` 注册同一个命令 ID。
 5. 插件成功启用，并且运行时没有加载错误。
 
 ---
@@ -260,7 +260,7 @@ CompileActionsHelper
 
 优先检查：
 
-1. `TinaIDE Plugin Starters` 是否安装。
+1. `MobileIDE Plugin Starters` 是否安装。
 2. 插件是否启用。
 3. `manifest.json` 是否包含 `contributions.projectTemplates`。
 4. 每个模板 zip 是否存在。
@@ -270,7 +270,7 @@ CompileActionsHelper
 
 优先检查：
 
-1. `.tinaide/project.json` 是否表达插件项目。
+1. `.mobileide/project.json` 是否表达插件项目。
 2. 根目录 `manifest.json` 是否能被识别为插件 manifest。
 3. `BuildSystemDetector.detect(projectRoot)` 是否返回 `BuildSystem.PLUGIN`。
 4. `CompileProjectUseCase` 是否注入 `PluginProjectActions`。
@@ -299,7 +299,7 @@ CompileActionsHelper
   - 无插件模板时返回空列表。
   - 目标模板缺失时回退第一个插件模板。
 - `AndroidPluginProjectActionsTest`
-  - 构建生成 `.tinaplug`。
+  - 构建生成 `.mobileplug`。
   - 打包排除开发辅助文件。
   - 运行委托 `PluginManager.install()`。
 - `CompileProjectUseCasePluginProjectTest`
