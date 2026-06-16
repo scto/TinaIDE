@@ -60,6 +60,7 @@
 - 修复讯飞输入法在编辑器内触发“全选”只选中 ExtractedText 窗口的问题：`getExtractedText()` 继续只返回局部窗口，但 selection 坐标改为窗口相对坐标，并识别输入法对整个窗口的 `setSelection(0, window.length)` 操作为全文件全选。
 - 修复 ExtractedText 增量协议误报：窗口返回时 `partialStartOffset` / `partialEndOffset` 统一置为 `-1`，避免输入法把局部窗口当成增量 patch。
 - 修复编辑器 IME 删除逻辑的边界问题：删除前优先处理选区，并新增 code point 级删除，避免 emoji / surrogate pair 被删成半个字符。
+- 修复 LSP 补全项返回较早、用户继续输入后再选择补全时残留字符的问题：应用 LSP `textEdit` 前会按当前光标前缀扩展匹配范围，前缀不匹配或光标已离开原范围时拒绝旧补全，避免 `op` 选择 `operator` 后变成 `operatorp`。
 - 修复可取消下载没有真正取消底层网络请求的问题：可恢复下载器和插件市场 API 改为可取消执行，取消时保留临时文件以便后续续传，不再弹出误导性的失败提示。
 
 ### Documentation
@@ -69,6 +70,10 @@
 
 ### Verification
 - `./gradlew :core:editor-view:testDebugUnitTest --tests "com.wuxianggujun.tinaide.core.editorview.EditorInputConnectionUtilsTest" --tests "com.wuxianggujun.tinaide.core.editorview.EditorInputConnectionExtractedTextTest" --tests "com.wuxianggujun.tinaide.core.editorview.EditorInputConnectionEditTest" --console=plain`
+- `./gradlew :core:editor-view:testDebugUnitTest --tests "com.wuxianggujun.tinaide.core.editorview.EditorCompletionStateTest" --console=plain`
+- `./gradlew :core:editor-view:testDebugUnitTest --tests "com.wuxianggujun.tinaide.core.editorview.EditorPopupComposeSmokeTest" --tests "com.wuxianggujun.tinaide.core.editorview.PopupOverlaySharedAnchorIntegrationTest" --tests "com.wuxianggujun.tinaide.core.editorview.EditorOverlaysIntegrationTest" --console=plain`
+- `./gradlew :core:editor-view:testDebugUnitTest --tests "com.wuxianggujun.tinaide.core.editorview.EditorSnippetChoiceCompletionTest" --tests "com.wuxianggujun.tinaide.core.editorview.EditorCompletionStateTest" --console=plain`
+- `./gradlew :core:editor-view:testDebugUnitTest --console=plain`
 - `./gradlew :core:editor-view:compileDebugKotlin --console=plain`
 
 ## [0.18.4] - 2026-06-12

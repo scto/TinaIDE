@@ -356,19 +356,64 @@ internal fun editorRedo(state: EditorState): Boolean {
 }
 
 internal fun editorApplyCompletion(state: EditorState, item: EditorCompletionItem) {
-    val snippetText = item.snippetText
-    if (snippetText != null) {
-        applySnippetCompletion(state, item, snippetText)
-        return
-    }
-    val normalizedItem = if (item.textEdit != null) {
+    val itemWithPrimaryEdit = if (item.textEdit != null) {
         item
     } else {
         item.copy(textEdit = synthesizePrimaryCompletionEdit(state, item.insertText))
     }
+    val normalizedItem = itemWithPrimaryEdit.normalizeCompletionPrimaryEditForCurrentCursor(state)
+        ?: run {
+            state.dismissCompletion()
+            return
+        }
+    val snippetText = normalizedItem.snippetText
+    if (snippetText != null) {
+        applySnippetCompletion(state, normalizedItem, snippetText)
+        return
+    }
     if (!applyCompletionWithTextEdits(state, normalizedItem)) {
         state.dismissCompletion()
     }
+}
+
+private fun EditorCompletionItem.normalizeCompletionPrimaryEditForCurrentCursor(
+    state: EditorState
+): EditorCompletionItem? {
+    val edit = textEdit ?: return this
+    if (!isLsp) return this
+    val cursor = state.cursorPosition
+    if (edit.startLine != edit.endLine) return this
+    if (edit.endLine != cursor.line) return null
+
+    val lineText = state.textBuffer.getLine(cursor.line)
+    val startColumn = edit.startColumn.coerceIn(0, lineText.length)
+    val oldEndColumn = edit.endColumn.coerceIn(startColumn, lineText.length)
+    val cursorColumn = cursor.column.coerceIn(0, lineText.length)
+    if (cursorColumn < startColumn) return null
+
+    val currentPrefix = lineText.substring(startColumn, cursorColumn)
+    if (
+        currentPrefix.isNotEmpty() &&
+        !matchesCurrentCompletionPrefix(
+            prefix = currentPrefix,
+            caseSensitive = state.config.completionCaseSensitive
+        )
+    ) {
+        return null
+    }
+    if (cursorColumn <= oldEndColumn) return this
+
+    return copy(textEdit = edit.copy(endColumn = cursorColumn))
+}
+
+private fun EditorCompletionItem.matchesCurrentCompletionPrefix(
+    prefix: String,
+    caseSensitive: Boolean
+): Boolean {
+    val ignoreCase = !caseSensitive
+    return sequenceOf(label, filterText, insertText, textEdit?.newText, snippetText)
+        .filterNotNull()
+        .any { candidate -> candidate.startsWith(prefix, ignoreCase = ignoreCase) }
 }
 
 private fun applySnippetCompletion(
