@@ -366,6 +366,25 @@ class EditorContainerState(
     private var diagnosticsObserver: ((fileUri: String, diagnostics: List<Diagnostic>) -> Unit)? = null
     var pluginLspDependencyAlert by mutableStateOf<PluginLspDependencyAlert?>(null)
         private set
+    private val fileMutationCoordinator = EditorFileMutationCoordinator(
+        editorManager = editorManager,
+        tabManager = tabManager,
+        tabs = tabManager.tabs,
+        navigationBackStack = navigationBackStack,
+        navigationForwardStack = navigationForwardStack,
+        tabPaneMap = tabPaneMap,
+        mirroredTabIdsByPane = mirroredTabIdsByPane,
+        activeTabIdByPane = activeTabIdByPane,
+        codeEditorCallbacks = codeEditorCallbacks,
+        codeEditorRuntimesByTabId = codeEditorRuntimesByTabId,
+        lspStatusesByTabId = lspStatusesByTabId,
+        diagnosticsByFilePath = diagnosticsByFilePath,
+        isCodeEditableType = ::isCodeEditableType,
+        requestCloseTabAt = ::requestCloseTab,
+        releaseTinaLspForTab = ::releaseTinaLspForTab,
+        normalizeEditorPaneState = { normalizeEditorPaneState() },
+        persistSplitEditorState = ::persistSplitEditorState,
+    )
 
     init {
         // 注入 LspPluginManager 到 LspEditorManager
@@ -1239,63 +1258,9 @@ class EditorContainerState(
         return true
     }
 
-    internal fun closeTabsForDeletedPath(deletedPath: File): Int {
-        val targetPath = normalizeOpenTabLookupPath(deletedPath.absolutePath)
-            .trimEnd('/')
-        if (targetPath.isBlank()) return 0
+    internal fun closeTabsForDeletedPath(deletedPath: File): Int = fileMutationCoordinator.closeTabsForDeletedPath(deletedPath)
 
-        val targetPrefix = "$targetPath/"
-        val affectedTabs = tabs
-            .filter { tab ->
-                val tabPath = normalizeOpenTabLookupPath(tab.file.absolutePath)
-                tabPath == targetPath || tabPath.startsWith(targetPrefix)
-            }
-        if (affectedTabs.isEmpty()) return 0
-
-        val cleanTabIds = affectedTabs
-            .filterNot { it.isDirty }
-            .mapTo(linkedSetOf()) { it.id }
-        val closedTabs = tabManager.closeTabsByIds(cleanTabIds)
-        affectedTabs
-            .firstOrNull { it.isDirty && tabs.any { tab -> tab.id == it.id } }
-            ?.let { dirtyTab ->
-                val index = tabs.indexOfFirst { it.id == dirtyTab.id }
-                if (index >= 0) requestCloseTab(index)
-            }
-
-        normalizeEditorPaneState()
-        persistSplitEditorState()
-        return closedTabs.size
-    }
-
-    internal fun syncTabsForMovedPath(oldPath: File, newPath: File): Int {
-        runCatching {
-            editorManager.retargetOpenTabsForMovedPath(oldPath, newPath)
-        }.onFailure { error ->
-            Timber.tag("EditorContainerState").w(
-                error,
-                "Failed to retarget editor manager tabs: %s -> %s",
-                oldPath.absolutePath,
-                newPath.absolutePath
-            )
-        }
-
-        val retargetedTabs = tabManager.retargetTabsForMovedPath(oldPath, newPath)
-        if (retargetedTabs.isEmpty()) return 0
-
-        remapRetargetedTabIds(retargetedTabs)
-        retargetNavigationHistory(oldPath, newPath)
-        retargetedTabs.forEach { tab ->
-            diagnosticsByFilePath.remove(normalizeOpenTabLookupPath(tab.oldFile.absolutePath))
-            if (isCodeEditableType(tab.contentType)) {
-                releaseTinaLspForTab(tab.newId)
-            }
-        }
-
-        normalizeEditorPaneState()
-        persistSplitEditorState()
-        return retargetedTabs.size
-    }
+    internal fun syncTabsForMovedPath(oldPath: File, newPath: File): Int = fileMutationCoordinator.syncTabsForMovedPath(oldPath, newPath)
 
     fun openFileWithType(file: File, contentType: ContentType): Int {
         val existingTabIds = tabs.map { it.id }.toSet()
@@ -1968,76 +1933,6 @@ class EditorContainerState(
             if (previousIndex != tabIndex && previousIndex in tabs.indices) {
                 selectTab(previousIndex)
             }
-        }
-    }
-
-    private fun normalizeOpenTabLookupPath(path: String): String {
-        val normalized = path.replace('\\', '/')
-        return if (File.separatorChar == '\\') normalized.lowercase() else normalized
-    }
-
-    private fun remapRetargetedTabIds(retargetedTabs: List<EditorTabManager.RetargetedTab>) {
-        val idMap = retargetedTabs
-            .filter { it.oldId != it.newId }
-            .associate { it.oldId to it.newId }
-        if (idMap.isEmpty()) return
-
-        idMap.forEach { (oldId, newId) ->
-            tabPaneMap.remove(oldId)?.let { pane -> tabPaneMap[newId] = pane }
-            codeEditorCallbacks.remove(oldId)?.let { callback -> codeEditorCallbacks[newId] = callback }
-            codeEditorRuntimesByTabId.remove(oldId)?.let { runtime -> codeEditorRuntimesByTabId[newId] = runtime }
-            lspStatusesByTabId.remove(oldId)?.let { status -> lspStatusesByTabId[newId] = status }
-        }
-
-        mirroredTabIdsByPane.keys.toList().forEach { pane ->
-            val updated = mirroredTabIdsByPane[pane]
-                .orEmpty()
-                .mapTo(linkedSetOf()) { tabId -> idMap[tabId] ?: tabId }
-            if (updated.isEmpty()) {
-                mirroredTabIdsByPane.remove(pane)
-            } else {
-                mirroredTabIdsByPane[pane] = updated
-            }
-        }
-
-        activeTabIdByPane.keys.toList().forEach { pane ->
-            val activeTabId = activeTabIdByPane[pane] ?: return@forEach
-            idMap[activeTabId]?.let { activeTabIdByPane[pane] = it }
-        }
-    }
-
-    private fun retargetNavigationHistory(oldPath: File, newPath: File) {
-        retargetNavigationStack(navigationBackStack, oldPath, newPath)
-        retargetNavigationStack(navigationForwardStack, oldPath, newPath)
-    }
-
-    private fun retargetNavigationStack(
-        stack: SnapshotStateList<NavigationHistoryEntry>,
-        oldPath: File,
-        newPath: File
-    ) {
-        stack.indices.forEach { index ->
-            val entry = stack[index]
-            val retargetedFile = resolveMovedPathForOpenPath(entry.filePath, oldPath, newPath)
-                ?: return@forEach
-            stack[index] = entry.copy(filePath = retargetedFile.absolutePath)
-        }
-    }
-
-    private fun resolveMovedPathForOpenPath(openPath: String, oldPath: File, newPath: File): File? {
-        val oldNormalized = normalizeOpenTabLookupPath(oldPath.absolutePath).trimEnd('/')
-        if (oldNormalized.isBlank()) return null
-
-        val openNormalized = openPath.replace('\\', '/')
-        val compareOpen = normalizeOpenTabLookupPath(openPath)
-        val oldPrefix = "$oldNormalized/"
-        return when {
-            compareOpen == oldNormalized -> newPath
-            compareOpen.startsWith(oldPrefix) -> {
-                val suffix = openNormalized.substring(oldNormalized.length + 1)
-                File(newPath, suffix.replace('/', File.separatorChar))
-            }
-            else -> null
         }
     }
 

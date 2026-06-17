@@ -339,6 +339,18 @@ rg "deleteRecursively|\\.delete\\(|renameTo\\(" app feature core
 
 结果：`BUILD SUCCESSFUL`。
 
+- 已推进 P1-2 的第一步：拆分 `EditorContainerState` 中的文件变更响应职责。
+  - 新增 `EditorFileMutationCoordinator`，集中处理已打开 tab 对删除、移动、重命名路径的响应。
+  - `EditorContainerState` 保留 `closeTabsForDeletedPath` / `syncTabsForMovedPath` 对外 API，内部委托给协作者，降低状态类职责密度。
+  - 路径归一化能力抽为同包 `normalizeOpenTabLookupPath`，避免删除/移动响应与主状态类重复实现。
+  - 本步不调整 tab 生命周期、split editor 规则、LSP 路由接口和 UI 行为，只做职责边界拆分。
+- 本轮补充验证：
+```powershell
+.\gradlew :app:testArm64DebugUnitTest --tests "com.wuxianggujun.tinaide.ui.compose.state.editor.EditorContainerStateTest" --tests "com.wuxianggujun.tinaide.ai.integration.FileSystemCallbacksImplTest" --console=plain
+```
+
+结果：`BUILD SUCCESSFUL`。
+
 - 已推进 P1-1：主工作区装配参数分组。
   - 新增 `MainActivityContentViewModels`、`MainActivityContentServices`、`MainActivityContentBridges`、`MainActivityContentDelegates`、`MainActivityExternalFileActions` 作为纯参数对象。
   - `installMainActivityContent` 和 `MainActivityScreenHost` 改为按职责接收参数分组，降低顶层参数数量。
