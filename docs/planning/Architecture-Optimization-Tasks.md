@@ -339,6 +339,18 @@ rg "deleteRecursively|\\.delete\\(|renameTo\\(" app feature core
 
 结果：`BUILD SUCCESSFUL`。
 
+- 已推进 P1-2 的第二步：拆分 `EditorContainerState` 中的导航历史职责。
+  - 新增 `EditorNavigationHistoryManager`，集中维护 back/forward 栈、跳转去重、历史长度限制和前进/后退逻辑。
+  - `EditorContainerState` 只提供当前导航位置和打开目标位置两个回调，减少主状态类对导航栈细节的直接维护。
+  - 文件移动/重命名 retarget 仍通过 `EditorFileMutationCoordinator` 更新导航栈，保持跨职责协作路径清晰。
+  - 本步不改变导航 API、打开文件逻辑、光标跳转逻辑和 UI 行为。
+- 本轮补充验证：
+```powershell
+.\gradlew :app:testArm64DebugUnitTest --tests "com.wuxianggujun.tinaide.ui.compose.state.editor.EditorContainerStateTest" --tests "com.wuxianggujun.tinaide.ai.integration.FileSystemCallbacksImplTest" --console=plain
+```
+
+结果：`BUILD SUCCESSFUL`。
+
 - 已推进 P1-2 的第一步：拆分 `EditorContainerState` 中的文件变更响应职责。
   - 新增 `EditorFileMutationCoordinator`，集中处理已打开 tab 对删除、移动、重命名路径的响应。
   - `EditorContainerState` 保留 `closeTabsForDeletedPath` / `syncTabsForMovedPath` 对外 API，内部委托给协作者，降低状态类职责密度。

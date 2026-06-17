@@ -7,7 +7,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -355,9 +354,6 @@ class EditorContainerState(
     private var pendingSplitEditorSnapshot: SplitEditorStateSnapshot? = null
     private var restoredSplitEditorProjectPath: String? = null
     private var lastSplitEditorProjectPath: String? = null
-    private val navigationBackStack = mutableStateListOf<NavigationHistoryEntry>()
-    private val navigationForwardStack = mutableStateListOf<NavigationHistoryEntry>()
-    private val maxNavigationHistorySize = 100
     private var pendingSaveAllNotificationTargets: List<ActiveSaveTarget> = emptyList()
     private var pluginLspDependencyAlertSequence: Long = 0L
 
@@ -366,12 +362,23 @@ class EditorContainerState(
     private var diagnosticsObserver: ((fileUri: String, diagnostics: List<Diagnostic>) -> Unit)? = null
     var pluginLspDependencyAlert by mutableStateOf<PluginLspDependencyAlert?>(null)
         private set
+    private val navigationHistoryManager = EditorNavigationHistoryManager(
+        currentLocationProvider = ::snapshotActiveNavigationLocationOrNull,
+        openLocation = { target ->
+            val targetFile = File(target.filePath)
+            if (!targetFile.exists() || targetFile.isDirectory) {
+                false
+            } else {
+                openFileAndGoToPosition(targetFile, target.line, target.column, recordHistory = false)
+            }
+        }
+    )
     private val fileMutationCoordinator = EditorFileMutationCoordinator(
         editorManager = editorManager,
         tabManager = tabManager,
         tabs = tabManager.tabs,
-        navigationBackStack = navigationBackStack,
-        navigationForwardStack = navigationForwardStack,
+        navigationBackStack = navigationHistoryManager.backStack,
+        navigationForwardStack = navigationHistoryManager.forwardStack,
         tabPaneMap = tabPaneMap,
         mirroredTabIdsByPane = mirroredTabIdsByPane,
         activeTabIdByPane = activeTabIdByPane,
@@ -930,9 +937,9 @@ class EditorContainerState(
         is ActiveEditableEditorBindingResult.Available -> {
             val source = snapshotActiveNavigationLocationOrNull()
             if (activeEditor.callback.goToPosition(line, column)) {
-                recordNavigationTransition(
+                navigationHistoryManager.recordTransition(
                     source = source,
-                    target = navigationEntryOf(activeEditor.file, line, column)
+                    target = navigationHistoryManager.entryOf(activeEditor.file, line, column)
                 )
                 ActiveEditorCommandResult.SUCCESS
             } else {
@@ -982,75 +989,19 @@ class EditorContainerState(
         return true
     }
 
-    internal fun canNavigateBack(): Boolean = navigationBackStack.isNotEmpty()
+    internal fun canNavigateBack(): Boolean = navigationHistoryManager.canNavigateBack()
 
-    internal fun canNavigateForward(): Boolean = navigationForwardStack.isNotEmpty()
+    internal fun canNavigateForward(): Boolean = navigationHistoryManager.canNavigateForward()
 
-    internal fun navigateBack(): Boolean = navigateHistory(
-        sourceStack = navigationBackStack,
-        destinationStack = navigationForwardStack
-    )
+    internal fun navigateBack(): Boolean = navigationHistoryManager.navigateBack()
 
-    internal fun navigateForward(): Boolean = navigateHistory(
-        sourceStack = navigationForwardStack,
-        destinationStack = navigationBackStack
-    )
-
-    private fun navigateHistory(
-        sourceStack: SnapshotStateList<NavigationHistoryEntry>,
-        destinationStack: SnapshotStateList<NavigationHistoryEntry>
-    ): Boolean {
-        val current = snapshotActiveNavigationLocationOrNull() ?: return false
-        while (sourceStack.isNotEmpty()) {
-            val target = sourceStack.removeAt(sourceStack.lastIndex)
-            if (target.isSameNavigationLocation(current)) continue
-
-            val targetFile = File(target.filePath)
-            if (!targetFile.exists() || targetFile.isDirectory) continue
-
-            if (openFileAndGoToPosition(targetFile, target.line, target.column, recordHistory = false)) {
-                pushNavigationEntry(destinationStack, current)
-                return true
-            }
-        }
-        return false
-    }
+    internal fun navigateForward(): Boolean = navigationHistoryManager.navigateForward()
 
     private fun snapshotActiveNavigationLocationOrNull(): NavigationHistoryEntry? {
         val file = getActiveFileOrNull() ?: return null
         val cursor = getCursorPositionInActiveTab() ?: return null
-        return navigationEntryOf(file, cursor.line, cursor.column)
+        return navigationHistoryManager.entryOf(file, cursor.line, cursor.column)
     }
-
-    private fun navigationEntryOf(file: File, line: Int, column: Int): NavigationHistoryEntry = NavigationHistoryEntry(
-        filePath = file.absolutePath,
-        line = line.coerceAtLeast(0),
-        column = column.coerceAtLeast(0)
-    )
-
-    private fun recordNavigationTransition(
-        source: NavigationHistoryEntry?,
-        target: NavigationHistoryEntry
-    ) {
-        if (source == null || source.isSameNavigationLocation(target)) return
-        pushNavigationEntry(navigationBackStack, source)
-        navigationForwardStack.clear()
-    }
-
-    private fun pushNavigationEntry(
-        stack: SnapshotStateList<NavigationHistoryEntry>,
-        entry: NavigationHistoryEntry
-    ) {
-        if (stack.lastOrNull()?.isSameNavigationLocation(entry) == true) return
-        stack.add(entry)
-        while (stack.size > maxNavigationHistorySize) {
-            stack.removeAt(0)
-        }
-    }
-
-    private fun NavigationHistoryEntry.isSameNavigationLocation(other: NavigationHistoryEntry): Boolean = normalizeOpenTabLookupPath(filePath) == normalizeOpenTabLookupPath(other.filePath) &&
-        line == other.line &&
-        column == other.column
 
     internal fun snapshotActiveEditableEditorContent(): ActiveEditableEditorSnapshotResult = when (val activeEditor = resolveActiveEditableEditorBindingResult()) {
         ActiveEditableEditorBindingResult.NoOpenFile -> ActiveEditableEditorSnapshotResult.NoOpenFile
@@ -1232,9 +1183,9 @@ class EditorContainerState(
 
         val requested = requestNavigateToPositionInActiveTab(line, column)
         if (requested && recordHistory) {
-            recordNavigationTransition(
+            navigationHistoryManager.recordTransition(
                 source = source,
-                target = navigationEntryOf(openedTab.file, line, column)
+                target = navigationHistoryManager.entryOf(openedTab.file, line, column)
             )
         }
         return requested
@@ -2248,8 +2199,7 @@ class EditorContainerState(
         codeEditorCallbacks.clear()
         codeEditorRuntimesByTabId.values.forEach { it.disposeCodeEditorRuntime() }
         codeEditorRuntimesByTabId.clear()
-        navigationBackStack.clear()
-        navigationForwardStack.clear()
+        navigationHistoryManager.clear()
         diagnosticsByFilePath.clear()
     }
 
