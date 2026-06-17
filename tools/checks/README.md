@@ -2,6 +2,22 @@
 
 This directory contains lightweight repository checks for maintainers.
 
+## Run all stable checks
+
+Run:
+
+```powershell
+py tools/checks/check_all.py
+```
+
+By default, this only runs low-noise checks that are expected to pass locally.
+
+Optional i18n check:
+
+```powershell
+py tools/checks/check_all.py --include-i18n
+```
+
 ## Direct file operations
 
 Run:

@@ -339,6 +339,21 @@ rg "deleteRecursively|\\.delete\\(|renameTo\\(" app feature core
 
 结果：`BUILD SUCCESSFUL`。
 
+### 2026-06-17 补充：P2 第二步
+
+- 已推进 P2 的第二步：新增维护性检查总入口。
+  - 新增 `tools/checks/check_all.py`，串行运行稳定的维护性检查。
+  - 默认只运行低噪声的直接文件操作基线检查，保证本地收尾检查可稳定通过。
+  - `--include-i18n` 可选接入 `tools/i18n/check_all.py`，避免当前阶段把 i18n 检查强制并入默认入口。
+  - 更新 `tools/checks/README.md`，补充总入口命令和可选 i18n 参数。
+- 本轮补充验证：
+
+```powershell
+py tools/checks/check_all.py
+```
+
+结果：`OK: all maintenance checks passed.`
+
 ### 2026-06-17 补充：P2 第一步
 
 - 已推进 P2 的第一步：新增直接文件操作基线检查。
