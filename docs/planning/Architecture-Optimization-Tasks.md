@@ -339,6 +339,21 @@ rg "deleteRecursively|\\.delete\\(|renameTo\\(" app feature core
 
 结果：`BUILD SUCCESSFUL`。
 
+### 2026-06-17 补充：P1-2 第十步
+
+- 已推进 P1-2 的第十步：收口 DocumentSession/editor binding 桥接职责。
+  - 新增 `EditorDocumentSessionCoordinator`，集中封装 `IEditorManager.getSession(...)` / `getSessionState(...)` 相关转调。
+  - `EditorContainerState` 保留 toolbar state flow、last edit flow、session alert flow、editor binding、detached snapshot、cursor/scroll/content dirty 通知等对外入口，内部委托会话协调器。
+  - `notifyTabSelectionChanged(...)` 仍保留在 `EditorContainerState`，因为它依赖 tab 查找和插件 selection event 语义，不混入 session 桥接类。
+  - 本步不改变 DocumentSession 状态流、editor binding 生命周期、detached snapshot 恢复和插件 selection 事件策略。
+- 本轮补充验证：
+
+```powershell
+.\gradlew :app:testArm64DebugUnitTest --tests "com.wuxianggujun.tinaide.ui.compose.state.editor.EditorContainerStateTest" --console=plain
+```
+
+结果：`BUILD SUCCESSFUL`。
+
 ### 2026-06-17 补充：P1-2 第九步
 
 - 已推进 P1-2 的第九步：收口 Save All 成功通知追踪职责。

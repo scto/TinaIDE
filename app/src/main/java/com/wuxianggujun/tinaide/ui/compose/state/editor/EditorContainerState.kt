@@ -63,8 +63,6 @@ import java.io.File
 import java.net.URI
 import java.nio.charset.Charset
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import org.eclipse.lsp4j.WorkspaceEdit
 import org.koin.core.context.GlobalContext
 import timber.log.Timber
@@ -341,6 +339,10 @@ class EditorContainerState(
     private val searchStateManager = SearchStateManager()
     private val tabManager = EditorTabManager(context, editorManager)
     private val mainHandler = Handler(Looper.getMainLooper())
+    private val documentSessionCoordinator = EditorDocumentSessionCoordinator(
+        editorManager = editorManager,
+        activeTabProvider = { getActiveTab() },
+    )
     private val codeEditorCallbacks = mutableMapOf<String, CodeEditorCallback>()
     private val splitPaneState = EditorSplitPaneState()
     private val codeRuntimeCache = EditorCodeRuntimeCache(
@@ -1249,66 +1251,35 @@ class EditorContainerState(
             }
     }
 
-    internal fun getTabToolbarStateFlow(tabId: String): Flow<TabToolbarState>? = editorManager.getSessionState(tabId)
-        ?.map { docState ->
-            TabToolbarState(
-                isDirty = docState.isDirty,
-                canUndo = docState.canUndo,
-                canRedo = docState.canRedo,
-                charsetName = docState.charsetName
-            )
-        }
-        ?.distinctUntilChanged()
+    internal fun getTabToolbarStateFlow(tabId: String): Flow<TabToolbarState>? =
+        documentSessionCoordinator.getTabToolbarStateFlow(tabId)
 
-    internal fun getTabLastEditAtFlow(tabId: String): Flow<Long?>? = editorManager.getSessionState(tabId)
-        ?.map { it.lastEditAt }
-        ?.distinctUntilChanged()
+    internal fun getTabLastEditAtFlow(tabId: String): Flow<Long?>? =
+        documentSessionCoordinator.getTabLastEditAtFlow(tabId)
 
-    internal fun getActiveEditorSessionAlertFlow(): Flow<ActiveEditorSessionAlertState>? {
-        val activeTab = getActiveTab() ?: return null
-        return editorManager.getSessionState(activeTab.id)
-            ?.map { docState ->
-                ActiveEditorSessionAlertState(
-                    tabId = activeTab.id,
-                    file = activeTab.file,
-                    hasExternalModification = docState.hasExternalModification,
-                    lastError = docState.lastError
-                        ?.trim()
-                        ?.takeIf { it.isNotEmpty() }
-                )
-            }
-            ?.distinctUntilChanged()
-    }
-
-    private fun getSession(tabId: String): DocumentSession? = editorManager.getSession(tabId)
+    internal fun getActiveEditorSessionAlertFlow(): Flow<ActiveEditorSessionAlertState>? =
+        documentSessionCoordinator.getActiveEditorSessionAlertFlow()
 
     internal fun attachTabEditorBinding(tabId: String, binding: DocumentSession.EditorBinding) {
-        getSession(tabId)?.attachEditor(binding)
+        documentSessionCoordinator.attachEditorBinding(tabId, binding)
     }
 
     internal fun detachTabEditorBinding(tabId: String, binding: DocumentSession.EditorBinding) {
-        getSession(tabId)?.detachEditor(binding)
+        documentSessionCoordinator.detachEditorBinding(tabId, binding)
     }
 
     internal fun getTabDetachedEditorSnapshot(tabId: String): DetachedEditorSnapshot? =
-        getSession(tabId)?.detachedEditorSnapshot()
+        documentSessionCoordinator.getDetachedEditorSnapshot(tabId)
 
     internal fun markTabDetachedEditorSnapshotRestored(
         tabId: String,
         snapshot: DetachedEditorSnapshot
     ) {
-        getSession(tabId)?.markDetachedEditorSnapshotRestored(snapshot)
+        documentSessionCoordinator.markDetachedEditorSnapshotRestored(tabId, snapshot)
     }
 
     internal fun getTabEditorViewState(tabId: String): EditorViewState? =
-        getSession(tabId)?.state?.value?.let { state ->
-            EditorViewState(
-                cursorLine = state.cursorLine,
-                cursorColumn = state.cursorColumn,
-                scrollX = state.scrollX,
-                scrollY = state.scrollY
-            )
-        }
+        documentSessionCoordinator.getEditorViewState(tabId)
 
     internal fun notifyTabEditorContentChanged(
         tabId: String,
@@ -1316,19 +1287,20 @@ class EditorContainerState(
         canRedo: Boolean,
         changeCausedByUndoManager: Boolean
     ) {
-        getSession(tabId)?.notifyEditorContentChanged(
+        documentSessionCoordinator.notifyEditorContentChanged(
+            tabId = tabId,
             canUndo = canUndo,
             canRedo = canRedo,
-            changeCausedByUndoManager = changeCausedByUndoManager
+            changeCausedByUndoManager = changeCausedByUndoManager,
         )
     }
 
     internal fun markTabEditorSnapshotClean(tabId: String, charset: Charset) {
-        getSession(tabId)?.markEditorSnapshotClean(charset)
+        documentSessionCoordinator.markEditorSnapshotClean(tabId, charset)
     }
 
     internal fun updateTabCursorPosition(tabId: String, line: Int, column: Int) {
-        getSession(tabId)?.updateCursorPosition(line, column)
+        documentSessionCoordinator.updateCursorPosition(tabId, line, column)
     }
 
     internal fun notifyTabSelectionChanged(tabId: String, selection: SelectionSnapshot?) {
@@ -1341,7 +1313,7 @@ class EditorContainerState(
     }
 
     internal fun updateTabScrollPosition(tabId: String, scrollX: Int, scrollY: Int) {
-        getSession(tabId)?.updateScrollPosition(scrollX, scrollY)
+        documentSessionCoordinator.updateScrollPosition(tabId, scrollX, scrollY)
     }
 
     fun createSplitEditorStateSnapshot(): SplitEditorStateSnapshot {
