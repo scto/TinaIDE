@@ -374,3 +374,17 @@ rg "deleteRecursively|\\.delete\\(|renameTo\\(" app feature core
 ```
 
 结果：`BUILD SUCCESSFUL`。
+
+### 2026-06-17 补充：P1-2 第三步
+
+- 已推进 P1-2 的第三步：拆分 split editor 会话持久化/恢复协调职责。
+  - 新增 `EditorSplitSessionCoordinator`，集中处理 project path 切换、pending snapshot、restore-once、无 tab 延迟恢复、保存/清理持久化。
+  - `EditorContainerState` 保留 split editor pane 分配、布局、镜像规则，只委托 persist/restore 会话流程，避免一次性大拆。
+  - 本步不改变 split editor UI 行为、tab 生命周期、文件 mutation 同步和 LSP 路由。
+- 本轮补充验证：
+
+```powershell
+.\gradlew :app:testArm64DebugUnitTest --tests "com.wuxianggujun.tinaide.ui.compose.state.editor.EditorContainerStateTest" --console=plain
+```
+
+结果：`BUILD SUCCESSFUL`。

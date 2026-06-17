@@ -343,7 +343,6 @@ class EditorContainerState(
     private val lspEditorManager = LspEditorManager()
     private val searchStateManager = SearchStateManager()
     private val tabManager = EditorTabManager(context, editorManager)
-    private val splitEditorSessionStorage = SplitEditorSessionStorage(context)
     private val mainHandler = Handler(Looper.getMainLooper())
     private val codeEditorCallbacks = mutableMapOf<String, CodeEditorCallback>()
     private val codeEditorRuntimesByTabId =
@@ -351,9 +350,6 @@ class EditorContainerState(
     private val tabPaneMap = mutableStateMapOf<String, EditorPaneId>()
     private val mirroredTabIdsByPane = mutableStateMapOf<EditorPaneId, Set<String>>()
     private val activeTabIdByPane = mutableStateMapOf<EditorPaneId, String>()
-    private var pendingSplitEditorSnapshot: SplitEditorStateSnapshot? = null
-    private var restoredSplitEditorProjectPath: String? = null
-    private var lastSplitEditorProjectPath: String? = null
     private var pendingSaveAllNotificationTargets: List<ActiveSaveTarget> = emptyList()
     private var pluginLspDependencyAlertSequence: Long = 0L
 
@@ -372,6 +368,15 @@ class EditorContainerState(
                 openFileAndGoToPosition(targetFile, target.line, target.column, recordHistory = false)
             }
         }
+    )
+    private val splitSessionCoordinator = EditorSplitSessionCoordinator(
+        storage = SplitEditorSessionStorage(context),
+        projectPathProvider = ::resolveSplitEditorSessionProjectPath,
+        hasTabs = { tabs.isNotEmpty() },
+        createSnapshot = ::createSplitEditorStateSnapshot,
+        restoreSnapshot = ::restoreSplitEditorStateSnapshot,
+        normalizePaneState = { normalizeEditorPaneState() },
+        clearInMemory = ::clearSplitEditorStateInMemory,
     )
     private val fileMutationCoordinator = EditorFileMutationCoordinator(
         editorManager = editorManager,
@@ -1557,35 +1562,11 @@ class EditorContainerState(
     }
 
     private fun persistSplitEditorState() {
-        val projectPath = resolveSplitEditorSessionProjectPath() ?: return
-        if (tabs.isEmpty()) {
-            splitEditorSessionStorage.clear(projectPath)
-            return
-        }
-        splitEditorSessionStorage.save(projectPath, createSplitEditorStateSnapshot())
+        splitSessionCoordinator.persist()
     }
 
     private fun restoreSplitEditorStateIfNeeded() {
-        val projectPath = resolveSplitEditorSessionProjectPath() ?: return
-        if (lastSplitEditorProjectPath != projectPath) {
-            lastSplitEditorProjectPath = projectPath
-            restoredSplitEditorProjectPath = null
-            pendingSplitEditorSnapshot = null
-            clearSplitEditorStateInMemory()
-        }
-
-        if (restoredSplitEditorProjectPath == projectPath) return
-        val snapshot = pendingSplitEditorSnapshot ?: splitEditorSessionStorage.load(projectPath)
-        pendingSplitEditorSnapshot = snapshot
-        if (tabs.isEmpty()) return
-
-        if (snapshot != null) {
-            restoreSplitEditorStateSnapshot(snapshot)
-        } else {
-            normalizeEditorPaneState()
-        }
-        restoredSplitEditorProjectPath = projectPath
-        pendingSplitEditorSnapshot = null
+        splitSessionCoordinator.restoreIfNeeded()
     }
 
     private fun clearSplitEditorStateInMemory() {
